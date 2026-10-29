@@ -24,13 +24,14 @@ npm run dev               # mở http://localhost:3000
 
 Các lệnh khác:
 
-| Lệnh                                              | Tác dụng                                   |
-| ------------------------------------------------- | ------------------------------------------ |
-| `npm run typecheck` / `npm run lint` / `npm test` | Kiểm tra kiểu, lint, unit test             |
-| `npm run build`                                   | Build ra thư mục `dist/`                   |
-| `npm run db:reset`                                | Tạo lại CSDL trên máy từ migrations + seed |
-| `npm run db:test`                                 | Chạy kiểm thử CSDL (pgTAP)                 |
-| `npm run db:types`                                | Sinh kiểu TypeScript từ CSDL               |
+| Lệnh                                              | Tác dụng                                                                                       |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `npm run typecheck` / `npm run lint` / `npm test` | Kiểm tra kiểu, lint, unit test                                                                 |
+| `npm run build`                                   | Build ra thư mục `dist/`                                                                       |
+| `npm run test:e2e`                                | Kiểm thử đầu-cuối bằng trình duyệt (Playwright; cần `npx playwright install chromium` lần đầu) |
+| `npm run db:reset`                                | Tạo lại CSDL trên máy từ migrations + seed                                                     |
+| `npm run db:test`                                 | Chạy kiểm thử CSDL (pgTAP)                                                                     |
+| `npm run db:types`                                | Sinh kiểu TypeScript từ CSDL                                                                   |
 
 ## Cài đặt cho trường
 
@@ -38,4 +39,4 @@ Hướng dẫn chi tiết (có ảnh) sẽ có ở Giai đoạn 9. Tóm tắt: t
 
 ## Bản quyền
 
-Thiết kế bởi MVK.
+Thiết kế bởi MVK. Phát hành theo [giấy phép MIT](LICENSE): được tự do sử dụng, sửa đổi và phân phối, với điều kiện giữ nguyên thông báo bản quyền. Mong các trường sử dụng giữ dòng ghi công "Thiết kế bởi MVK" ở chân trang.

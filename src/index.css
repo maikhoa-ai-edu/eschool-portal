@@ -29,3 +29,25 @@ body {
   color: var(--color-text);
   font-family: var(--font-sans);
 }
+
+/* Dòng tin chạy: hai bản sao nội dung nối tiếp nhau để chạy liền mạch */
+.marquee-track {
+  display: inline-flex;
+  animation: marquee 40s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}

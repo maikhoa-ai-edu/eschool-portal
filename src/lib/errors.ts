@@ -1,0 +1,30 @@
+/** Đổi thông báo lỗi (tiếng Anh) của Supabase sang câu tiếng Việt dễ hiểu. */
+const KNOWN_ERRORS: Array<[RegExp, string]> = [
+  [/invalid login credentials/i, 'Email hoặc mật khẩu không đúng.'],
+  [/email not confirmed/i, 'Email chưa được xác nhận. Vui lòng mở hộp thư và bấm vào liên kết xác nhận.'],
+  // CSDL từ chối đăng ký email chưa được mời (trigger handle_new_user)
+  [
+    /database error saving new user/i,
+    'Email này chưa được mời tham gia hệ thống. Hãy liên hệ quản trị viên.',
+  ],
+  [/user already registered/i, 'Email này đã có tài khoản. Hãy đăng nhập.'],
+  [/password should be at least/i, 'Mật khẩu quá ngắn.'],
+  [/rate limit|too many requests/i, 'Thao tác quá nhiều lần. Vui lòng thử lại sau ít phút.'],
+  [/failed to fetch|network/i, 'Không kết nối được máy chủ. Kiểm tra mạng và thử lại.'],
+  [/row-level security|permission denied|42501/i, 'Bạn không có quyền thực hiện thao tác này.'],
+  [/duplicate key value/i, 'Dữ liệu bị trùng (ví dụ đường dẫn đã tồn tại).'],
+]
+
+export function toVietnameseError(error: unknown): string {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === 'object' && error !== null && 'message' in error
+        ? String((error as { message: unknown }).message)
+        : String(error ?? '')
+
+  for (const [pattern, text] of KNOWN_ERRORS) {
+    if (pattern.test(message)) return text
+  }
+  return message || 'Đã xảy ra lỗi không xác định.'
+}

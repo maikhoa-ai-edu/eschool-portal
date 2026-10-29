@@ -32,7 +32,10 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
 - [x] Giai đoạn 0: khung dự án, cấu hình lúc chạy, migration `app_meta`, CI
 - [x] Giai đoạn 1: schema 0.2.0 (vai trò, lời mời, mã cài đặt, cấu hình, module, tin tức, thông báo,
       văn bản, trang, menu, media/album, Storage, nhật ký bằng trigger, bộ đếm truy cập), 62 kiểm thử pgTAP
-- [ ] Giai đoạn 2
+- [x] Giai đoạn 2: màu/logo/tên trường lấy từ CSDL (áp lúc chạy), layout công khai (thanh tiện ích, banner,
+      menu đa cấp từ CSDL, dòng tin chạy, chân trang có bộ đếm thật), đăng nhập, layout quản trị với menu
+      theo quyền & module, bảng điều khiển số liệu thật, kiểm thử E2E (Playwright, desktop + mobile)
+- [ ] Giai đoạn 3: trình cài đặt
 
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
 

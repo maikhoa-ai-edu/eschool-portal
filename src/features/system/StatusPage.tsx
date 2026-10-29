@@ -10,15 +10,14 @@ async function fetchSchemaVersion(): Promise<string> {
   return String(data)
 }
 
-/** Trang kiểm tra tạm thời của Giai đoạn 0; sẽ được thay bằng trang chủ thật. */
+/** Trạng thái kết nối & phiên bản; mở rộng thành trang kiểm tra hệ thống ở Giai đoạn 6. */
 export function StatusPage() {
   const configState = useConfigState()
   const schema = useQuery({ queryKey: ['schema-version'], queryFn: fetchSchemaVersion })
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-12">
+    <div className="max-w-2xl">
       <header className="mb-8">
-        <p className="text-sm font-semibold uppercase tracking-wide text-accent">eSchool Portal</p>
         <h1 className="text-2xl font-bold text-primary">Trạng thái hệ thống</h1>
       </header>
 
@@ -56,9 +55,7 @@ export function StatusPage() {
           </dd>
         </div>
       </dl>
-
-      <footer className="mt-12 text-center text-xs text-muted">Thiết kế bởi MVK</footer>
-    </main>
+    </div>
   )
 }
 
