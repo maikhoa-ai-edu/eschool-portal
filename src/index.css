@@ -1,0 +1,31 @@
+@import 'tailwindcss';
+
+/*
+ * Màu thương hiệu là biến CSS để mỗi trường đổi được lúc chạy
+ * (giá trị lưu trong CSDL, áp vào :root khi tải trang). Mặc định theo đặc tả 3.1.
+ */
+:root {
+  --brand-primary: #002b66;
+  --brand-primary-light: #003b8e;
+  --brand-accent: #d97706;
+}
+
+@theme inline {
+  --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
+  --color-primary: var(--brand-primary);
+  --color-primary-light: var(--brand-primary-light);
+  --color-accent: var(--brand-accent);
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-success: #15803d;
+  --color-danger: #b91c1c;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
