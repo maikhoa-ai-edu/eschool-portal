@@ -19,6 +19,8 @@ export default defineConfig({
   server: { port: 3000, strictPort: true },
   preview: { port: 3000 },
   test: {
+    // e2e/ là kiểm thử Playwright, chạy riêng bằng npm run test:e2e
+    include: ['src/**/*.test.{ts,tsx}'],
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
   },
