@@ -8,6 +8,13 @@ const KNOWN_ERRORS: Array<[RegExp, string]> = [
     'Email này chưa được mời tham gia hệ thống. Hãy liên hệ quản trị viên.',
   ],
   [/user already registered/i, 'Email này đã có tài khoản. Hãy đăng nhập.'],
+  [
+    /signups? not allowed/i,
+    'Project Supabase đang tắt đăng ký tài khoản (Authentication → Sign In / Providers).',
+  ],
+  [/email address .* is invalid/i, 'Địa chỉ email không hợp lệ.'],
+  [/invalid api key/i, 'Khóa anon không đúng hoặc không thuộc project này.'],
+  [/could not find the (function|table)/i, 'Cơ sở dữ liệu chưa được khởi tạo (chưa chạy install.sql).'],
   [/password should be at least/i, 'Mật khẩu quá ngắn.'],
   [/rate limit|too many requests/i, 'Thao tác quá nhiều lần. Vui lòng thử lại sau ít phút.'],
   [/failed to fetch|network/i, 'Không kết nối được máy chủ. Kiểm tra mạng và thử lại.'],

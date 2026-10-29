@@ -10,6 +10,11 @@ describe('toVietnameseError', () => {
     expect(toVietnameseError({ message: 'Database error saving new user' })).toMatch(/chưa được mời/)
   })
 
+  it('dịch lỗi của trình cài đặt', () => {
+    expect(toVietnameseError({ message: 'Signups not allowed for this instance' })).toMatch(/tắt đăng ký/)
+    expect(toVietnameseError({ message: 'Invalid API key' })).toMatch(/Khóa anon/)
+  })
+
   it('giữ nguyên thông báo đã là tiếng Việt từ CSDL', () => {
     expect(toVietnameseError({ message: 'Mã cài đặt không đúng' })).toBe('Mã cài đặt không đúng')
   })

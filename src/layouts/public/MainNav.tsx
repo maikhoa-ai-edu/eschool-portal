@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronDown, Menu, X } from 'lucide-react'
-import { fetchMenu, isExternalUrl, type MenuNode } from '@/features/site/menu'
+import { fetchMenu, hideDisabledModules, isExternalUrl, type MenuNode } from '@/features/site/menu'
+import { useSite } from '@/features/site/site-context'
 import { cn } from '@/lib/cn'
 
 function MenuLink({
@@ -93,7 +94,9 @@ export function MainNav() {
   // Menu chỉ mở trên trang đã bấm mở; chuyển trang là tự đóng (không cần effect)
   const [openPath, setOpenPath] = useState<string | null>(null)
   const open = openPath === location.pathname
-  const { data: nodes = [] } = useQuery({ queryKey: ['menu', 'main'], queryFn: () => fetchMenu('main') })
+  const { isModuleEnabled } = useSite()
+  const { data = [] } = useQuery({ queryKey: ['menu', 'main'], queryFn: () => fetchMenu('main') })
+  const nodes = hideDisabledModules(data, isModuleEnabled)
 
   return (
     <nav aria-label="Menu chính" className="sticky top-0 z-20 bg-primary shadow-md">

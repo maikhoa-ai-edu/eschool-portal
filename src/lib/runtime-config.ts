@@ -14,8 +14,11 @@ export const runtimeConfigSchema = z.object({
 
 export type RuntimeConfig = z.infer<typeof runtimeConfigSchema>
 
+/** install-draft: kết nối vừa nhập trong trình cài đặt, dùng tạm khi config.json chưa được lưu */
+export type ConfigSource = 'config.json' | 'env' | 'install-draft'
+
 export type ConfigState =
-  | { status: 'configured'; source: 'config.json' | 'env'; config: RuntimeConfig }
+  | { status: 'configured'; source: ConfigSource; config: RuntimeConfig }
   | { status: 'unconfigured'; reason: string }
 
 export const CONFIG_PATH = '/config.json'
@@ -35,6 +38,7 @@ async function fetchConfigFile(fetchImpl: typeof fetch): Promise<unknown> {
 export async function loadRuntimeConfig(
   env: Record<string, string | undefined> = import.meta.env,
   fetchImpl: typeof fetch = fetch,
+  draft: RuntimeConfig | null = null,
 ): Promise<ConfigState> {
   const fromFile = runtimeConfigSchema.safeParse(await fetchConfigFile(fetchImpl))
   if (fromFile.success) {
@@ -47,6 +51,11 @@ export async function loadRuntimeConfig(
   })
   if (fromEnv.success) {
     return { status: 'configured', source: 'env', config: fromEnv.data }
+  }
+
+  const fromDraft = runtimeConfigSchema.safeParse(draft)
+  if (fromDraft.success) {
+    return { status: 'configured', source: 'install-draft', config: fromDraft.data }
   }
 
   return { status: 'unconfigured', reason: `Không tìm thấy ${CONFIG_PATH} hợp lệ` }

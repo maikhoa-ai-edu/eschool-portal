@@ -18,6 +18,8 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
+      - name: Kiểm thử install.php (PHP có sẵn trên Ubuntu runner)
+        run: php -v && npm run test:php
       - run: npm run build
 
   database:

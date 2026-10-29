@@ -2,7 +2,7 @@
 
 Cổng thông tin điện tử dành cho trường phổ thông Việt Nam: tin tức, thông báo, văn bản, thư viện ảnh, trang giới thiệu và trang quản trị. Mỗi trường tự cài một bản riêng, dùng cơ sở dữ liệu riêng, tự chọn tên trường, logo, màu sắc và các module cần dùng.
 
-> Trạng thái: **đang phát triển (Giai đoạn 0)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
+> Trạng thái: **đang phát triển (xong Giai đoạn 3: trình cài đặt)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Kiến trúc tóm tắt
 
@@ -32,10 +32,26 @@ Các lệnh khác:
 | `npm run db:reset`                                | Tạo lại CSDL trên máy từ migrations + seed                                                     |
 | `npm run db:test`                                 | Chạy kiểm thử CSDL (pgTAP)                                                                     |
 | `npm run db:types`                                | Sinh kiểu TypeScript từ CSDL                                                                   |
+| `npm run build:install-sql`                       | Ghép migrations thành `dist/install.sql` (bản build cũng tự có file này)                       |
+| `npm run test:php`                                | Kiểm thử `install.php` (máy không cài PHP: đặt `PHP_DOCKER=1` để chạy qua Docker)              |
 
 ## Cài đặt cho trường
 
-Hướng dẫn chi tiết (có ảnh) sẽ có ở Giai đoạn 9. Tóm tắt: tạo project Supabase → tải bản phát hành `dist.zip` lên hosting (hoặc deploy từ GitHub lên Vercel) → mở website và làm theo trình cài đặt.
+Hướng dẫn chi tiết (có ảnh) sẽ có ở Giai đoạn 9. Tóm tắt:
+
+1. Tạo một project [Supabase](https://supabase.com/dashboard/new) (gói miễn phí là đủ).
+2. Đưa website lên hosting: giải nén bản phát hành vào thư mục web (cPanel, VibeHost: nhớ tải cả file ẩn `.htaccess`), hoặc deploy từ GitHub lên Vercel.
+3. Mở website: trình cài đặt hiện ra và hướng dẫn 9 bước (kết nối Supabase, chạy `install.sql` trong SQL Editor để lấy mã cài đặt, lưu cấu hình, tạo quản trị viên, thông tin trường, logo & màu sắc, chọn module).
+
+Cách lưu cấu hình kết nối theo từng loại hosting:
+
+| Hosting                | Cách lưu `config.json`                                                         |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| cPanel (có PHP)        | Trình cài đặt tự ghi qua `install.php`; ghi xong file này tự khóa và tự xóa    |
+| Vercel                 | Đặt biến môi trường `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` rồi Redeploy |
+| VibeHost, hosting khác | Tải `config.json` từ trình cài đặt rồi tải lên cùng thư mục với `index.html`   |
+
+Muốn cài lại trên cPanel: xóa `config.json` và `.eschool-install.lock` bằng File Manager.
 
 ## Bản quyền
 

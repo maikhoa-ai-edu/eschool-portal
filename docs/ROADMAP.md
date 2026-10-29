@@ -35,7 +35,13 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
 - [x] Giai đoạn 2: màu/logo/tên trường lấy từ CSDL (áp lúc chạy), layout công khai (thanh tiện ích, banner,
       menu đa cấp từ CSDL, dòng tin chạy, chân trang có bộ đếm thật), đăng nhập, layout quản trị với menu
       theo quyền & module, bảng điều khiển số liệu thật, kiểm thử E2E (Playwright, desktop + mobile)
-- [ ] Giai đoạn 3: trình cài đặt
+- [x] Giai đoạn 3: trình cài đặt 9 bước tại `/install` (bước hiện tại suy ra từ trạng thái thật nên tải lại
+      trang vẫn tiếp tục đúng chỗ), `install.sql` ghép tự động từ migrations (`npm run build:install-sql`, có
+      sẵn trong `dist/`), `install.php` cho cPanel (ghi config.json một lần, tự khóa + tự xóa), hướng dẫn
+      Vercel/VibeHost, bản nháp kết nối dùng tạm khi chưa lưu config.json, xử lý Supabase bắt xác nhận email,
+      cổng chặn dẫn về `/install` khi CSDL chưa cài xong, menu công khai ẩn module đã tắt. Schema 0.2.1 (sửa
+      lỗi `pg_safeupdate` ở `bootstrap_super_admin`/`complete_install`), 64 kiểm thử pgTAP, E2E cài đặt từ
+      bước 1 đến trang quản trị
 
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
 
@@ -56,5 +62,17 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
 - Bảng mới phải tự `GRANT` cho `anon`/`authenticated` (migration grants đã đóng quyền mặc định).
 - Đăng ký email chưa được mời bị CSDL từ chối; Supabase Auth trả "Database error saving new user"
   nên giao diện cần dịch thông báo này.
+- **Mọi UPDATE/DELETE trong hàm phải có WHERE**: Supabase bật `pg_safeupdate` cho yêu cầu qua API (kể cả hàm
+  security definer). pgTAP không chịu ràng buộc này nên có kiểm thử quét mã nguồn hàm
+  (`no_unqualified_writes_test.sql`); E2E gọi qua API thật.
+- Thứ tự ưu tiên cấu hình kết nối: `/config.json` → biến `VITE_*` (lúc build) → bản nháp của trình cài đặt
+  (localStorage, chỉ trình duyệt của người đang cài). Vercel dùng biến môi trường + Redeploy.
+- `install.php` chỉ ghi khi chưa có `config.json`/`.eschool-install.lock`, từ chối khóa service_role/secret.
+  Rủi ro còn lại: trong khoảng giữa lúc tải code lên và lúc cài, người lạ có thể ghi trước; khi đó xóa hai file
+  trên bằng File Manager rồi cài lại. Kiểm thử: `npm run test:php` (máy không có PHP: `PHP_DOCKER=1`).
+- E2E cài đặt chạy dev server thứ hai ở cổng 3001 không có cấu hình, dùng `pg` đưa CSDL seed về trạng thái chưa
+  cài (bỏ SUPER_ADMIN, đặt lại mã cài đặt) rồi khôi phục sau khi chạy; mọi test chạy tuần tự (`workers: 1`).
+- Dùng cùng một bản Supabase CLI cho `start` và `db reset` (`npx supabase` có thể khác bản cài trên máy): lệch bản
+  làm schema storage không khớp container, tải file lên báo lỗi 42P10.
 - Tài khoản demo khi chạy trên máy (mật khẩu `demo1234`): `superadmin@demo.local`, `admin@demo.local`,
   `editor@demo.local`.

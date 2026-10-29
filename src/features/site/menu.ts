@@ -1,3 +1,4 @@
+import type { ModuleKey } from './settings'
 import { getSupabase } from '@/lib/supabase'
 
 export interface MenuItem {
@@ -42,4 +43,32 @@ export async function fetchMenu(code: string): Promise<MenuNode[]> {
     .eq('is_active', true)
   if (error) throw error
   return buildMenuTree(data)
+}
+
+/** Đường dẫn công khai của từng module (khớp với router). */
+const MODULE_PATHS: Array<[ModuleKey, string]> = [
+  ['news', '/tin-tuc'],
+  ['announcements', '/thong-bao'],
+  ['documents', '/van-ban'],
+  ['albums', '/thu-vien-anh'],
+  ['pages', '/trang'],
+]
+
+function moduleOfUrl(url: string): ModuleKey | null {
+  const path = url.split(/[?#]/)[0]!
+  const hit = MODULE_PATHS.find(([, prefix]) => path === prefix || path.startsWith(prefix + '/'))
+  return hit?.[0] ?? null
+}
+
+/** Ẩn mục menu (kèm menu con) trỏ tới module đang tắt. */
+export function hideDisabledModules(
+  nodes: MenuNode[],
+  isModuleEnabled: (key: ModuleKey) => boolean,
+): MenuNode[] {
+  return nodes
+    .filter((n) => {
+      const key = isExternalUrl(n.url) ? null : moduleOfUrl(n.url)
+      return !key || isModuleEnabled(key)
+    })
+    .map((n) => ({ ...n, children: hideDisabledModules(n.children, isModuleEnabled) }))
 }

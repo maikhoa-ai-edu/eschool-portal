@@ -22,3 +22,8 @@ Options -Indexes
     Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
 </IfModule>
+
+# File khóa và file tạm của install.php không cần đọc từ trình duyệt
+<FilesMatch "^\.eschool-install\.lock$|\.tmp$">
+  Require all denied
+</FilesMatch>

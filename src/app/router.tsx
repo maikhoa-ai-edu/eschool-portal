@@ -4,6 +4,7 @@ import { RouteError } from '@/components/RouteError'
 import { ComingSoon } from '@/components/ComingSoon'
 import { FullPageSpinner } from '@/components/ui/Spinner'
 import { RequirePermission, RequireStaff } from '@/features/auth/guards'
+import { InstallGate } from '@/features/install/InstallGate'
 import { ModuleGate } from '@/features/site/ModuleGate'
 import { ADMIN_PLACEHOLDER_ROUTES } from '@/layouts/admin/admin-nav'
 
@@ -60,7 +61,7 @@ export function createAppRouter(configState: ConfigState) {
   // Chưa có cấu hình kết nối: mọi đường dẫn đều dẫn về trình cài đặt
   if (configState.status === 'unconfigured') {
     return createBrowserRouter([
-      { ...installRoute, errorElement: <RouteError /> },
+      { ...installRoute, errorElement: <RouteError />, hydrateFallbackElement: <FullPageSpinner /> },
       { path: '*', element: <Navigate to="/install" replace /> },
     ])
   }
@@ -73,55 +74,65 @@ export function createAppRouter(configState: ConfigState) {
       children: [
         installRoute,
         {
-          path: '/dang-nhap',
-          lazy: () => import('@/features/auth/LoginPage').then((m) => ({ Component: m.LoginPage })),
-        },
-        {
-          path: '/',
-          lazy: () => import('@/layouts/public/PublicLayout').then((m) => ({ Component: m.PublicLayout })),
+          // CSDL chưa cài xong thì mọi trang (trừ /install) dẫn về trình cài đặt
+          element: <InstallGate />,
           children: [
             {
-              index: true,
-              lazy: () => import('@/features/home/HomePage').then((m) => ({ Component: m.HomePage })),
+              path: '/dang-nhap',
+              lazy: () => import('@/features/auth/LoginPage').then((m) => ({ Component: m.LoginPage })),
             },
-            ...publicModuleRoutes,
             {
-              path: '*',
-              lazy: () => import('@/components/NotFound').then((m) => ({ Component: m.NotFound })),
-            },
-          ],
-        },
-        {
-          path: '/admin',
-          element: <RequireStaff />,
-          children: [
-            {
-              lazy: () => import('@/layouts/admin/AdminLayout').then((m) => ({ Component: m.AdminLayout })),
+              path: '/',
+              lazy: () =>
+                import('@/layouts/public/PublicLayout').then((m) => ({ Component: m.PublicLayout })),
               children: [
                 {
                   index: true,
-                  lazy: () =>
-                    import('@/features/admin/DashboardPage').then((m) => ({ Component: m.DashboardPage })),
+                  lazy: () => import('@/features/home/HomePage').then((m) => ({ Component: m.HomePage })),
                 },
-                {
-                  path: 'he-thong',
-                  lazy: () =>
-                    import('@/features/system/StatusPage').then((m) => ({ Component: m.StatusPage })),
-                },
-                // Các chức năng quản trị khác: giữ chỗ, đã chặn theo quyền
-                ...ADMIN_PLACEHOLDER_ROUTES.map((item) => ({
-                  path: item.to.replace('/admin/', '') + '/*',
-                  element: item.permission ? (
-                    <RequirePermission permission={item.permission}>
-                      <ComingSoon title={item.label} phase={item.phase ?? 4} />
-                    </RequirePermission>
-                  ) : (
-                    <ComingSoon title={item.label} phase={item.phase ?? 4} />
-                  ),
-                })),
+                ...publicModuleRoutes,
                 {
                   path: '*',
                   lazy: () => import('@/components/NotFound').then((m) => ({ Component: m.NotFound })),
+                },
+              ],
+            },
+            {
+              path: '/admin',
+              element: <RequireStaff />,
+              children: [
+                {
+                  lazy: () =>
+                    import('@/layouts/admin/AdminLayout').then((m) => ({ Component: m.AdminLayout })),
+                  children: [
+                    {
+                      index: true,
+                      lazy: () =>
+                        import('@/features/admin/DashboardPage').then((m) => ({
+                          Component: m.DashboardPage,
+                        })),
+                    },
+                    {
+                      path: 'he-thong',
+                      lazy: () =>
+                        import('@/features/system/StatusPage').then((m) => ({ Component: m.StatusPage })),
+                    },
+                    // Các chức năng quản trị khác: giữ chỗ, đã chặn theo quyền
+                    ...ADMIN_PLACEHOLDER_ROUTES.map((item) => ({
+                      path: item.to.replace('/admin/', '') + '/*',
+                      element: item.permission ? (
+                        <RequirePermission permission={item.permission}>
+                          <ComingSoon title={item.label} phase={item.phase ?? 4} />
+                        </RequirePermission>
+                      ) : (
+                        <ComingSoon title={item.label} phase={item.phase ?? 4} />
+                      ),
+                    })),
+                    {
+                      path: '*',
+                      lazy: () => import('@/components/NotFound').then((m) => ({ Component: m.NotFound })),
+                    },
+                  ],
                 },
               ],
             },

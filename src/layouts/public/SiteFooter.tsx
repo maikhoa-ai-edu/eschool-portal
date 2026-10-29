@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Mail, MapPin, Phone, UserRound } from 'lucide-react'
-import { fetchMenu, isExternalUrl } from '@/features/site/menu'
+import { fetchMenu, hideDisabledModules, isExternalUrl } from '@/features/site/menu'
 import { safeExternalUrl } from '@/features/site/settings'
 import { useSite } from '@/features/site/site-context'
 import { getSupabase } from '@/lib/supabase'
@@ -17,11 +17,12 @@ const numberFormat = new Intl.NumberFormat('vi-VN')
 const CURRENT_YEAR = new Date().getFullYear()
 
 export function SiteFooter() {
-  const { identity } = useSite()
-  const { data: quickLinks = [] } = useQuery({
+  const { identity, isModuleEnabled } = useSite()
+  const { data: footerMenu = [] } = useQuery({
     queryKey: ['menu', 'footer'],
     queryFn: () => fetchMenu('footer'),
   })
+  const quickLinks = hideDisabledModules(footerMenu, isModuleEnabled)
   const { data: visits } = useQuery({ queryKey: ['visit-stats'], queryFn: fetchVisitStats })
 
   const socials = [

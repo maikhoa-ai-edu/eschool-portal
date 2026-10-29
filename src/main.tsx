@@ -1,11 +1,12 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from '@/app/App'
+import { readDraftConnection } from '@/lib/install-draft'
 import { loadRuntimeConfig } from '@/lib/runtime-config'
 import { initSupabase } from '@/lib/supabase'
 import './index.css'
 
-const configState = await loadRuntimeConfig()
+const configState = await loadRuntimeConfig(import.meta.env, fetch, readDraftConnection())
 if (configState.status === 'configured') {
   initSupabase(configState.config)
 }
