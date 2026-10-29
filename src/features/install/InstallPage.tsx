@@ -5,10 +5,10 @@ const STEPS = [
   'Kết nối cơ sở dữ liệu Supabase',
   'Khởi tạo cơ sở dữ liệu (install.sql)',
   'Lưu cấu hình (config.json)',
+  'Tạo quản trị viên cấp cao (nhập mã cài đặt)',
   'Thông tin nhà trường',
   'Nhận diện: logo, màu sắc, khẩu hiệu',
   'Chọn module sử dụng',
-  'Tạo quản trị viên cấp cao',
   'Hoàn tất',
 ]
 

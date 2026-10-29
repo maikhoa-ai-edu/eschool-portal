@@ -30,4 +30,28 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
 ## Tiến độ
 
 - [x] Giai đoạn 0: khung dự án, cấu hình lúc chạy, migration `app_meta`, CI
-- [ ] Giai đoạn 1
+- [x] Giai đoạn 1: schema 0.2.0 (vai trò, lời mời, mã cài đặt, cấu hình, module, tin tức, thông báo,
+      văn bản, trang, menu, media/album, Storage, nhật ký bằng trigger, bộ đếm truy cập), 62 kiểm thử pgTAP
+- [ ] Giai đoạn 2
+
+## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
+
+Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã đăng nhập (mọi thao tác ghi đều qua RLS):
+
+1. Chào mừng & kiểm tra môi trường
+2. Kết nối Supabase (URL + anon key)
+3. Chạy `install.sql` trong SQL Editor; kết quả hiện **mã cài đặt**
+4. Lưu `config.json` (tự ghi qua `install.php` trên cPanel, hoặc tải về rồi upload)
+5. Tạo tài khoản + nhập mã cài đặt → trở thành Quản trị viên cấp cao (`bootstrap_super_admin`)
+6. Thông tin nhà trường
+7. Nhận diện: logo, màu sắc, khẩu hiệu
+8. Chọn module
+9. Hoàn tất (`complete_install`)
+
+## Ghi chú kỹ thuật
+
+- Bảng mới phải tự `GRANT` cho `anon`/`authenticated` (migration grants đã đóng quyền mặc định).
+- Đăng ký email chưa được mời bị CSDL từ chối; Supabase Auth trả "Database error saving new user"
+  nên giao diện cần dịch thông báo này.
+- Tài khoản demo khi chạy trên máy (mật khẩu `demo1234`): `superadmin@demo.local`, `admin@demo.local`,
+  `editor@demo.local`.
