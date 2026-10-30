@@ -35,6 +35,7 @@ export const setAccountActive = (id: string, isActive: boolean) => updateProfile
 export interface Invitation {
   id: string
   email: string
+  token: string
   role: string
   created_at: string
   expires_at: string
@@ -46,21 +47,26 @@ export async function fetchInvitations(): Promise<Invitation[]> {
   const { data, error } = await getSupabase()
     .from('invitations')
     .select(
-      'id, email, role, created_at, expires_at, accepted_at, inviter:profiles!invitations_invited_by_fkey(full_name)',
+      'id, email, token, role, created_at, expires_at, accepted_at, inviter:profiles!invitations_invited_by_fkey(full_name)',
     )
     .order('created_at', { ascending: false })
   if (error) throw error
   return data
 }
 
-export async function createInvitation(email: string, role: Role): Promise<void> {
-  const { error } = await getSupabase()
+export type InvitationTarget = Pick<Invitation, 'email' | 'token'>
+
+export async function createInvitation(email: string, role: Role): Promise<InvitationTarget> {
+  const { data, error } = await getSupabase()
     .from('invitations')
     .insert({ email: email.trim().toLowerCase(), role, invited_by: await requireUserId() })
+    .select('email, token')
+    .single()
   if (error?.code === '23505' && !error.message.includes('đã có tài khoản')) {
     throw new Error('Email này đang có lời mời chưa dùng. Hãy gia hạn hoặc thu hồi lời mời đó.')
   }
   if (error) throw error
+  return data
 }
 
 /** Chính sách RLS yêu cầu invited_by là người đang thao tác, nên người gia hạn nhận lời mời về mình. */
@@ -88,21 +94,25 @@ export function invitationState(
   return new Date(item.expires_at) > now ? 'open' : 'expired'
 }
 
-export function invitationLink(email: string, origin = window.location.origin): string {
-  return `${origin}/dang-ky?email=${encodeURIComponent(email)}`
+export function invitationLink({ email, token }: InvitationTarget, origin = window.location.origin): string {
+  return `${origin}/dang-ky?email=${encodeURIComponent(email)}&ma=${token}`
 }
 
 /** Website tĩnh không tự gửi được thư, nên soạn sẵn thư trong ứng dụng email của người mời. */
-export function invitationMailto(email: string, schoolName: string, origin = window.location.origin): string {
+export function invitationMailto(
+  target: InvitationTarget,
+  schoolName: string,
+  origin = window.location.origin,
+): string {
   const subject = `Lời mời tham gia quản trị website ${schoolName}`
   const body = [
     'Kính gửi thầy/cô,',
     '',
-    `Nhà trường mời thầy/cô tham gia quản trị website ${schoolName}. Vui lòng mở liên kết dưới đây và tạo tài khoản bằng đúng địa chỉ email này:`,
+    `Nhà trường mời thầy/cô tham gia quản trị website ${schoolName}. Vui lòng mở liên kết dưới đây để tạo tài khoản (liên kết dành riêng cho thầy/cô, xin không chuyển cho người khác):`,
     '',
-    invitationLink(email, origin),
+    invitationLink(target, origin),
     '',
     `Lời mời có hiệu lực trong ${INVITATION_DAYS} ngày.`,
   ].join('\n')
-  return `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+  return `mailto:${encodeURIComponent(target.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 }

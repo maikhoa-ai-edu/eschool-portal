@@ -32,6 +32,26 @@ export function screenshotPath(name: string, info: TestInfo): string {
   return `test-results/screens/${name}-${info.project.name}.png`
 }
 
+const MAIL_API = process.env.SUPABASE_MAIL_URL ?? 'http://127.0.0.1:54324'
+
+/** Liên kết trong thư mới nhất gửi tới email này (hộp thư giả Mailpit của Supabase cục bộ). */
+export async function latestEmailLink(email: string): Promise<string> {
+  await expect
+    .poll(async () => {
+      const res = await fetch(`${MAIL_API}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`)
+      return ((await res.json()) as { messages: unknown[] }).messages.length
+    })
+    .toBeGreaterThan(0)
+  const res = await fetch(`${MAIL_API}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`)
+  const { messages } = (await res.json()) as { messages: Array<{ ID: string }> }
+  const message = (await (await fetch(`${MAIL_API}/api/v1/message/${messages[0]!.ID}`)).json()) as {
+    Text: string
+  }
+  const link = /https?:\/\/\S+\/auth\/v1\/verify\S+/.exec(message.Text)?.[0]
+  if (!link) throw new Error(`Thư gửi ${email} không có liên kết`)
+  return link.replace(/\)$/, '').replaceAll('&amp;', '&')
+}
+
 /** Chuỗi duy nhất cho mỗi lần chạy để chạy lại nhiều lần không bị trùng dữ liệu. */
 export function uniqueSuffix(): string {
   return Date.now().toString(36)

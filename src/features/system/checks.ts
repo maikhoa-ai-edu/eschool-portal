@@ -36,9 +36,8 @@ export function checkAuthSettings(settings: AuthSettings): SystemCheck[] {
     settings.mailer_autoconfirm
       ? {
           label: 'Xác nhận email',
-          status: 'warning',
-          detail:
-            'Đang tắt: người biết một email được mời có thể đăng ký thay chủ email đó. Nên bật Confirm email khi chạy thật.',
+          status: 'info',
+          detail: 'Đang tắt: ai có liên kết mời tạo được tài khoản ngay, không cần mở hộp thư.',
         }
       : { label: 'Xác nhận email', status: 'ok', detail: 'Đang bật.' },
   ]

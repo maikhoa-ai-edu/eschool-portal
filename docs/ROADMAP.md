@@ -109,8 +109,10 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
   Ảnh lấy từ bản demo cũ (ảnh AI); hai ảnh album có chữ tên trường khác, nên thay khi có ảnh thật.
 - Zod 4: khóa không có trong JSON thì `z.unknown()` báo lỗi, phải thêm `.optional()` (đã gặp với `sections`).
 - **Lời mời không tự gửi thư**: website tĩnh chỉ có khóa anon, không gọi được API gửi thư mời của Supabase. Người mời
-  gửi liên kết `/dang-ky?email=...` qua email (nút soạn thư sẵn) hoặc Zalo. Liên kết không chứa bí mật; CSDL chỉ kiểm
-  tra email, nên khi chạy thật phải bật Confirm email (trang kiểm tra hệ thống cảnh báo nếu đang tắt).
+  gửi liên kết `/dang-ky?email=...&ma=...` qua email (nút soạn thư sẵn) hoặc Zalo. Mã bí mật (schema 0.6.0) đi qua
+  `raw_user_meta_data`; CSDL đòi đúng cả email lẫn mã, nên biết email thôi không đăng ký thay được.
+- Quên mật khẩu: `/quen-mat-khau` → thư Supabase → `/dat-lai-mat-khau`. Liên kết chỉ quay về đúng website khi Site URL
+  (Authentication → URL Configuration) trùng tên miền. Máy chủ thư miễn phí của Supabase chỉ gửi vài thư mỗi giờ.
 - Lời mời hết hạn vẫn giữ chỗ email (chỉ mục duy nhất), phải gia hạn hoặc thu hồi trước khi mời lại. Gia hạn đặt
   `invited_by` thành người thao tác vì chính sách RLS yêu cầu vậy.
 - Ô chọn có kiểm soát: đọc `e.target.value` ngay trong handler, không đọc trong closure chạy sau. Trong bảng cuộn ngang,

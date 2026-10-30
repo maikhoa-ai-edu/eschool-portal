@@ -15,16 +15,16 @@ describe('lời mời', () => {
     ).toBe('accepted')
   })
 
-  it('mã hóa email trong liên kết', () => {
-    expect(invitationLink('a+b@x.vn', 'https://truong.vn')).toBe(
-      'https://truong.vn/dang-ky?email=a%2Bb%40x.vn',
+  it('liên kết có email đã mã hóa và mã bí mật', () => {
+    expect(invitationLink({ email: 'a+b@x.vn', token: 'abc' }, 'https://truong.vn')).toBe(
+      'https://truong.vn/dang-ky?email=a%2Bb%40x.vn&ma=abc',
     )
   })
 
   it('thư soạn sẵn có liên kết mời', () => {
-    const mailto = invitationMailto('gv@x.vn', 'Trường A', 'https://truong.vn')
+    const mailto = invitationMailto({ email: 'gv@x.vn', token: 'abc' }, 'Trường A', 'https://truong.vn')
     expect(mailto.startsWith('mailto:gv%40x.vn?subject=')).toBe(true)
-    expect(decodeURIComponent(mailto)).toContain('https://truong.vn/dang-ky?email=gv%40x.vn')
+    expect(decodeURIComponent(mailto)).toContain('https://truong.vn/dang-ky?email=gv%40x.vn&ma=abc')
   })
 })
 
@@ -95,10 +95,10 @@ describe('kiểm tra hệ thống', () => {
     expect(checkSchemaVersion('0.4.0', '0.5.0').status).toBe('error')
   })
 
-  it('báo lỗi khi tắt đăng ký, cảnh báo khi tắt xác nhận email', () => {
+  it('báo lỗi khi tắt đăng ký, chỉ thông tin khi tắt xác nhận email', () => {
     const [signup, confirm] = checkAuthSettings({ disable_signup: true, mailer_autoconfirm: true })
     expect(signup?.status).toBe('error')
-    expect(confirm?.status).toBe('warning')
+    expect(confirm?.status).toBe('info')
   })
 
   it('hệ thống bình thường không có lỗi', () => {

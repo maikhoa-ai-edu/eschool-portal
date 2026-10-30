@@ -32,6 +32,7 @@ import {
   setAccountActive,
   type Account,
   type Invitation,
+  type InvitationTarget,
   type InvitationState,
 } from './api'
 
@@ -54,10 +55,10 @@ const STATE_BADGES: Record<InvitationState, { tone: BadgeTone; label: string }> 
   accepted: { tone: 'success', label: 'Đã nhận' },
 }
 
-function InviteLinkBox({ email }: { email: string }) {
+function InviteLinkBox({ target }: { target: InvitationTarget }) {
   const { identity } = useSite()
   const [copied, setCopied] = useState(false)
-  const link = invitationLink(email)
+  const link = invitationLink(target)
 
   const copy = async () => {
     await navigator.clipboard.writeText(link)
@@ -65,10 +66,10 @@ function InviteLinkBox({ email }: { email: string }) {
   }
 
   return (
-    <Alert tone="success" title={`Đã tạo lời mời cho ${email}`}>
+    <Alert tone="success" title={`Liên kết mời cho ${target.email}`}>
       <p>
-        Website không tự gửi thư. Hãy gửi liên kết này cho người được mời qua email hoặc Zalo; họ phải đăng ký
-        bằng đúng địa chỉ email trên.
+        Website không tự gửi thư. Hãy gửi riêng liên kết này cho đúng người được mời qua email hoặc Zalo; ai
+        có liên kết đều tạo được tài khoản với vai trò đã chọn.
       </p>
       <input
         readOnly
@@ -82,7 +83,7 @@ function InviteLinkBox({ email }: { email: string }) {
           {copied ? <Check className="h-4 w-4" aria-hidden /> : <Copy className="h-4 w-4" aria-hidden />}
           {copied ? 'Đã sao chép' : 'Sao chép liên kết'}
         </Button>
-        <a href={invitationMailto(email, identity.school_name)} className={buttonClasses('outline', 'sm')}>
+        <a href={invitationMailto(target, identity.school_name)} className={buttonClasses('outline', 'sm')}>
           <Mail className="h-4 w-4" aria-hidden /> Soạn thư
         </a>
       </div>
@@ -90,7 +91,7 @@ function InviteLinkBox({ email }: { email: string }) {
   )
 }
 
-function InviteForm({ onInvited }: { onInvited: (email: string) => void }) {
+function InviteForm({ onInvited }: { onInvited: (target: InvitationTarget) => void }) {
   const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
   const form = useForm<InviteValues>({
@@ -102,9 +103,9 @@ function InviteForm({ onInvited }: { onInvited: (email: string) => void }) {
   const onSubmit = form.handleSubmit(async ({ email, role }) => {
     setError(null)
     try {
-      await createInvitation(email, role)
+      const target = await createInvitation(email, role)
       await queryClient.invalidateQueries({ queryKey: INVITATIONS_KEY })
-      onInvited(email.trim().toLowerCase())
+      onInvited(target)
       form.reset()
     } catch (err) {
       setError(toVietnameseError(err))
@@ -132,7 +133,7 @@ function InviteForm({ onInvited }: { onInvited: (email: string) => void }) {
 
 function InvitationsTable({ items, onError }: { items: Invitation[]; onError: (message: string) => void }) {
   const queryClient = useQueryClient()
-  const [shownLink, setShownLink] = useState<string | null>(null)
+  const [shownLink, setShownLink] = useState<InvitationTarget | null>(null)
   const action = useMutation({
     mutationFn: (run: () => Promise<void>) => run(),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: INVITATIONS_KEY }),
@@ -141,7 +142,7 @@ function InvitationsTable({ items, onError }: { items: Invitation[]; onError: (m
 
   return (
     <>
-      {shownLink && <InviteLinkBox email={shownLink} />}
+      {shownLink && <InviteLinkBox key={shownLink.token} target={shownLink} />}
       <TableCard>
         <thead>
           <tr>
@@ -171,7 +172,7 @@ function InvitationsTable({ items, onError }: { items: Invitation[]; onError: (m
                   {state !== 'accepted' && (
                     <div className="flex justify-end gap-1.5 whitespace-nowrap">
                       {state === 'open' && (
-                        <Button size="sm" variant="ghost" onClick={() => setShownLink(item.email)}>
+                        <Button size="sm" variant="ghost" onClick={() => setShownLink(item)}>
                           <Copy className="h-4 w-4" aria-hidden /> Liên kết
                         </Button>
                       )}
@@ -307,7 +308,7 @@ function AccountsTable({ items, onError }: { items: Account[]; onError: (message
 }
 
 export function AccountsPage() {
-  const [invitedEmail, setInvitedEmail] = useState<string | null>(null)
+  const [invited, setInvited] = useState<InvitationTarget | null>(null)
   const [error, setError] = useState<string | null>(null)
   const accounts = useQuery({ queryKey: ACCOUNTS_KEY, queryFn: fetchAccounts })
   const invitations = useQuery({ queryKey: INVITATIONS_KEY, queryFn: fetchInvitations })
@@ -322,12 +323,12 @@ export function AccountsPage() {
 
       <Panel title="Mời thành viên">
         <InviteForm
-          onInvited={(email) => {
+          onInvited={(target) => {
             setError(null)
-            setInvitedEmail(email)
+            setInvited(target)
           }}
         />
-        {invitedEmail && <InviteLinkBox key={invitedEmail} email={invitedEmail} />}
+        {invited && <InviteLinkBox key={invited.token} target={invited} />}
       </Panel>
 
       <section className="space-y-3">

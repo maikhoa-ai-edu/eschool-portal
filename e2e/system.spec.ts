@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { sql } from './db.ts'
-import { login, otherMachine, PASSWORD, screenshotPath, uniqueSuffix } from './helpers.ts'
+import { latestEmailLink, login, otherMachine, PASSWORD, screenshotPath, uniqueSuffix } from './helpers.ts'
 
 /**
  * Giai đoạn 6: quản trị hệ thống. Nghiệm thu: mời giáo viên làm EDITOR, giáo viên đăng ký bằng email được mời
@@ -65,14 +65,19 @@ test.describe('Tài khoản & lời mời', () => {
   })
 
   test('email chưa được mời không đăng ký được', async ({ page }) => {
-    await page.goto('/dang-nhap')
-    await page.getByRole('link', { name: /Tạo tài khoản/ }).click()
-    await page.getByLabel('Email được mời').fill(`e2e-nguoila-${uniqueSuffix()}@demo.local`)
+    await page.goto(
+      `/dang-ky?email=e2e-nguoila-${uniqueSuffix()}%40demo.local&ma=00000000-0000-0000-0000-000000000000`,
+    )
     await page.getByLabel('Họ và tên').fill('Người lạ')
     await page.getByLabel('Mật khẩu', { exact: true }).fill(PASSWORD)
     await page.getByLabel('Nhập lại mật khẩu').fill(PASSWORD)
     await page.getByRole('button', { name: 'Tạo tài khoản' }).click()
-    await expect(page.getByRole('alert')).toContainText('chưa được mời')
+    await expect(page.getByRole('alert')).toContainText('Lời mời không hợp lệ')
+
+    // Không có mã thì không hiện biểu mẫu
+    await page.goto('/dang-ky?email=giaovien.toan%40demo.local')
+    await expect(page.getByText('Cần có liên kết mời')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Tạo tài khoản' })).toHaveCount(0)
   })
 
   test('đổi vai trò, gia hạn và thu hồi lời mời, chặn mời trùng', async ({ page }) => {
@@ -118,6 +123,55 @@ test.describe('Tài khoản & lời mời', () => {
           (await sql(`select role from public.profiles where email = 'giaovien.van@demo.local'`))[0]?.role,
       )
       .toBe('EDITOR')
+  })
+})
+
+test.describe('Quên mật khẩu', () => {
+  const email = `e2e-quenmatkhau-${uniqueSuffix()}@demo.local`
+
+  test('nhận thư, đặt mật khẩu mới rồi đăng nhập được', async ({ page, browser }, info) => {
+    await sql(
+      `insert into public.invitations (email, role, token, invited_by) values
+       ($1, 'EDITOR', '00000000-0000-0000-0000-00000000bbbb', '00000000-0000-0000-0000-0000000000a1')`,
+      [email],
+    )
+    await page.goto(`/dang-ky?email=${encodeURIComponent(email)}&ma=00000000-0000-0000-0000-00000000bbbb`)
+    await page.getByLabel('Họ và tên').fill('E2E Quên mật khẩu')
+    await page.getByLabel('Mật khẩu', { exact: true }).fill(PASSWORD)
+    await page.getByLabel('Nhập lại mật khẩu').fill(PASSWORD)
+    await page.getByRole('button', { name: 'Tạo tài khoản' }).click()
+    await expect(page.getByRole('heading', { name: 'Xin chào, E2E Quên mật khẩu' })).toBeVisible()
+
+    const guest = await otherMachine(browser, info)
+    await guest.goto('/dang-nhap')
+    await guest.getByRole('link', { name: 'Quên mật khẩu?' }).click()
+    await expect(guest.getByRole('heading', { name: 'Quên mật khẩu' })).toBeVisible()
+    await guest.getByLabel('Email').fill(email)
+    await guest.getByRole('button', { name: 'Gửi liên kết đặt lại mật khẩu' }).click()
+    await expect(guest.getByText('Đã xử lý yêu cầu')).toBeVisible()
+
+    await guest.goto(await latestEmailLink(email))
+    await expect(guest).toHaveURL(/\/dat-lai-mat-khau/)
+    await guest.getByLabel('Mật khẩu mới').fill('matkhaumoi123')
+    await guest.getByLabel('Nhập lại mật khẩu').fill('matkhaumoi123')
+    await guest.screenshot({ path: screenshotPath('reset-password', info) })
+    await guest.getByRole('button', { name: 'Lưu mật khẩu mới' }).click()
+    await expect(guest.getByRole('heading', { name: 'Xin chào, E2E Quên mật khẩu' })).toBeVisible()
+    await guest.context().close()
+
+    const fresh = await otherMachine(browser, info)
+    await fresh.goto('/dang-nhap')
+    await fresh.getByLabel('Email').fill(email)
+    await fresh.getByLabel('Mật khẩu').fill('matkhaumoi123')
+    await fresh.getByRole('button', { name: 'Đăng nhập' }).click()
+    await expect(fresh.getByRole('heading', { name: 'Xin chào, E2E Quên mật khẩu' })).toBeVisible()
+    await fresh.context().close()
+  })
+
+  test('liên kết không hợp lệ thì không cho đặt mật khẩu', async ({ page }) => {
+    await page.goto('/dat-lai-mat-khau')
+    await expect(page.getByText('Liên kết không hợp lệ hoặc đã hết hạn')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Lưu mật khẩu mới' })).toHaveCount(0)
   })
 })
 

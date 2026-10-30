@@ -5,7 +5,7 @@ const KNOWN_ERRORS: Array<[RegExp, string]> = [
   // CSDL từ chối đăng ký email chưa được mời (trigger handle_new_user)
   [
     /database error saving new user/i,
-    'Email này chưa được mời tham gia hệ thống hoặc lời mời đã hết hạn. Hãy liên hệ quản trị viên.',
+    'Lời mời không hợp lệ hoặc đã hết hạn. Hãy liên hệ quản trị viên để được mời lại.',
   ],
   [/user already registered/i, 'Email này đã có tài khoản. Hãy đăng nhập.'],
   [
@@ -16,6 +16,7 @@ const KNOWN_ERRORS: Array<[RegExp, string]> = [
   [/invalid api key/i, 'Khóa anon không đúng hoặc không thuộc project này.'],
   [/could not find the (function|table)/i, 'Cơ sở dữ liệu chưa được khởi tạo (chưa chạy install.sql).'],
   [/password should be at least/i, 'Mật khẩu quá ngắn.'],
+  [/new password should be different/i, 'Mật khẩu mới phải khác mật khẩu cũ.'],
   [/rate limit|too many requests/i, 'Thao tác quá nhiều lần. Vui lòng thử lại sau ít phút.'],
   [/failed to fetch|network/i, 'Không kết nối được máy chủ. Kiểm tra mạng và thử lại.'],
   [/row-level security|permission denied|42501/i, 'Bạn không có quyền thực hiện thao tác này.'],

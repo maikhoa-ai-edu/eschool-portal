@@ -14,8 +14,9 @@ nút không dùng được.
 ## Thêm giáo viên
 
 Quản trị viên cấp cao vào **Tài khoản**, nhập email + vai trò rồi bấm **Tạo lời mời**, sau đó gửi liên kết cho giáo viên
-qua email hoặc Zalo (website không tự gửi thư). Giáo viên mở liên kết và tạo tài khoản bằng đúng email đó trong 14 ngày.
-Khi chạy thật, hãy bật **Confirm email** trong Supabase để chỉ chủ email mới kích hoạt được tài khoản.
+qua email hoặc Zalo (website không tự gửi thư). Liên kết có mã bí mật, dùng được một lần trong 14 ngày, nên chỉ gửi riêng
+cho đúng người. Quên mật khẩu: bấm **Quên mật khẩu?** ở trang đăng nhập để nhận liên kết qua email; muốn liên kết quay về
+đúng website, đặt **Site URL** trong Supabase (Authentication → URL Configuration) bằng địa chỉ website.
 
 ## Kiến trúc tóm tắt
 

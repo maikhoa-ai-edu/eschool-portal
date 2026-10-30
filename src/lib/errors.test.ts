@@ -7,7 +7,7 @@ describe('toVietnameseError', () => {
   })
 
   it('dịch lỗi đăng ký email chưa được mời', () => {
-    expect(toVietnameseError({ message: 'Database error saving new user' })).toMatch(/chưa được mời/)
+    expect(toVietnameseError({ message: 'Database error saving new user' })).toMatch(/Lời mời không hợp lệ/)
   })
 
   it('dịch lỗi của trình cài đặt', () => {

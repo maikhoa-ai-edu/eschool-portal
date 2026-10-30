@@ -1,6 +1,6 @@
 -- Quản trị hệ thống: lời mời, đăng ký theo lời mời, khóa tài khoản, danh sách tài khoản, tình trạng hệ thống
 begin;
-select plan(24);
+select plan(27);
 
 -- ===================== LỜI MỜI =====================
 select tests.as_user('superadmin@demo.local');
@@ -35,9 +35,26 @@ select is((select count(*)::int from public.invitations where email = 'thuky@dem
 
 -- ===================== ĐĂNG KÝ =====================
 select tests.as_postgres();
+select throws_ok(
+  $$insert into auth.users (instance_id, id, aud, role, email)
+    values ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-0000000000f4', 'authenticated',
+      'authenticated', 'giaovien.moi@demo.local')$$,
+  '42501', null, 'Biết email được mời nhưng không có mã thì không đăng ký được');
+select throws_ok(
+  $$insert into auth.users (instance_id, id, aud, role, email, raw_user_meta_data)
+    values ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-0000000000f4', 'authenticated',
+      'authenticated', 'giaovien.moi@demo.local', '{"invite_token":"00000000-0000-0000-0000-000000000000"}')$$,
+  '42501', null, 'Mã sai không đăng ký được');
+select throws_ok(
+  format($f$insert into auth.users (instance_id, id, aud, role, email, raw_user_meta_data)
+    values ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-0000000000f4', 'authenticated',
+      'authenticated', 'nguoi.khac@demo.local', %L)$f$,
+    jsonb_build_object('invite_token', (select token from public.invitations where email = 'giaovien.moi@demo.local'))),
+  '42501', null, 'Mã của người khác không dùng được cho email khác');
 insert into auth.users (instance_id, id, aud, role, email, raw_user_meta_data)
-values ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-0000000000f1', 'authenticated', 'authenticated',
-  'giaovien.moi@demo.local', '{"full_name":"Giáo viên mới"}');
+select '00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-0000000000f1', 'authenticated', 'authenticated',
+  email, jsonb_build_object('full_name', 'Giáo viên mới', 'invite_token', token)
+from public.invitations where email = 'giaovien.moi@demo.local';
 select is((select role from public.profiles where email = 'giaovien.moi@demo.local'), 'EDITOR',
   'Đăng ký bằng email được mời thì nhận đúng vai trò');
 select isnt((select accepted_at from public.invitations where email = 'giaovien.moi@demo.local'), null,

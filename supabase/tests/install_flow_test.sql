@@ -30,10 +30,12 @@ select throws_ok(
     values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated', 'nguoila@example.com')$$,
   '42501', null, 'Email chưa được mời không đăng ký được');
 
-insert into public.invitations (email, role) values ('GiaoVien@Truong.edu.vn', 'EDITOR');
+insert into public.invitations (email, role, token)
+  values ('GiaoVien@Truong.edu.vn', 'EDITOR', '00000000-0000-0000-0000-00000000aaaa');
 select lives_ok(
-  $$insert into auth.users (instance_id, id, aud, role, email)
-    values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated', 'giaovien@truong.edu.vn')$$,
+  $$insert into auth.users (instance_id, id, aud, role, email, raw_user_meta_data)
+    values ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated', 'giaovien@truong.edu.vn',
+      '{"invite_token":"00000000-0000-0000-0000-00000000aaaa"}')$$,
   'Email được mời (không phân biệt hoa thường) đăng ký được');
 select is((select role from public.profiles where email = 'giaovien@truong.edu.vn'), 'EDITOR',
   'Vai trò được gán theo lời mời');
