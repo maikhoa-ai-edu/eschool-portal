@@ -10,20 +10,19 @@ export interface MenuItem {
   sort_order: number
 }
 
-export interface MenuNode extends MenuItem {
-  children: MenuNode[]
-}
+export type TreeNode<T> = T & { children: Array<TreeNode<T>> }
+export type MenuNode = TreeNode<MenuItem>
 
 /** Dựng cây menu từ danh sách phẳng; mục có cha không tồn tại được đưa lên cấp gốc. */
-export function buildMenuTree(items: MenuItem[]): MenuNode[] {
-  const nodes = new Map<string, MenuNode>(items.map((i) => [i.id, { ...i, children: [] }]))
-  const roots: MenuNode[] = []
+export function buildMenuTree<T extends MenuItem>(items: T[]): Array<TreeNode<T>> {
+  const nodes = new Map<string, TreeNode<T>>(items.map((i) => [i.id, { ...i, children: [] }]))
+  const roots: Array<TreeNode<T>> = []
   for (const node of nodes.values()) {
     const parent = node.parent_id ? nodes.get(node.parent_id) : undefined
     if (parent) parent.children.push(node)
     else roots.push(node)
   }
-  const sort = (list: MenuNode[]) => {
+  const sort = (list: Array<TreeNode<T>>) => {
     list.sort((a, b) => a.sort_order - b.sort_order || a.title.localeCompare(b.title, 'vi'))
     list.forEach((n) => sort(n.children))
   }

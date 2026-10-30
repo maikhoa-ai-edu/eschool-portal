@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { buttonClasses } from '@/components/ui/button-classes'
 import { useAuth } from '@/features/auth/auth-context'
 import { useSite } from '@/features/site/site-context'
+import { MODULE_KEYS } from '@/features/site/settings'
 import { toVietnameseError } from '@/lib/errors'
 import { clearInstallDraft } from '@/lib/install-draft'
 import type { ConfigSource, RuntimeConfig } from '@/lib/runtime-config'
@@ -74,9 +75,10 @@ export function FinishStep({
     }
   }
 
-  const enabledModules = Object.entries(site.modules)
-    .filter(([, on]) => on)
-    .map(([key]) => MODULE_INFO[key]?.label ?? key)
+  // Theo thứ tự cố định của MODULE_KEYS, không theo thứ tự dòng trả về từ CSDL
+  const enabledModules = MODULE_KEYS.filter((key) => site.isModuleEnabled(key)).map(
+    (key) => MODULE_INFO[key]?.label ?? key,
+  )
 
   return (
     <StepCard

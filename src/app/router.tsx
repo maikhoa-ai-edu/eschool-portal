@@ -1,4 +1,5 @@
-import { createBrowserRouter, Navigate, type RouteObject } from 'react-router'
+import type { ComponentType } from 'react'
+import { createBrowserRouter, Navigate, Outlet, type RouteObject } from 'react-router'
 import type { ConfigState } from '@/lib/runtime-config'
 import { RouteError } from '@/components/RouteError'
 import { ComingSoon } from '@/components/ComingSoon'
@@ -6,6 +7,7 @@ import { FullPageSpinner } from '@/components/ui/Spinner'
 import { RequirePermission, RequireStaff } from '@/features/auth/guards'
 import { InstallGate } from '@/features/install/InstallGate'
 import { ModuleGate } from '@/features/site/ModuleGate'
+import type { ModuleKey } from '@/features/site/settings'
 import { ADMIN_PLACEHOLDER_ROUTES } from '@/layouts/admin/admin-nav'
 
 const installRoute: RouteObject = {
@@ -13,48 +15,133 @@ const installRoute: RouteObject = {
   lazy: () => import('@/features/install/InstallPage').then((m) => ({ Component: m.InstallPage })),
 }
 
-// Trang công khai của các module (hoàn thiện ở Giai đoạn 4)
+/** Route tải mã khi cần: page(() => import('...'), 'TênComponent') */
+function page<M extends Record<string, unknown>>(load: () => Promise<M>, name: keyof M & string) {
+  return () => load().then((m) => ({ Component: m[name] as ComponentType }))
+}
+
+/** Nhóm route công khai của một module (tắt module thì hiện thông báo tạm ngừng). */
+function publicModule(path: string, module: ModuleKey, children: RouteObject[]): RouteObject {
+  return {
+    path,
+    element: (
+      <ModuleGate module={module}>
+        <Outlet />
+      </ModuleGate>
+    ),
+    children,
+  }
+}
+
 const publicModuleRoutes: RouteObject[] = [
-  {
-    path: 'tin-tuc/*',
+  publicModule('tin-tuc', 'news', [
+    { index: true, lazy: page(() => import('@/features/news/public/NewsListPage'), 'NewsListPage') },
+    {
+      path: 'chuyen-muc/:slug',
+      lazy: page(() => import('@/features/news/public/NewsListPage'), 'CategoryNewsPage'),
+    },
+    { path: 'the/:slug', lazy: page(() => import('@/features/news/public/NewsListPage'), 'TagNewsPage') },
+    { path: ':slug', lazy: page(() => import('@/features/news/public/NewsDetailPage'), 'NewsDetailPage') },
+  ]),
+  publicModule('thong-bao', 'announcements', [
+    {
+      index: true,
+      lazy: page(() => import('@/features/announcements/public/AnnouncementPages'), 'AnnouncementListPage'),
+    },
+    {
+      path: ':id',
+      lazy: page(() => import('@/features/announcements/public/AnnouncementPages'), 'AnnouncementDetailPage'),
+    },
+  ]),
+  publicModule('van-ban', 'documents', [
+    {
+      index: true,
+      lazy: page(() => import('@/features/documents/public/DocumentPages'), 'DocumentListPage'),
+    },
+    {
+      path: ':id',
+      lazy: page(() => import('@/features/documents/public/DocumentPages'), 'DocumentDetailPage'),
+    },
+  ]),
+  publicModule('thu-vien-anh', 'albums', [
+    { index: true, lazy: page(() => import('@/features/albums/public/AlbumPages'), 'AlbumListPage') },
+    { path: ':slug', lazy: page(() => import('@/features/albums/public/AlbumPages'), 'AlbumDetailPage') },
+  ]),
+  publicModule('trang', 'pages', [
+    { index: true, element: <Navigate to="/" replace /> },
+    { path: ':slug', lazy: page(() => import('@/features/pages/public/StaticPage'), 'StaticPage') },
+  ]),
+]
+
+/** Nhóm route quản trị cần một quyền (CSDL vẫn kiểm tra lại bằng RLS). */
+function adminSection(path: string, permission: string, children: RouteObject[]): RouteObject {
+  return {
+    path,
     element: (
-      <ModuleGate module="news">
-        <ComingSoon title="Tin tức" phase={4} />
-      </ModuleGate>
+      <RequirePermission permission={permission}>
+        <Outlet />
+      </RequirePermission>
     ),
-  },
-  {
-    path: 'thong-bao/*',
-    element: (
-      <ModuleGate module="announcements">
-        <ComingSoon title="Thông báo" phase={4} />
-      </ModuleGate>
+    children,
+  }
+}
+
+/** Danh sách + tạo mới (moi) + sửa (:id) dùng chung một trang soạn. */
+function listAndEditor(list: RouteObject['lazy'], editor: RouteObject['lazy']): RouteObject[] {
+  return [
+    { index: true, lazy: list },
+    { path: 'moi', lazy: editor },
+    { path: ':id', lazy: editor },
+  ]
+}
+
+const adminContentRoutes: RouteObject[] = [
+  adminSection(
+    'tin-tuc',
+    'news.create',
+    listAndEditor(
+      page(() => import('@/features/news/admin/NewsListPage'), 'NewsListPage'),
+      page(() => import('@/features/news/admin/NewsEditorPage'), 'NewsEditorPage'),
     ),
-  },
-  {
-    path: 'van-ban/*',
-    element: (
-      <ModuleGate module="documents">
-        <ComingSoon title="Văn bản" phase={4} />
-      </ModuleGate>
+  ),
+  adminSection('chuyen-muc', 'news.manage_taxonomy', [
+    { index: true, lazy: page(() => import('@/features/news/admin/TaxonomyPage'), 'TaxonomyPage') },
+  ]),
+  adminSection(
+    'thong-bao',
+    'announcements.manage',
+    listAndEditor(
+      page(() => import('@/features/announcements/admin/AnnouncementListPage'), 'AnnouncementListPage'),
+      page(() => import('@/features/announcements/admin/AnnouncementEditorPage'), 'AnnouncementEditorPage'),
     ),
-  },
-  {
-    path: 'thu-vien-anh/*',
-    element: (
-      <ModuleGate module="albums">
-        <ComingSoon title="Thư viện ảnh" phase={4} />
-      </ModuleGate>
+  ),
+  adminSection(
+    'van-ban',
+    'documents.manage',
+    listAndEditor(
+      page(() => import('@/features/documents/admin/DocumentListPage'), 'DocumentListPage'),
+      page(() => import('@/features/documents/admin/DocumentEditorPage'), 'DocumentEditorPage'),
     ),
-  },
-  {
-    path: 'trang/:slug',
-    element: (
-      <ModuleGate module="pages">
-        <ComingSoon title="Trang thông tin" phase={4} />
-      </ModuleGate>
+  ),
+  adminSection(
+    'thu-vien-anh',
+    'media.manage',
+    listAndEditor(
+      page(() => import('@/features/albums/admin/AlbumListPage'), 'AlbumListPage'),
+      page(() => import('@/features/albums/admin/AlbumEditorPage'), 'AlbumEditorPage'),
     ),
-  },
+  ),
+  adminSection(
+    'trang',
+    'pages.manage',
+    listAndEditor(
+      page(() => import('@/features/pages/admin/PageListPage'), 'PageListPage'),
+      page(() => import('@/features/pages/admin/PageEditorPage'), 'PageEditorPage'),
+    ),
+  ),
+  adminSection('menu', 'menus.manage', [
+    { index: true, lazy: page(() => import('@/features/menus/MenuPage'), 'MenuPage') },
+  ]),
 ]
 
 export function createAppRouter(configState: ConfigState) {
@@ -117,6 +204,7 @@ export function createAppRouter(configState: ConfigState) {
                       lazy: () =>
                         import('@/features/system/StatusPage').then((m) => ({ Component: m.StatusPage })),
                     },
+                    ...adminContentRoutes,
                     // Các chức năng quản trị khác: giữ chỗ, đã chặn theo quyền
                     ...ADMIN_PLACEHOLDER_ROUTES.map((item) => ({
                       path: item.to.replace('/admin/', '') + '/*',

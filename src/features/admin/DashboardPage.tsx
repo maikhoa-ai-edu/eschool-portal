@@ -71,11 +71,17 @@ export function DashboardPage() {
       </div>
       {isError && <p className="text-sm text-danger">Không tải được số liệu.</p>}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard icon={Newspaper} label="Tin đã đăng" value={data?.publishedNews} />
+        <StatCard
+          icon={Newspaper}
+          label="Tin đã đăng"
+          value={data?.publishedNews}
+          to="/admin/tin-tuc?trang-thai=published"
+        />
         <StatCard
           icon={Clock}
           label={can('news.publish') ? 'Tin chờ duyệt' : 'Tin của bạn đang chờ duyệt'}
           value={data?.pendingNews}
+          to="/admin/tin-tuc?trang-thai=pending"
         />
         <StatCard icon={Bell} label="Thông báo đang hiển thị" value={data?.activeAnnouncements} />
         <StatCard icon={Eye} label="Lượt truy cập hôm nay" value={data?.visitsToday} />

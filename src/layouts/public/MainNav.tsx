@@ -50,6 +50,13 @@ function DesktopItem({ node }: { node: MenuNode }) {
         {node.title} <ChevronDown className="h-3.5 w-3.5" aria-hidden />
       </button>
       <div className="invisible absolute left-0 top-full z-30 min-w-56 rounded-b-lg border border-border bg-surface py-1 opacity-0 shadow-lg transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+        {/* Mục cha có trang riêng (vd Giới thiệu): vẫn vào được trang đó từ danh sách con */}
+        {node.url !== '/' && (
+          <MenuLink
+            node={node}
+            className="block border-b border-border px-4 py-2 text-sm font-semibold text-text hover:bg-bg [&.is-active]:text-primary"
+          />
+        )}
         {node.children.map((child) => (
           <MenuLink
             key={child.id}

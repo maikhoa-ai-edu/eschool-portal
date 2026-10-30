@@ -1,10 +1,10 @@
 begin;
 select plan(3);
 
-select is(public.get_schema_version(), '0.2.1', 'get_schema_version trả về phiên bản hiện tại');
+select is(public.get_schema_version(), '0.3.0', 'get_schema_version trả về phiên bản hiện tại');
 
 set local role anon;
-select is(public.get_schema_version(), '0.2.1', 'anon gọi được get_schema_version');
+select is(public.get_schema_version(), '0.3.0', 'anon gọi được get_schema_version');
 select throws_ok(
   'select * from public.app_meta',
   '42501',

@@ -2,7 +2,14 @@
 
 Cổng thông tin điện tử dành cho trường phổ thông Việt Nam: tin tức, thông báo, văn bản, thư viện ảnh, trang giới thiệu và trang quản trị. Mỗi trường tự cài một bản riêng, dùng cơ sở dữ liệu riêng, tự chọn tên trường, logo, màu sắc và các module cần dùng.
 
-> Trạng thái: **đang phát triển (xong Giai đoạn 3: trình cài đặt)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
+> Trạng thái: **đang phát triển (xong Giai đoạn 4: các module nội dung)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
+
+## Quy trình đăng tin
+
+Biên tập viên (giáo viên) soạn bài bằng trình soạn thảo, chèn ảnh rồi **Gửi duyệt**. Quản trị nội dung mở mục
+"Tin chờ duyệt" để **Duyệt & đăng** hoặc **Trả lại tác giả** kèm góp ý; bài đã đăng có thể **Gỡ bài**. Quyền này
+được CSDL kiểm tra (biên tập viên không thể tự đăng, tự đánh dấu nổi bật hay sửa bài đã đăng), giao diện chỉ ẩn
+nút không dùng được.
 
 ## Kiến trúc tóm tắt
 

@@ -42,6 +42,14 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
       cổng chặn dẫn về `/install` khi CSDL chưa cài xong, menu công khai ẩn module đã tắt. Schema 0.2.1 (sửa
       lỗi `pg_safeupdate` ở `bootstrap_super_admin`/`complete_install`), 64 kiểm thử pgTAP, E2E cài đặt từ
       bước 1 đến trang quản trị
+- [x] Giai đoạn 4: trang quản trị + trang công khai cho Tin tức (soạn bằng TipTap, chèn ảnh, chuyên mục, thẻ,
+      quy trình nháp → chờ duyệt → trả lại/đăng → gỡ, xem trước bản nháp, tìm không dấu, lượt xem), Chuyên mục &
+      thẻ, Thông báo (mức độ, ghim, hết hạn tự ẩn), Văn bản (tải file PDF/Office lên Storage, lọc theo loại, tìm
+      không dấu, đếm lượt tải, xem trước PDF), Thư viện ảnh (tải nhiều ảnh, tự thu nhỏ ảnh lớn, ảnh bìa, chú thích,
+      sắp xếp, xem phóng to), Trang tĩnh (bố cục mặc định/toàn chiều rộng/liên hệ, SEO), Menu (2 cấp, sắp xếp,
+      ẩn/hiện, chọn nhanh liên kết). Mọi HTML hiển thị qua DOMPurify. Schema 0.3.0 (chỉ người duyệt được đặt tin
+      nổi bật/ngày đăng), 77 kiểm thử pgTAP, 68 unit test, E2E luồng nghiệm thu "tạo → duyệt → đăng; máy khác thấy
+      ngay" bằng hai ngữ cảnh trình duyệt riêng
 
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
 
@@ -74,5 +82,11 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
   cài (bỏ SUPER_ADMIN, đặt lại mã cài đặt) rồi khôi phục sau khi chạy; mọi test chạy tuần tự (`workers: 1`).
 - Dùng cùng một bản Supabase CLI cho `start` và `db reset` (`npx supabase` có thể khác bản cài trên máy): lệch bản
   làm schema storage không khớp container, tải file lên báo lỗi 42P10.
+- **Trang công khai phải lọc `status = 'published'` tường minh**: RLS cho nhân sự đăng nhập đọc cả bản nháp, nên
+  thiếu bộ lọc thì nhân sự xem trang công khai sẽ thấy bài chưa đăng. Trang chi tiết cố ý không lọc để nhân sự
+  xem trước, kèm dải "Bản xem trước".
+- Album chỉ cho người có `media.manage` (ADMIN trở lên); biên tập viên tải ảnh trực tiếp trong trình soạn thảo.
+  Xóa văn bản/album xóa luôn file trong Storage (qua API, không xóa thẳng bảng `storage.objects`).
+- E2E nội dung tạo dữ liệu tiền tố `E2E` và dọn trong `afterAll`, nên chạy `db:test` sau E2E vẫn đúng số liệu seed.
 - Tài khoản demo khi chạy trên máy (mật khẩu `demo1234`): `superadmin@demo.local`, `admin@demo.local`,
   `editor@demo.local`.

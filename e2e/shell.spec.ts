@@ -1,13 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
-
-const PASSWORD = 'demo1234'
-
-async function login(page: Page, email: string, next = '/admin') {
-  await page.goto(`/dang-nhap?next=${encodeURIComponent(next)}`)
-  await page.getByLabel('Email').fill(email)
-  await page.getByLabel('Mật khẩu').fill(PASSWORD)
-  await page.getByRole('button', { name: 'Đăng nhập' }).click()
-}
+import { expect, test } from '@playwright/test'
+import { login } from './helpers.ts'
 
 test.describe('Trang công khai', () => {
   test('hiển thị nhận diện trường, menu từ CSDL và bộ đếm truy cập', async ({ page }, info) => {
@@ -85,7 +77,7 @@ test.describe('Đăng nhập & phân quyền', () => {
     } else {
       await sidebar.getByRole('link', { name: 'Trạng thái hệ thống' }).click()
     }
-    await expect(page.getByText('0.2.1').first()).toBeVisible()
+    await expect(page.getByText('0.3.0').first()).toBeVisible()
 
     await page.getByRole('button', { name: 'Đăng xuất' }).click()
     await expect(page).toHaveURL(/\/dang-nhap/)

@@ -20,6 +20,12 @@ const KNOWN_ERRORS: Array<[RegExp, string]> = [
   [/failed to fetch|network/i, 'Không kết nối được máy chủ. Kiểm tra mạng và thử lại.'],
   [/row-level security|permission denied|42501/i, 'Bạn không có quyền thực hiện thao tác này.'],
   [/duplicate key value/i, 'Dữ liệu bị trùng (ví dụ đường dẫn đã tồn tại).'],
+  [
+    /violates foreign key constraint|23503/i,
+    'Không xóa được vì dữ liệu đang được sử dụng (ví dụ chuyên mục vẫn còn bài viết).',
+  ],
+  [/exceeded the maximum allowed size|payload too large/i, 'File quá lớn so với giới hạn cho phép.'],
+  [/mime type .* is not supported|invalid_mime_type/i, 'Định dạng file không được hỗ trợ.'],
 ]
 
 export function toVietnameseError(error: unknown): string {

@@ -46,7 +46,6 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       {
         label: 'Tin tức',
         to: '/admin/tin-tuc',
-        phase: 4,
         icon: Newspaper,
         permission: 'news.create',
         module: 'news',
@@ -54,7 +53,6 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       {
         label: 'Chuyên mục & thẻ',
         to: '/admin/chuyen-muc',
-        phase: 4,
         icon: FolderTree,
         permission: 'news.manage_taxonomy',
         module: 'news',
@@ -62,7 +60,6 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       {
         label: 'Thông báo',
         to: '/admin/thong-bao',
-        phase: 4,
         icon: Bell,
         permission: 'announcements.manage',
         module: 'announcements',
@@ -70,7 +67,6 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       {
         label: 'Văn bản',
         to: '/admin/van-ban',
-        phase: 4,
         icon: FileText,
         permission: 'documents.manage',
         module: 'documents',
@@ -78,15 +74,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       {
         label: 'Thư viện ảnh',
         to: '/admin/thu-vien-anh',
-        phase: 4,
         icon: Images,
-        permission: 'media.upload',
+        permission: 'media.manage',
         module: 'albums',
       },
       {
         label: 'Trang tĩnh',
         to: '/admin/trang',
-        phase: 4,
         icon: NotebookText,
         permission: 'pages.manage',
         module: 'pages',
@@ -103,7 +97,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         icon: LayoutTemplate,
         permission: 'homepage.manage',
       },
-      { label: 'Menu', to: '/admin/menu', phase: 5, icon: ListTree, permission: 'menus.manage' },
+      { label: 'Menu', to: '/admin/menu', icon: ListTree, permission: 'menus.manage' },
       { label: 'Nhận diện', to: '/admin/nhan-dien', phase: 5, icon: Palette, permission: 'settings.manage' },
     ],
   },
