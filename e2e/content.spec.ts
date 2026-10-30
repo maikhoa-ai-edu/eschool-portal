@@ -168,7 +168,7 @@ test.describe('Thông báo, trang tĩnh, menu', () => {
     await page.getByLabel('Tên hiển thị').fill(`E2E Tổ chức ${suffix}`)
     await page.getByLabel('Thuộc mục').selectOption({ label: 'Giới thiệu' })
     await page.getByRole('button', { name: 'Thêm mục', exact: true }).click()
-    await expect(page.getByText(`/trang/${slug}`)).toBeVisible()
+    await expect(page.getByText(`/trang/${slug}`, { exact: true })).toBeVisible()
     await page.screenshot({ path: screenshotPath('admin-menu', info) })
 
     const guest = await otherMachine(browser, info)

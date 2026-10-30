@@ -25,6 +25,9 @@
 }
 
 body {
+  /* viewport-fit=cover: chừa chỗ tai thỏ khi xoay ngang điện thoại */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);

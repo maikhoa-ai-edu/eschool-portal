@@ -1,7 +1,7 @@
 /**
  * Tạo ảnh & văn bản mẫu cho dữ liệu demo (chỉ dùng khi phát triển; kết quả đã nằm sẵn trong repo).
  *
- *   node scripts/make-seed-assets.ts <thư-mục-ảnh-gốc>
+ *   node scripts/make-seed-assets.ts [thư-mục-ảnh-gốc]   (bỏ trống: chỉ tạo lại văn bản PDF)
  *
  * - Ảnh: thu nhỏ/cắt bằng canvas của Chromium (Playwright) rồi lưu JPEG nhẹ.
  * - Văn bản: dựng HTML theo thể thức văn bản hành chính rồi in ra PDF (giữ nguyên dấu tiếng Việt).
@@ -15,10 +15,6 @@ import { chromium } from '@playwright/test'
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = join(ROOT, 'supabase', 'seed-storage')
 const SOURCE = process.argv[2]
-if (!SOURCE) {
-  console.error('Cách dùng: node scripts/make-seed-assets.ts <thư-mục-ảnh-gốc>')
-  process.exit(1)
-}
 
 interface ImageJob {
   source: string
@@ -130,6 +126,36 @@ const DOCUMENTS: Array<{ out: string; html: string }> = [
       ${SIGN('KT. HIỆU TRƯỞNG<br>PHÓ HIỆU TRƯỞNG', 'Trần Thị Bình')}`,
   },
   {
+    out: 'seed/ke-hoach-hoc-tap-lam-theo-bac.pdf',
+    html: `${HEADER('Vĩnh Phong, ngày 08 tháng 9 năm 2026', '05/KH-THCSTHPTVP')}
+      <h1>KẾ HOẠCH<br>Học tập và làm theo Bác năm học 2026 - 2027</h1>
+      <p class="i">(Tài liệu minh họa của dữ liệu mẫu)</p>
+      <h2>I. MỤC ĐÍCH</h2>
+      <p>Đưa việc học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh thành việc làm thường xuyên của
+      cán bộ, giáo viên, nhân viên và học sinh; gắn với nhiệm vụ năm học.</p>
+      <h2>II. NỘI DUNG</h2>
+      <p>1. Cán bộ, giáo viên đăng ký một việc làm cụ thể, rà soát trong sinh hoạt tổ chuyên môn hằng tháng.</p>
+      <p>2. Học sinh thực hiện 5 điều Bác Hồ dạy; các lớp tuyên dương người tốt việc tốt trong tiết sinh hoạt.</p>
+      <p>3. Đoàn - Đội tổ chức sinh hoạt chủ điểm, hội thi kể chuyện về Bác.</p>
+      <h2>III. LỊCH THỰC HIỆN</h2>
+      <table class="grid"><tr><th>Thời gian</th><th>Nội dung</th><th>Phụ trách</th></tr>
+      <tr><td>Tháng 9/2026</td><td>Quán triệt kế hoạch, đăng ký việc làm</td><td>Chi bộ, BGH</td></tr>
+      <tr><td>Tháng 10/2026</td><td>Hội thi kể chuyện về Bác cấp trường</td><td>Đoàn trường</td></tr>
+      <tr><td>Tháng 5/2027</td><td>Tổng kết, tuyên dương</td><td>Chi bộ, BGH</td></tr></table>
+      ${SIGN('HIỆU TRƯỞNG', 'Nguyễn Văn An')}`,
+  },
+  {
+    out: 'seed/tai-lieu-5-dieu-bac-ho-day.pdf',
+    html: `<h1>TÀI LIỆU SINH HOẠT LỚP<br>5 điều Bác Hồ dạy thiếu niên, nhi đồng</h1>
+      <p class="i">(Tài liệu minh họa của dữ liệu mẫu)</p>
+      <table class="grid"><tr><th>Điều</th><th>Gợi ý liên hệ hằng ngày</th></tr>
+      <tr><td>1. Yêu Tổ quốc, yêu đồng bào</td><td>Nghiêm túc khi chào cờ, giúp đỡ bạn bè và người xung quanh.</td></tr>
+      <tr><td>2. Học tập tốt, lao động tốt</td><td>Làm bài đầy đủ, tham gia trực nhật và lao động của lớp.</td></tr>
+      <tr><td>3. Đoàn kết tốt, kỷ luật tốt</td><td>Đi học đúng giờ, không gây gổ, cùng nhau làm việc nhóm.</td></tr>
+      <tr><td>4. Giữ gìn vệ sinh thật tốt</td><td>Giữ sạch lớp học, sân trường, bỏ rác đúng nơi quy định.</td></tr>
+      <tr><td>5. Khiêm tốn, thật thà, dũng cảm</td><td>Nhận lỗi khi làm sai, trả lại của rơi, dám nói điều đúng.</td></tr></table>`,
+  },
+  {
     out: 'seed/mau-don-xin-nghi-hoc.pdf',
     html: `<div class="c b">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div><div class="c b u">Độc lập - Tự do - Hạnh phúc</div>
       <h1>ĐƠN XIN NGHỈ HỌC</h1>
@@ -164,7 +190,7 @@ async function main() {
   const browser = await chromium.launch()
   const page = await browser.newPage()
 
-  for (const job of IMAGES) {
+  for (const job of SOURCE ? IMAGES : []) {
     const bytes = readFileSync(join(SOURCE!, job.source))
     const dataUrl = `data:image/jpeg;base64,${bytes.toString('base64')}`
     const out = await page.evaluate(

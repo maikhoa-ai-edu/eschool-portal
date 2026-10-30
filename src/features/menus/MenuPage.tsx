@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/Button'
 import { Field } from '@/components/ui/Field'
 import { CheckboxField, SelectField } from '@/components/ui/FormControls'
 import { buildMenuTree, type TreeNode as Tree } from '@/features/site/menu'
+import { DEFAULT_MENU_ICON, MENU_ICONS, MenuIcon } from '@/features/site/menu-icons'
+import { MOBILE_BAR_MAX_ITEMS } from '@/layouts/public/MobileBottomBar'
 import { useSite } from '@/features/site/site-context'
 import { cn } from '@/lib/cn'
 import { toVietnameseError } from '@/lib/errors'
@@ -37,19 +39,54 @@ const schema = z.object({
     .regex(MENU_URL_PATTERN, 'Đường dẫn bắt đầu bằng / (trong website) hoặc https:// (website khác)'),
   parent_id: z.string(),
   open_in_new_tab: z.boolean(),
+  icon: z.string().nullable(),
   is_active: z.boolean(),
 })
 type Values = z.infer<typeof schema>
 
 type Editing = { item: AdminMenuItem | null; parentId: string | null }
 
+/** Ô chọn icon: nhóm nút radio, chọn "Mặc định" thì lưu null. */
+function IconPicker({ value, onChange }: { value: string | null; onChange: (next: string | null) => void }) {
+  const selected = value && MENU_ICONS[value] ? value : DEFAULT_MENU_ICON
+  return (
+    <fieldset className="space-y-1.5">
+      <legend className="text-sm font-medium">Icon</legend>
+      <div className="grid max-h-44 grid-cols-7 gap-1 overflow-y-auto rounded-lg border border-border p-1.5">
+        {Object.entries(MENU_ICONS).map(([key, { label, icon: Icon }]) => (
+          <label
+            key={key}
+            title={label}
+            className={cn(
+              'flex h-9 cursor-pointer items-center justify-center rounded-md hover:bg-bg has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary',
+              selected === key && 'bg-primary text-white hover:bg-primary',
+            )}
+          >
+            <input
+              type="radio"
+              name="menu-icon"
+              aria-label={label}
+              checked={selected === key}
+              onChange={() => onChange(key === DEFAULT_MENU_ICON ? null : key)}
+              className="sr-only"
+            />
+            <Icon className="h-4 w-4" aria-hidden />
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  )
+}
+
 function ItemForm({
   menuId,
+  location,
   editing,
   items,
   onDone,
 }: {
   menuId: string
+  location: string
   editing: Editing
   items: AdminMenuItem[]
   onDone: () => void
@@ -63,6 +100,7 @@ function ItemForm({
   })
   const { item } = editing
   const hasChildren = item ? items.some((i) => i.parent_id === item.id) : false
+  const isMobileBar = location === 'mobile_bar'
   // Chỉ hai cấp: mục cha phải là mục gốc; mục đang có con thì không đưa vào làm con
   const parentOptions = hasChildren
     ? []
@@ -77,6 +115,7 @@ function ItemForm({
       url: item?.url ?? '',
       parent_id: item?.parent_id ?? editing.parentId ?? '',
       open_in_new_tab: item?.open_in_new_tab ?? false,
+      icon: item?.icon ?? null,
       is_active: item?.is_active ?? true,
     },
   })
@@ -147,13 +186,22 @@ function ItemForm({
         error={e.url?.message}
         {...form.register('url')}
       />
-      <SelectField
-        label="Thuộc mục"
-        options={parentOptions}
-        placeholder="(Mục cấp 1)"
-        hint={hasChildren ? 'Mục này đang có mục con nên phải ở cấp 1.' : undefined}
-        {...form.register('parent_id')}
-      />
+      {location !== 'footer' && (
+        <Controller
+          control={form.control}
+          name="icon"
+          render={({ field }) => <IconPicker value={field.value} onChange={field.onChange} />}
+        />
+      )}
+      {!isMobileBar && (
+        <SelectField
+          label="Thuộc mục"
+          options={parentOptions}
+          placeholder="(Mục cấp 1)"
+          hint={hasChildren ? 'Mục này đang có mục con nên phải ở cấp 1.' : undefined}
+          {...form.register('parent_id')}
+        />
+      )}
       <CheckboxField label="Mở trong tab mới" {...form.register('open_in_new_tab')} />
       <CheckboxField label="Hiển thị" {...form.register('is_active')} />
       <div className="flex gap-2">
@@ -176,6 +224,7 @@ function ItemRow({
   siblings,
   depth,
   busy,
+  canNest,
   onEdit,
   onAddChild,
   onMove,
@@ -187,6 +236,7 @@ function ItemRow({
   siblings: TreeNode[]
   depth: number
   busy: boolean
+  canNest: boolean
   onEdit: (node: TreeNode) => void
   onAddChild: (node: TreeNode) => void
   onMove: (siblings: TreeNode[], index: number, delta: -1 | 1) => void
@@ -204,6 +254,7 @@ function ItemRow({
         )}
       >
         {depth > 0 && <CornerDownRight className="h-4 w-4 text-muted" aria-hidden />}
+        <MenuIcon name={node.icon} className="h-4 w-4 shrink-0 text-primary" />
         <div className="min-w-0 flex-1">
           <p className="font-medium">
             {node.title} {!node.is_active && <Badge>Đang ẩn</Badge>}
@@ -242,7 +293,7 @@ function ItemRow({
             />
             Hiện
           </label>
-          {depth === 0 && (
+          {depth === 0 && canNest && (
             <button
               type="button"
               className={icon}
@@ -284,6 +335,7 @@ function ItemRow({
               siblings={node.children}
               depth={depth + 1}
               busy={busy}
+              canNest={canNest}
               onEdit={onEdit}
               onAddChild={onAddChild}
               onMove={onMove}
@@ -297,7 +349,7 @@ function ItemRow({
   )
 }
 
-function MenuEditor({ menuId }: { menuId: string }) {
+function MenuEditor({ menuId, location }: { menuId: string; location: string }) {
   const queryClient = useQueryClient()
   const {
     data: items,
@@ -342,6 +394,12 @@ function MenuEditor({ menuId }: { menuId: string }) {
     <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
       <div className="space-y-3">
         {actionError && <Alert tone="danger" title={actionError} />}
+        {location === 'mobile_bar' && (
+          <p className="text-sm text-muted">
+            Thanh cố định ở đáy màn hình điện thoại. Chỉ hiện {MOBILE_BAR_MAX_ITEMS} mục đầu tiên đang bật;
+            xóa hết mục thì thanh không hiện.
+          </p>
+        )}
         {tree.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border bg-surface p-6 text-center text-sm text-muted">
             Menu chưa có mục nào.
@@ -356,6 +414,7 @@ function MenuEditor({ menuId }: { menuId: string }) {
                 siblings={tree}
                 depth={0}
                 busy={busy}
+                canNest={location !== 'mobile_bar'}
                 onEdit={(n) => setEditing({ item: byId.get(n.id)!, parentId: n.parent_id })}
                 onAddChild={(n) => setEditing({ item: null, parentId: n.id })}
                 onMove={move}
@@ -374,6 +433,7 @@ function MenuEditor({ menuId }: { menuId: string }) {
           <ItemForm
             key={editing.item?.id ?? `new-${editing.parentId ?? 'root'}`}
             menuId={menuId}
+            location={location}
             editing={editing}
             items={items}
             onDone={() => setEditing(null)}
@@ -402,10 +462,14 @@ export function MenuPage() {
   })
   const [selected, setSelected] = useState<string | null>(null)
   const menuId = selected ?? menus?.[0]?.id ?? null
+  const location = menus?.find((m) => m.id === menuId)?.location ?? 'header'
 
   return (
     <div>
-      <AdminPageHeader title="Menu" description="Menu chính ở đầu trang và liên kết nhanh ở chân trang." />
+      <AdminPageHeader
+        title="Menu"
+        description="Menu chính ở đầu trang, thanh đáy trên điện thoại và liên kết nhanh ở chân trang."
+      />
       <QueryState isPending={isPending} error={error} />
       {menus && (
         <div role="tablist" aria-label="Chọn menu" className="mb-4 flex flex-wrap gap-1">
@@ -426,7 +490,7 @@ export function MenuPage() {
           ))}
         </div>
       )}
-      {menuId && <MenuEditor key={menuId} menuId={menuId} />}
+      {menuId && <MenuEditor key={menuId} menuId={menuId} location={location} />}
     </div>
   )
 }

@@ -8,7 +8,7 @@ describe('parseSiteSettings', () => {
     expect(s.identity.school_name).toBe('Tên trường')
     expect(s.branding.primary_color).toBe('#002B66')
     expect(s.marquee).toEqual({ enabled: false, include_latest_news: false, items: [] })
-    expect(s.homepage.sections).toHaveLength(7)
+    expect(s.homepage.sections).toHaveLength(8)
   })
 
   it('từ chối màu không phải mã hex (chống chèn CSS)', () => {

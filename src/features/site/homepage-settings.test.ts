@@ -5,18 +5,20 @@ import { homepageSchema, moveSection, normalizeSections, visibleSections } from 
 import { marqueeSchema } from './settings'
 
 describe('cấu hình trang chủ', () => {
-  it('thiếu cấu hình thì có đủ 7 khối mặc định, bật sẵn', () => {
+  it('thiếu cấu hình thì có đủ các khối mặc định; banner tắt sẵn', () => {
     const s = homepageSchema.parse({})
     expect(s.sections.map((x) => x.key)).toEqual([
       'featured_news',
       'latest_news',
       'category_news',
       'albums',
+      'topic_banner',
       'announcements',
       'documents',
       'visit_counter',
     ])
-    expect(s.sections.every((x) => x.enabled)).toBe(true)
+    expect(s.sections.filter((x) => !x.enabled).map((x) => x.key)).toEqual(['topic_banner'])
+    expect(s.banner.placement).toBe('column')
     expect(s.show_slides).toBe(true)
     expect(s.slide_interval).toBe(6)
   })
@@ -30,7 +32,7 @@ describe('cấu hình trang chủ', () => {
     ])
     expect(sections[0]).toEqual({ key: 'albums', enabled: false, title: 'Ảnh đẹp', limit: 8 })
     expect(sections[1]).toEqual({ key: 'latest_news', enabled: true, title: '', limit: 6 })
-    expect(sections).toHaveLength(7)
+    expect(sections).toHaveLength(8)
   })
 
   it('số liệu sai kiểu dùng giá trị an toàn', () => {

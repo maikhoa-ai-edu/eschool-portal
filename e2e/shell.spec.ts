@@ -77,7 +77,7 @@ test.describe('Đăng nhập & phân quyền', () => {
     } else {
       await sidebar.getByRole('link', { name: 'Trạng thái hệ thống' }).click()
     }
-    await expect(page.getByText('0.7.0').first()).toBeVisible()
+    await expect(page.getByText('0.8.0').first()).toBeVisible()
 
     await page.getByRole('button', { name: 'Đăng xuất' }).click()
     await expect(page).toHaveURL(/\/dang-nhap/)

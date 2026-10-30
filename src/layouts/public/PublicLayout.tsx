@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { getSupabase } from '@/lib/supabase'
 import { MainNav } from './MainNav'
 import { MarqueeBar } from './MarqueeBar'
+import { MobileBottomBar } from './MobileBottomBar'
 import { SiteFooter } from './SiteFooter'
 import { SiteHeader } from './SiteHeader'
 
@@ -43,6 +44,7 @@ export function PublicLayout() {
         <Outlet />
       </main>
       <SiteFooter />
+      <MobileBottomBar />
     </div>
   )
 }

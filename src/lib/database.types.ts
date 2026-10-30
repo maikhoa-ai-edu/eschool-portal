@@ -450,6 +450,7 @@ export type Database = {
       }
       menu_items: {
         Row: {
+          icon: string | null
           id: string
           is_active: boolean
           menu_id: string
@@ -461,6 +462,7 @@ export type Database = {
           url: string
         }
         Insert: {
+          icon?: string | null
           id?: string
           is_active?: boolean
           menu_id: string
@@ -472,6 +474,7 @@ export type Database = {
           url: string
         }
         Update: {
+          icon?: string | null
           id?: string
           is_active?: boolean
           menu_id?: string
@@ -893,6 +896,80 @@ export type Database = {
           visits?: number
         }
         Relationships: []
+      }
+      topics: {
+        Row: {
+          badge: string | null
+          created_at: string
+          created_by: string | null
+          hero_color: string | null
+          hero_image: string | null
+          id: string
+          meta_description: string | null
+          meta_title: string | null
+          no_index: boolean
+          published_at: string | null
+          quote_author: string | null
+          quote_text: string | null
+          sections: Json
+          slug: string
+          sort_order: number
+          status: string
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          badge?: string | null
+          created_at?: string
+          created_by?: string | null
+          hero_color?: string | null
+          hero_image?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          no_index?: boolean
+          published_at?: string | null
+          quote_author?: string | null
+          quote_text?: string | null
+          sections?: Json
+          slug: string
+          sort_order?: number
+          status?: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          badge?: string | null
+          created_at?: string
+          created_by?: string | null
+          hero_color?: string | null
+          hero_image?: string | null
+          id?: string
+          meta_description?: string | null
+          meta_title?: string | null
+          no_index?: boolean
+          published_at?: string | null
+          quote_author?: string | null
+          quote_text?: string | null
+          sections?: Json
+          slug?: string
+          sort_order?: number
+          status?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'topics_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
       }
     }
     Views: {

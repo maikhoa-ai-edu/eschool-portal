@@ -1,6 +1,7 @@
 import { getSupabase } from '@/lib/supabase'
 import { fetchCategories } from '@/features/news/api'
 import { fetchPublishedPageLinks } from '@/features/pages/api'
+import { fetchPublishedTopics } from '@/features/topics/api'
 import type { ModuleKey } from '@/features/site/settings'
 
 export const MENUS_ADMIN_KEY = ['menus-admin'] as const
@@ -16,12 +17,13 @@ export interface AdminMenuItem {
   title: string
   url: string
   open_in_new_tab: boolean
+  icon: string | null
   is_active: boolean
   sort_order: number
 }
 
 /** Thứ tự tab: menu đầu trang trước, rồi chân trang, liên kết nhanh */
-const LOCATION_ORDER = ['header', 'footer', 'quick_links']
+const LOCATION_ORDER = ['header', 'mobile_bar', 'footer', 'quick_links']
 
 export async function fetchMenus() {
   const { data, error } = await getSupabase().from('menus').select('id, code, name, location').order('name')
@@ -32,7 +34,7 @@ export async function fetchMenus() {
 export async function fetchMenuItems(menuId: string): Promise<AdminMenuItem[]> {
   const { data, error } = await getSupabase()
     .from('menu_items')
-    .select('id, menu_id, parent_id, title, url, open_in_new_tab, is_active, sort_order')
+    .select('id, menu_id, parent_id, title, url, open_in_new_tab, icon, is_active, sort_order')
     .eq('menu_id', menuId)
     .order('sort_order')
   if (error) throw error
@@ -44,6 +46,7 @@ export interface MenuItemInput {
   url: string
   parent_id: string | null
   open_in_new_tab: boolean
+  icon: string | null
   is_active: boolean
 }
 
@@ -106,15 +109,17 @@ const MODULE_LINKS: Array<{ module: ModuleKey | null; title: string; url: string
   { module: 'announcements', title: 'Thông báo', url: '/thong-bao' },
   { module: 'documents', title: 'Văn bản', url: '/van-ban' },
   { module: 'albums', title: 'Thư viện ảnh', url: '/thu-vien-anh' },
+  { module: 'topics', title: 'Chuyên đề', url: '/chuyen-de' },
 ]
 
 /** Gợi ý liên kết khi thêm mục menu: trang chức năng, chuyên mục tin, trang tĩnh đã đăng. */
 export async function fetchLinkSuggestions(
   isModuleEnabled: (key: ModuleKey) => boolean,
 ): Promise<LinkSuggestion[]> {
-  const [categories, pages] = await Promise.all([
+  const [categories, pages, topics] = await Promise.all([
     isModuleEnabled('news') ? fetchCategories() : Promise.resolve([]),
     isModuleEnabled('pages') ? fetchPublishedPageLinks() : Promise.resolve([]),
+    isModuleEnabled('topics') ? fetchPublishedTopics() : Promise.resolve([]),
   ])
   return [
     ...MODULE_LINKS.filter((l) => !l.module || isModuleEnabled(l.module)).map((l) => ({
@@ -126,5 +131,6 @@ export async function fetchLinkSuggestions(
       .filter((c) => c.is_active)
       .map((c) => ({ group: 'Chuyên mục tin', title: c.name, url: `/tin-tuc/chuyen-muc/${c.slug}` })),
     ...pages.map((p) => ({ group: 'Trang tĩnh', title: p.title, url: `/trang/${p.slug}` })),
+    ...topics.map((t) => ({ group: 'Chuyên đề', title: t.title, url: `/chuyen-de/${t.slug}` })),
   ]
 }

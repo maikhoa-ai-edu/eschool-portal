@@ -3,8 +3,18 @@ import { NavLink, useLocation } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronDown, Menu, X } from 'lucide-react'
 import { fetchMenu, hideDisabledModules, isExternalUrl, type MenuNode } from '@/features/site/menu'
+import { MenuIcon } from '@/features/site/menu-icons'
 import { useSite } from '@/features/site/site-context'
 import { cn } from '@/lib/cn'
+
+function MenuLabel({ node }: { node: MenuNode }) {
+  return (
+    <>
+      <MenuIcon name={node.icon} className="h-4 w-4 shrink-0" />
+      {node.title}
+    </>
+  )
+}
 
 function MenuLink({
   node,
@@ -23,7 +33,7 @@ function MenuLink({
         target={node.open_in_new_tab ? '_blank' : undefined}
         rel={node.open_in_new_tab ? 'noopener noreferrer' : undefined}
       >
-        {node.title}
+        <MenuLabel node={node} />
       </a>
     )
   }
@@ -34,34 +44,34 @@ function MenuLink({
       onClick={onNavigate}
       className={({ isActive }) => cn(className, isActive && 'is-active')}
     >
-      {node.title}
+      <MenuLabel node={node} />
     </NavLink>
   )
 }
 
 function DesktopItem({ node }: { node: MenuNode }) {
   const base =
-    'flex h-12 items-center gap-1 px-3 text-sm font-semibold text-white hover:bg-white/10 [&.is-active]:bg-accent'
+    'flex h-12 items-center gap-1.5 whitespace-nowrap px-2.5 text-[13px] font-semibold uppercase text-white hover:bg-white/10 [&.is-active]:bg-accent'
   if (node.children.length === 0) return <MenuLink node={node} className={base} />
 
   return (
     <div className="group relative">
       <button type="button" className={base} aria-haspopup="true">
-        {node.title} <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+        <MenuLabel node={node} /> <ChevronDown className="h-3.5 w-3.5" aria-hidden />
       </button>
       <div className="invisible absolute left-0 top-full z-30 min-w-56 rounded-b-lg border border-border bg-surface py-1 opacity-0 shadow-lg transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
         {/* Mục cha có trang riêng (vd Giới thiệu): vẫn vào được trang đó từ danh sách con */}
         {node.url !== '/' && (
           <MenuLink
             node={node}
-            className="block border-b border-border px-4 py-2 text-sm font-semibold text-text hover:bg-bg [&.is-active]:text-primary"
+            className="flex items-center gap-2 border-b border-border px-4 py-2 text-sm font-semibold text-text hover:bg-bg [&.is-active]:text-primary"
           />
         )}
         {node.children.map((child) => (
           <MenuLink
             key={child.id}
             node={child}
-            className="block px-4 py-2 text-sm text-text hover:bg-bg [&.is-active]:font-semibold [&.is-active]:text-primary"
+            className="flex items-center gap-2 px-4 py-2 text-sm text-text hover:bg-bg [&.is-active]:font-semibold [&.is-active]:text-primary"
           />
         ))}
       </div>
@@ -85,7 +95,7 @@ function MobileItems({
           <MenuLink
             node={node}
             onNavigate={onNavigate}
-            className="block px-4 py-3 text-sm font-medium text-white [&.is-active]:text-accent"
+            className="flex items-center gap-2 px-4 py-3 text-sm font-medium uppercase text-white [&.is-active]:text-accent"
           />
           {node.children.length > 0 && (
             <MobileItems nodes={node.children} depth={depth + 1} onNavigate={onNavigate} />
@@ -108,7 +118,7 @@ export function MainNav() {
   return (
     <nav aria-label="Menu chính" className="sticky top-0 z-20 bg-primary shadow-md">
       <div className="mx-auto flex max-w-7xl items-center px-2">
-        <div className="hidden flex-1 items-center lg:flex">
+        <div className="hidden flex-1 flex-wrap items-center lg:flex">
           {nodes.map((node) => (
             <DesktopItem key={node.id} node={node} />
           ))}

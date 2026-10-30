@@ -7,6 +7,7 @@ export const HOMEPAGE_SECTION_KEYS = [
   'latest_news',
   'category_news',
   'albums',
+  'topic_banner',
   'announcements',
   'documents',
   'visit_counter',
@@ -22,6 +23,8 @@ export interface SectionInfo {
   maxLimit: number
   /** Ẩn khi module này tắt */
   module: ModuleKey | null
+  /** Khối mới thêm vào cấu hình cũ có bật sẵn không (mặc định có) */
+  defaultOff?: boolean
 }
 
 export const SECTION_INFO: Record<HomepageSectionKey, SectionInfo> = {
@@ -56,6 +59,15 @@ export const SECTION_INFO: Record<HomepageSectionKey, SectionInfo> = {
     defaultLimit: 4,
     maxLimit: 8,
     module: 'albums',
+  },
+  topic_banner: {
+    label: 'Banner chuyên đề',
+    area: 'main',
+    defaultTitle: '',
+    defaultLimit: 0,
+    maxLimit: 0,
+    module: null,
+    defaultOff: true,
   },
   announcements: {
     label: 'Thông báo',
@@ -121,11 +133,49 @@ export function normalizeSections(input: unknown): HomepageSection[] {
   }
   for (const key of HOMEPAGE_SECTION_KEYS) {
     if (!seen.has(key)) {
-      result.push({ key, enabled: true, title: '', limit: SECTION_INFO[key].defaultLimit })
+      result.push({
+        key,
+        enabled: !SECTION_INFO[key].defaultOff,
+        title: '',
+        limit: SECTION_INFO[key].defaultLimit,
+      })
     }
   }
   return result
 }
+
+const LINK_PATTERN = /^(\/|https?:\/\/)\S*$/
+const bannerText = z.string().trim().catch('')
+
+export const DEFAULT_BANNER = {
+  image_path: null,
+  alt: '',
+  badge: '',
+  title: '',
+  subtitle: '',
+  link_url: '',
+  cta_label: '',
+  color: '',
+  placement: 'column',
+} as const
+
+/** Nội dung khối banner. Có tiêu đề: chữ trên nền màu kèm ảnh mờ. Không tiêu đề: chỉ hiện ảnh (ảnh đã có chữ). */
+const bannerSchema = z
+  .object({
+    image_path: z.string().trim().min(1).nullable().catch(null),
+    alt: bannerText,
+    badge: bannerText,
+    title: bannerText,
+    subtitle: bannerText,
+    link_url: bannerText.transform((v) => (LINK_PATTERN.test(v) ? v : '')),
+    cta_label: bannerText,
+    color: bannerText.transform((v) => (/^#[0-9a-fA-F]{6}$/.test(v) ? v : '')),
+    /** top: toàn chiều rộng ngay dưới slide; column: trong cột chính, theo thứ tự các khối */
+    placement: z.enum(['top', 'column']).catch('column'),
+  })
+  .catch({ ...DEFAULT_BANNER })
+
+export type HomepageBanner = z.infer<typeof bannerSchema>
 
 export const homepageSchema = z.object({
   show_slides: z.boolean().catch(true),
@@ -133,6 +183,7 @@ export const homepageSchema = z.object({
   slide_interval: z.number().int().min(3).max(30).catch(6),
   sections: z.unknown().optional().transform(normalizeSections),
   category_ids: z.array(z.string().uuid()).max(6).catch([]),
+  banner: bannerSchema,
   visit_counter_offset: z.number().int().min(0).catch(0),
 })
 

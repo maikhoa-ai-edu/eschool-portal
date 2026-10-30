@@ -68,6 +68,13 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
       CSDL hiện tại. Schema 0.7.0, 142 pgTAP, 98 unit test. Đã nghiệm thu trên project Supabase cục bộ thứ hai: nâng cấp 0.5.0 → 0.7.0
       bằng SQL của trang Cập nhật, sao lưu trường A, khôi phục sang project mới; CI chạy bản giả lập trong `e2e/backup.spec.ts`
 
+- [ ] Giai đoạn 8 (đang làm):
+  - [x] Phần giao diện, schema 0.8.0: menu ngang in hoa có icon chọn được trong quản trị (`menu_items.icon`, danh sách ở
+        `src/features/site/menu-icons.ts`), thanh menu đáy trên điện thoại (menu `mobile`, tối đa 5 mục, có safe-area),
+        module Chuyên đề (bảng `topics`, các khối nội dung lưu jsonb; tin lấy theo thẻ, tài liệu từ Văn bản, ảnh từ Thư viện
+        ảnh), banner trang chủ (khối `topic_banner`, nội dung ở `site_settings.homepage.banner`, tắt sẵn khi nâng cấp)
+  - [ ] OG từng bài, sitemap, tối ưu ảnh, PWA, Lighthouse
+
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
 
 Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã đăng nhập (mọi thao tác ghi đều qua RLS):
@@ -127,6 +134,9 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
   lỗi giữa chừng không mất dữ liệu; file thừa trên project đích không bị xóa. Hồ sơ cùng email khác id được đổi tham chiếu
   sang id đang có. Tài khoản tạo lại chưa có mật khẩu (dùng Quên mật khẩu). Nhật ký cũ được giữ, không xóa được bằng khôi phục.
   Bảng nghiệp vụ mới phải thêm vào `private.backup_content_tables` và danh sách xóa trong `restore_backup`.
+- **Khối chuyên đề**: `parseTopicSections` bỏ qua khối sai hoặc loại chưa biết thay vì làm hỏng cả trang. Thêm loại khối mới:
+  sửa `src/features/topics/sections.ts`, `SectionsEditor`, `TopicPages`. Khối video chỉ tải YouTube khi người xem bấm phát.
+- **Khối trang chủ mới** bật sẵn khi vắng trong cấu hình cũ, trừ khối có `defaultOff` trong `SECTION_INFO`.
 - **Nâng cấp**: mỗi lần tăng `schema_version` là một bước; `buildUpgrades` sinh `/upgrades/<phiên-bản>.sql` và `index.json`
   từ migrations, mỗi file kiểm tra phiên bản trước khi chạy và nằm trong giao dịch.
 - Tài khoản demo khi chạy trên máy (mật khẩu `demo1234`): `superadmin@demo.local`, `admin@demo.local`,

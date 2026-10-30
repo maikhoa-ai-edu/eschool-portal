@@ -7,6 +7,7 @@ const item = (id: string, parent_id: string | null, sort_order: number): MenuIte
   title: id,
   url: '/' + id,
   open_in_new_tab: false,
+  icon: null,
   sort_order,
 })
 
@@ -35,6 +36,7 @@ describe('hideDisabledModules', () => {
     title: id,
     url,
     open_in_new_tab: false,
+    icon: null,
     sort_order: 0,
   })
 

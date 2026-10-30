@@ -18,4 +18,8 @@ export const MODULE_INFO: Record<string, { label: string; description: string }>
   documents: { label: 'Văn bản', description: 'Công văn, kế hoạch, biểu mẫu cho phép tải về.' },
   albums: { label: 'Thư viện ảnh', description: 'Album ảnh hoạt động của nhà trường.' },
   pages: { label: 'Trang thông tin', description: 'Giới thiệu, cơ cấu tổ chức, lịch sử nhà trường...' },
+  topics: {
+    label: 'Chuyên đề',
+    description: 'Trang chuyên đề riêng cho một chủ đề, phong trào của nhà trường.',
+  },
 }

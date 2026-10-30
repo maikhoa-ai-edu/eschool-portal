@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowDown, ArrowUp } from 'lucide-react'
+import { ImageUploadField } from '@/components/content/ImageUploadField'
+import { Field } from '@/components/ui/Field'
+import { SelectField } from '@/components/ui/FormControls'
 import { Panel } from '@/components/admin/AdminPage'
 import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
@@ -9,6 +12,7 @@ import { fetchCategories, NEWS_KEY } from '@/features/news/api'
 import {
   moveSection,
   SECTION_INFO,
+  type HomepageBanner,
   type HomepageSection,
   type HomepageSettings,
 } from '@/features/site/homepage-settings'
@@ -58,14 +62,16 @@ function SectionRow({
           />
           {info.label}
         </label>
-        <input
-          aria-label={`Tiêu đề khối ${info.label}`}
-          value={section.title}
-          placeholder={info.defaultTitle || 'Tên chuyên mục'}
-          onChange={(e) => onChange({ title: e.target.value })}
-          maxLength={80}
-          className="h-9 w-48 rounded-lg border border-border bg-surface px-2 text-sm"
-        />
+        {section.key !== 'topic_banner' && (
+          <input
+            aria-label={`Tiêu đề khối ${info.label}`}
+            value={section.title}
+            placeholder={info.defaultTitle || 'Tên chuyên mục'}
+            onChange={(e) => onChange({ title: e.target.value })}
+            maxLength={80}
+            className="h-9 w-48 rounded-lg border border-border bg-surface px-2 text-sm"
+          />
+        )}
         {info.maxLimit > 0 && (
           <label className="flex items-center gap-1.5 text-sm text-muted">
             Số mục
@@ -113,6 +119,77 @@ function SectionRow({
   )
 }
 
+const LINK_OK = /^(\/|https?:\/\/)\S*$/
+
+function BannerFields({
+  banner,
+  onChange,
+}: {
+  banner: HomepageBanner
+  onChange: (patch: Partial<HomepageBanner>) => void
+}) {
+  return (
+    <div className="space-y-3 pl-6">
+      <ImageUploadField
+        label="Ảnh banner"
+        value={banner.image_path}
+        onChange={(v) => onChange({ image_path: v })}
+        folder="banners"
+        hint="Có tiêu đề bên dưới: ảnh hiện mờ làm nền. Bỏ trống tiêu đề: hiện nguyên ảnh (dùng khi ảnh đã có chữ)."
+      />
+      <Field
+        label="Liên kết khi bấm"
+        placeholder="/chuyen-de/... hoặc https://..."
+        value={banner.link_url}
+        onChange={(e) => onChange({ link_url: e.target.value })}
+      />
+      <SelectField
+        label="Vị trí"
+        options={[
+          { value: 'top', label: 'Toàn chiều rộng, ngay dưới slide' },
+          { value: 'column', label: 'Trong cột chính, theo thứ tự các khối' },
+        ]}
+        value={banner.placement}
+        onChange={(e) => onChange({ placement: e.target.value === 'top' ? 'top' : 'column' })}
+      />
+      <Field label="Tiêu đề" value={banner.title} onChange={(e) => onChange({ title: e.target.value })} />
+      {banner.title.trim() ? (
+        <>
+          <Field
+            label="Nhãn nhỏ"
+            value={banner.badge}
+            onChange={(e) => onChange({ badge: e.target.value })}
+          />
+          <Field
+            label="Dòng mô tả"
+            value={banner.subtitle}
+            onChange={(e) => onChange({ subtitle: e.target.value })}
+          />
+          <Field
+            label="Chữ trên nút"
+            placeholder="Xem chuyên đề"
+            value={banner.cta_label}
+            onChange={(e) => onChange({ cta_label: e.target.value })}
+          />
+          <Field
+            label="Màu nền"
+            placeholder="#A80000"
+            hint="Để trống sẽ dùng màu chính của trường."
+            value={banner.color}
+            onChange={(e) => onChange({ color: e.target.value })}
+          />
+        </>
+      ) : (
+        <Field
+          label="Mô tả ảnh (cho người khiếm thị)"
+          value={banner.alt}
+          onChange={(e) => onChange({ alt: e.target.value })}
+        />
+      )}
+    </div>
+  )
+}
+
 export function LayoutTab() {
   const { homepage } = useSite()
   const queryClient = useQueryClient()
@@ -136,6 +213,15 @@ export function LayoutTab() {
     }))
 
   const save = async () => {
+    const { link_url: link, color } = draft.banner
+    if (link && !LINK_OK.test(link)) {
+      setMessage({ tone: 'danger', text: 'Liên kết banner phải bắt đầu bằng / hoặc https://' })
+      return
+    }
+    if (color && !/^#[0-9a-fA-F]{6}$/.test(color)) {
+      setMessage({ tone: 'danger', text: 'Màu nền banner phải có dạng #A80000' })
+      return
+    }
     setSaving(true)
     setMessage(null)
     try {
@@ -166,27 +252,34 @@ export function LayoutTab() {
                 setDraft((d) => ({ ...d, sections: moveSection(d.sections, section.key, delta) }))
               }
               extra={
-                section.key === 'category_news' && (
-                  <fieldset className="space-y-1.5 pl-6">
-                    <legend className="text-xs text-muted">
-                      Chọn chuyên mục hiện thành từng khối riêng (tối đa {MAX_CATEGORIES}):
-                    </legend>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1">
-                      {categories
-                        .filter((c) => c.is_active)
-                        .map((c) => (
-                          <label key={c.id} className="flex items-center gap-1.5 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={draft.category_ids.includes(c.id)}
-                              onChange={(e) => toggleCategory(c.id, e.target.checked)}
-                              className="accent-[var(--brand-primary)]"
-                            />
-                            {c.name}
-                          </label>
-                        ))}
-                    </div>
-                  </fieldset>
+                section.key === 'topic_banner' ? (
+                  <BannerFields
+                    banner={draft.banner}
+                    onChange={(patch) => setDraft((d) => ({ ...d, banner: { ...d.banner, ...patch } }))}
+                  />
+                ) : (
+                  section.key === 'category_news' && (
+                    <fieldset className="space-y-1.5 pl-6">
+                      <legend className="text-xs text-muted">
+                        Chọn chuyên mục hiện thành từng khối riêng (tối đa {MAX_CATEGORIES}):
+                      </legend>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1">
+                        {categories
+                          .filter((c) => c.is_active)
+                          .map((c) => (
+                            <label key={c.id} className="flex items-center gap-1.5 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={draft.category_ids.includes(c.id)}
+                                onChange={(e) => toggleCategory(c.id, e.target.checked)}
+                                className="accent-[var(--brand-primary)]"
+                              />
+                              {c.name}
+                            </label>
+                          ))}
+                      </div>
+                    </fieldset>
+                  )
                 )
               }
             />

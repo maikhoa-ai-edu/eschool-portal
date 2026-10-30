@@ -69,6 +69,10 @@ const publicModuleRoutes: RouteObject[] = [
     { index: true, element: <Navigate to="/" replace /> },
     { path: ':slug', lazy: page(() => import('@/features/pages/public/StaticPage'), 'StaticPage') },
   ]),
+  publicModule('chuyen-de', 'topics', [
+    { index: true, lazy: page(() => import('@/features/topics/public/TopicPages'), 'TopicIndexPage') },
+    { path: ':slug', lazy: page(() => import('@/features/topics/public/TopicPages'), 'TopicPage') },
+  ]),
 ]
 
 /** Nhóm route quản trị cần một quyền (CSDL vẫn kiểm tra lại bằng RLS). */
@@ -135,6 +139,14 @@ const adminContentRoutes: RouteObject[] = [
     listAndEditor(
       page(() => import('@/features/pages/admin/PageListPage'), 'PageListPage'),
       page(() => import('@/features/pages/admin/PageEditorPage'), 'PageEditorPage'),
+    ),
+  ),
+  adminSection(
+    'chuyen-de',
+    'topics.manage',
+    listAndEditor(
+      page(() => import('@/features/topics/admin/TopicListPage'), 'TopicListPage'),
+      page(() => import('@/features/topics/admin/TopicEditorPage'), 'TopicEditorPage'),
     ),
   ),
   adminSection('trang-chu', 'homepage.manage', [

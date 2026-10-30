@@ -243,6 +243,102 @@ cross join (values
 where m.code = 'footer';
 
 -- ---------------------------------------------------------------------------
+-- Dữ liệu mẫu Giai đoạn 8: icon menu, thanh đáy, chuyên đề "Học tập và làm theo Bác", banner trang chủ
+-- Tin, tài liệu, phong trào dưới đây là nội dung minh họa, không phải thông tin đã xác thực của trường.
+-- ---------------------------------------------------------------------------
+
+insert into public.news_tags (name, slug) values ('Học tập và làm theo Bác', 'hoc-tap-va-lam-theo-bac');
+
+insert into public.news (title, slug, excerpt, content, thumbnail_url, category_id, author_id, status, published_at, published_by) values
+  ('Chi bộ triển khai kế hoạch học tập và làm theo Bác năm học 2026 - 2027', 'chi-bo-trien-khai-ke-hoach-hoc-tap-va-lam-theo-bac',
+   'Kế hoạch gắn việc tu dưỡng, rèn luyện của mỗi cán bộ, giáo viên với nhiệm vụ chuyên môn cụ thể.',
+   '<p>Chi bộ nhà trường đã quán triệt kế hoạch năm học, gắn việc học tập và làm theo Bác với nhiệm vụ chuyên môn của từng tổ.</p><ul><li>Mỗi giáo viên đăng ký một việc làm cụ thể ngay từ đầu năm.</li><li>Kết quả được rà soát trong sinh hoạt tổ chuyên môn hằng tháng.</li></ul>',
+   'seed/album/hoc-tap-2.jpg', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a2', 'published', now() - interval '12 days', '00000000-0000-0000-0000-0000000000a2'),
+  ('Hội thi kể chuyện về Bác cấp trường', 'hoi-thi-ke-chuyen-ve-bac-cap-truong',
+   'Các chi đoàn, chi đội tham gia với nhiều phần thi kể chuyện và liên hệ bản thân.',
+   '<p>Hội thi là dịp để học sinh tìm hiểu về cuộc đời của Bác và rút ra bài học cho việc rèn luyện hằng ngày.</p><p>Nhiều phần thi được sân khấu hóa, thu hút đông đảo học sinh cổ vũ.</p>',
+   'seed/album/stem-1.jpg', '00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000a2', 'published', now() - interval '16 days', '00000000-0000-0000-0000-0000000000a2'),
+  ('Ra mắt góc đọc "Tủ sách về Bác" tại thư viện', 'ra-mat-goc-doc-tu-sach-ve-bac-tai-thu-vien',
+   'Không gian đọc và tìm hiểu tư liệu về cuộc đời, sự nghiệp của Chủ tịch Hồ Chí Minh dành cho thầy và trò.',
+   '<p>Góc đọc được bố trí ngay trong thư viện, gồm sách tiểu sử, hồi ký và các tác phẩm viết về Bác.</p><p>Học sinh có thể mượn sách về nhà hoặc đọc tại chỗ trong giờ ra chơi.</p>',
+   'seed/album/thu-vien.jpg', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a2', 'published', now() - interval '18 days', '00000000-0000-0000-0000-0000000000a2');
+
+insert into public.news_tag_map (news_id, tag_id)
+select n.id, t.id from public.news n cross join public.news_tags t
+where t.slug = 'hoc-tap-va-lam-theo-bac' and n.slug in (
+  'doan-truong-sinh-hoat-chu-diem-hoc-tap-va-lam-theo-loi-bac',
+  'chi-bo-trien-khai-ke-hoach-hoc-tap-va-lam-theo-bac',
+  'hoi-thi-ke-chuyen-ve-bac-cap-truong',
+  'ra-mat-goc-doc-tu-sach-ve-bac-tai-thu-vien');
+
+insert into public.documents (id, title, document_number, document_type, issuing_authority, signer, issue_date, effective_date, excerpt,
+  file_path, file_name, file_size, mime_type, status, created_by) values
+  ('00000000-0000-0000-0000-0000000000d1', 'Kế hoạch học tập và làm theo Bác năm học 2026 - 2027', '05/KH-THCSTHPTVP', 'ke_hoach',
+   'Trường THCS & THPT Vĩnh Phong', 'Nguyễn Văn An', '2026-09-08', '2026-09-08',
+   'Nội dung, hình thức và lịch thực hiện chuyên đề trong năm học.',
+   'seed/ke-hoach-hoc-tap-lam-theo-bac.pdf', 'ke-hoach-hoc-tap-lam-theo-bac.pdf', 110219, 'application/pdf', 'published',
+   '00000000-0000-0000-0000-0000000000a2'),
+  ('00000000-0000-0000-0000-0000000000d2', 'Tài liệu sinh hoạt: 5 điều Bác Hồ dạy thiếu niên, nhi đồng', null, 'khac',
+   'Trường THCS & THPT Vĩnh Phong', null, '2026-09-15', null,
+   'Tài liệu dùng trong tiết sinh hoạt lớp, kèm gợi ý liên hệ với việc rèn luyện hằng ngày.',
+   'seed/tai-lieu-5-dieu-bac-ho-day.pdf', 'tai-lieu-5-dieu-bac-ho-day.pdf', 79061, 'application/pdf', 'published',
+   '00000000-0000-0000-0000-0000000000a2');
+
+insert into public.topics (title, slug, badge, summary, hero_image, hero_color, quote_text, quote_author, status, meta_description, created_by, sections) values
+  ('Học tập và làm theo Bác', 'hoc-tap-va-lam-theo-bac', 'Chuyên đề năm học 2026 - 2027',
+   'Thầy và trò Trường THCS & THPT Vĩnh Phong thi đua dạy tốt, học tốt, rèn đức luyện tài; học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh bằng những việc làm cụ thể mỗi ngày.',
+   'seed/slide-bac-ho.jpg', '#A80000',
+   'Non sông Việt Nam có trở nên tươi đẹp hay không, dân tộc Việt Nam có bước tới đài vinh quang để sánh vai với các cường quốc năm châu được hay không, chính là nhờ một phần lớn ở công học tập của các em.',
+   'Chủ tịch Hồ Chí Minh, Thư gửi các học sinh (1945)', 'published',
+   'Chuyên đề học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh của Trường THCS & THPT Vĩnh Phong.',
+   '00000000-0000-0000-0000-0000000000a2',
+   jsonb_build_array(
+     jsonb_build_object('id', 'gioi-thieu', 'type', 'rich_text', 'area', 'main', 'enabled', true, 'title', 'Giới thiệu chuyên đề',
+       'html', '<p>Chuyên đề được triển khai trong toàn trường, gắn với nhiệm vụ của từng tập thể và cá nhân:</p><ul><li><strong>Cán bộ, giáo viên:</strong> nêu gương trong giảng dạy, hết lòng vì học sinh.</li><li><strong>Học sinh:</strong> thực hiện tốt 5 điều Bác Hồ dạy, chăm học, chăm làm.</li><li><strong>Đoàn - Đội:</strong> tổ chức sinh hoạt chủ điểm, phong trào người tốt việc tốt.</li></ul>'),
+     jsonb_build_object('id', 'bai-viet', 'type', 'news', 'area', 'main', 'enabled', true, 'title', 'Bài viết chuyên đề',
+       'tag_slug', 'hoc-tap-va-lam-theo-bac', 'limit', 6),
+     jsonb_build_object('id', 'viec-lam', 'type', 'cards', 'area', 'main', 'enabled', true, 'title', 'Việc làm theo Bác',
+       'items', jsonb_build_array(
+         jsonb_build_object('image_path', 'seed/album/hoc-tap-1.jpg', 'title', 'Giờ học nhóm hiệu quả', 'text', 'Học sinh giúp nhau cùng tiến bộ trong từng tiết học.', 'url', null),
+         jsonb_build_object('image_path', 'seed/album/san-truong.jpg', 'title', 'Trường học xanh - sạch - đẹp', 'text', 'Mỗi lớp chăm sóc một bồn hoa trong sân trường.', 'url', '/tin-tuc/lien-doi-ra-quan-truong-hoc-xanh-sach-dep'),
+         jsonb_build_object('image_path', 'seed/album/stem-2.jpg', 'title', 'Sáng tạo vì cộng đồng', 'text', 'Câu lạc bộ STEM làm mô hình tưới nước cho vườn trường.', 'url', '/tin-tuc/clb-stem-ra-mat-mo-hinh-tuoi-nuoc-thong-minh')
+       )),
+     jsonb_build_object('id', 'hinh-anh', 'type', 'album', 'area', 'main', 'enabled', true, 'title', 'Hình ảnh hoạt động',
+       'album_slug', 'hoc-tap-va-trai-nghiem-sang-tao', 'limit', 4),
+     jsonb_build_object('id', 'nam-dieu', 'type', 'list', 'area', 'side', 'enabled', true, 'title', '5 điều Bác Hồ dạy',
+       'items', jsonb_build_array('Yêu Tổ quốc, yêu đồng bào', 'Học tập tốt, lao động tốt', 'Đoàn kết tốt, kỷ luật tốt', 'Giữ gìn vệ sinh thật tốt', 'Khiêm tốn, thật thà, dũng cảm')),
+     jsonb_build_object('id', 'tai-lieu', 'type', 'documents', 'area', 'side', 'enabled', true, 'title', 'Tài liệu học tập',
+       'document_ids', jsonb_build_array('00000000-0000-0000-0000-0000000000d1', '00000000-0000-0000-0000-0000000000d2')),
+     jsonb_build_object('id', 'trich-dan', 'type', 'quote', 'area', 'side', 'enabled', true, 'title', 'Lời Bác dạy',
+       'text', 'Vì lợi ích mười năm thì phải trồng cây, vì lợi ích trăm năm thì phải trồng người.', 'author', 'Chủ tịch Hồ Chí Minh'),
+     -- Tắt sẵn: dán liên kết YouTube rồi bật khối này
+     jsonb_build_object('id', 'video', 'type', 'video', 'area', 'side', 'enabled', false, 'title', 'Phim tư liệu', 'url', '', 'caption', '')
+   ));
+
+insert into public.menu_items (menu_id, title, url, icon, sort_order)
+select m.id, 'Chuyên đề', '/chuyen-de/hoc-tap-va-lam-theo-bac', 'star', 7
+from public.menus m where m.code = 'main';
+update public.menu_items set icon = 'users'
+where title = 'Cơ cấu tổ chức';
+
+update public.site_settings set value = jsonb_set(value, '{sections}', jsonb_build_array(
+    jsonb_build_object('key', 'topic_banner', 'enabled', true, 'title', '', 'limit', 0),
+    jsonb_build_object('key', 'featured_news', 'enabled', true, 'title', 'Tin nổi bật', 'limit', 5),
+    jsonb_build_object('key', 'latest_news', 'enabled', true, 'title', 'Tin mới nhất', 'limit', 6),
+    jsonb_build_object('key', 'category_news', 'enabled', true, 'title', '', 'limit', 4),
+    jsonb_build_object('key', 'albums', 'enabled', true, 'title', 'Thư viện ảnh', 'limit', 4),
+    jsonb_build_object('key', 'announcements', 'enabled', true, 'title', 'Thông báo', 'limit', 5),
+    jsonb_build_object('key', 'documents', 'enabled', true, 'title', 'Văn bản mới', 'limit', 5),
+    jsonb_build_object('key', 'visit_counter', 'enabled', true, 'title', 'Thống kê truy cập', 'limit', 0)
+  )) || jsonb_build_object('banner', jsonb_build_object(
+    'image_path', 'seed/slide-bac-ho.jpg', 'alt', '', 'badge', 'Chuyên đề đặc biệt',
+    'title', 'Học tập và làm theo Bác',
+    'subtitle', 'Thầy và trò rèn đức, luyện tài, làm theo Bác bằng những việc làm cụ thể mỗi ngày.',
+    'link_url', '/chuyen-de/hoc-tap-va-lam-theo-bac', 'cta_label', 'Khám phá chuyên đề', 'color', '#A80000', 'placement', 'top'
+  ))
+where key = 'homepage';
+
+-- ---------------------------------------------------------------------------
 -- Dữ liệu mẫu Giai đoạn 6: lượt truy cập, lời mời, tài khoản, nhật ký
 -- ---------------------------------------------------------------------------
 

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { HOMEPAGE_KEY, fetchSlides } from '@/features/homepage/api'
 import { HeroSlider } from '@/features/homepage/HeroSlider'
+import { TopicBanner } from '@/features/homepage/TopicBanner'
 import {
   AlbumsBlock,
   AnnouncementsBox,
@@ -17,7 +18,10 @@ import { useSite } from '@/features/site/site-context'
 /** Trang chủ: slide + các khối theo cấu hình (thứ tự, bật/tắt, số lượng) trong trang quản trị Trang chủ. */
 export function HomePage() {
   const { identity, homepage, isModuleEnabled } = useSite()
-  const main = visibleSections(homepage, 'main', isModuleEnabled)
+  const columnMain = visibleSections(homepage, 'main', isModuleEnabled)
+  const showTopBanner =
+    homepage.banner.placement === 'top' && columnMain.some((s) => s.key === 'topic_banner')
+  const main = columnMain.filter((s) => s.key !== 'topic_banner' || !showTopBanner)
   const sidebar = visibleSections(homepage, 'sidebar', isModuleEnabled)
 
   const slides = useQuery({
@@ -40,6 +44,8 @@ export function HomePage() {
         return <CategoryNews key={section.key} section={section} categoryIds={homepage.category_ids} />
       case 'albums':
         return <AlbumsBlock key={section.key} section={section} />
+      case 'topic_banner':
+        return <TopicBanner key={section.key} banner={homepage.banner} />
       default:
         return null
     }
@@ -62,6 +68,11 @@ export function HomePage() {
       <h1 className="sr-only">{identity.school_name}</h1>
       {homepage.show_slides && slides.data && slides.data.length > 0 && (
         <HeroSlider slides={slides.data} interval={homepage.slide_interval} />
+      )}
+      {showTopBanner && (
+        <div className="mb-8">
+          <TopicBanner banner={homepage.banner} />
+        </div>
       )}
       <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
         <div className="min-w-0 space-y-8">{main.map(renderMain)}</div>

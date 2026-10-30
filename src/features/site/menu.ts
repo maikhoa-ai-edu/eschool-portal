@@ -7,6 +7,7 @@ export interface MenuItem {
   title: string
   url: string
   open_in_new_tab: boolean
+  icon: string | null
   sort_order: number
 }
 
@@ -37,7 +38,7 @@ export function isExternalUrl(url: string): boolean {
 export async function fetchMenu(code: string): Promise<MenuNode[]> {
   const { data, error } = await getSupabase()
     .from('menu_items')
-    .select('id, parent_id, title, url, open_in_new_tab, sort_order, menus!inner(code)')
+    .select('id, parent_id, title, url, open_in_new_tab, icon, sort_order, menus!inner(code)')
     .eq('menus.code', code)
     .eq('is_active', true)
   if (error) throw error
@@ -51,9 +52,10 @@ const MODULE_PATHS: Array<[ModuleKey, string]> = [
   ['documents', '/van-ban'],
   ['albums', '/thu-vien-anh'],
   ['pages', '/trang'],
+  ['topics', '/chuyen-de'],
 ]
 
-function moduleOfUrl(url: string): ModuleKey | null {
+export function moduleOfUrl(url: string): ModuleKey | null {
   const path = url.split(/[?#]/)[0]!
   const hit = MODULE_PATHS.find(([, prefix]) => path === prefix || path.startsWith(prefix + '/'))
   return hit?.[0] ?? null
