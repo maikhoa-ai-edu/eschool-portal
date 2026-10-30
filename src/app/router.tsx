@@ -2,13 +2,11 @@ import type { ComponentType } from 'react'
 import { createBrowserRouter, Navigate, Outlet, type RouteObject } from 'react-router'
 import type { ConfigState } from '@/lib/runtime-config'
 import { RouteError } from '@/components/RouteError'
-import { ComingSoon } from '@/components/ComingSoon'
 import { FullPageSpinner } from '@/components/ui/Spinner'
 import { RequirePermission, RequireStaff } from '@/features/auth/guards'
 import { InstallGate } from '@/features/install/InstallGate'
 import { ModuleGate } from '@/features/site/ModuleGate'
 import type { ModuleKey } from '@/features/site/settings'
-import { ADMIN_PLACEHOLDER_ROUTES } from '@/layouts/admin/admin-nav'
 
 const installRoute: RouteObject = {
   path: '/install',
@@ -157,6 +155,12 @@ const adminContentRoutes: RouteObject[] = [
   adminSection('menu', 'menus.manage', [
     { index: true, lazy: page(() => import('@/features/menus/MenuPage'), 'MenuPage') },
   ]),
+  adminSection('tai-khoan', 'users.manage', [
+    { index: true, lazy: page(() => import('@/features/accounts/AccountsPage'), 'AccountsPage') },
+  ]),
+  adminSection('nhat-ky', 'audit.view', [
+    { index: true, lazy: page(() => import('@/features/audit/AuditLogPage'), 'AuditLogPage') },
+  ]),
 ]
 
 export function createAppRouter(configState: ConfigState) {
@@ -182,6 +186,10 @@ export function createAppRouter(configState: ConfigState) {
             {
               path: '/dang-nhap',
               lazy: () => import('@/features/auth/LoginPage').then((m) => ({ Component: m.LoginPage })),
+            },
+            {
+              path: '/dang-ky',
+              lazy: () => import('@/features/auth/RegisterPage').then((m) => ({ Component: m.RegisterPage })),
             },
             {
               path: '/',
@@ -220,17 +228,6 @@ export function createAppRouter(configState: ConfigState) {
                         import('@/features/system/StatusPage').then((m) => ({ Component: m.StatusPage })),
                     },
                     ...adminContentRoutes,
-                    // Các chức năng quản trị khác: giữ chỗ, đã chặn theo quyền
-                    ...ADMIN_PLACEHOLDER_ROUTES.map((item) => ({
-                      path: item.to.replace('/admin/', '') + '/*',
-                      element: item.permission ? (
-                        <RequirePermission permission={item.permission}>
-                          <ComingSoon title={item.label} phase={item.phase ?? 4} />
-                        </RequirePermission>
-                      ) : (
-                        <ComingSoon title={item.label} phase={item.phase ?? 4} />
-                      ),
-                    })),
                     {
                       path: '*',
                       lazy: () => import('@/components/NotFound').then((m) => ({ Component: m.NotFound })),

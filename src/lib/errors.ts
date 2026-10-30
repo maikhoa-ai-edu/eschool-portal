@@ -5,7 +5,7 @@ const KNOWN_ERRORS: Array<[RegExp, string]> = [
   // CSDL từ chối đăng ký email chưa được mời (trigger handle_new_user)
   [
     /database error saving new user/i,
-    'Email này chưa được mời tham gia hệ thống. Hãy liên hệ quản trị viên.',
+    'Email này chưa được mời tham gia hệ thống hoặc lời mời đã hết hạn. Hãy liên hệ quản trị viên.',
   ],
   [/user already registered/i, 'Email này đã có tài khoản. Hãy đăng nhập.'],
   [

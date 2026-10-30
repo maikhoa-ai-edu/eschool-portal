@@ -75,6 +75,11 @@ export function LoginPage() {
         </form>
 
         <p className="mt-6 text-center text-sm">
+          <Link to="/dang-ky" className="text-primary hover:underline">
+            Được nhà trường mời? Tạo tài khoản
+          </Link>
+        </p>
+        <p className="mt-2 text-center text-sm">
           <Link to="/" className="text-primary hover:underline">
             ← Về trang chủ
           </Link>

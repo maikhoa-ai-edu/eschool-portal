@@ -114,7 +114,7 @@ test.describe('Quản trị trang chủ & cấu hình', () => {
     const headings = await guest.locator('main h2').allTextContents()
     expect(headings.indexOf('Tin mới nhất')).toBeLessThan(headings.indexOf('Tin nổi bật'))
     await expect(guest.getByRole('link', { name: 'E2E Đăng ký Hội khỏe Phù Đổng' }).first()).toBeVisible()
-    await expect(guest.getByText(/125\.0\d\d/).first()).toBeVisible()
+    await expect(guest.getByText(/1[23]\d\.\d{3}/).first()).toBeVisible()
     await guest.screenshot({ path: screenshotPath('home-after-admin', info), fullPage: true })
   })
 

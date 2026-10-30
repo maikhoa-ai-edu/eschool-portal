@@ -11,7 +11,9 @@ begin
     select * from (values
       ('00000000-0000-0000-0000-0000000000a1'::uuid, 'superadmin@demo.local', 'Quản trị hệ thống'),
       ('00000000-0000-0000-0000-0000000000a2'::uuid, 'admin@demo.local', 'Phó Hiệu trưởng'),
-      ('00000000-0000-0000-0000-0000000000a3'::uuid, 'editor@demo.local', 'Giáo viên biên tập')
+      ('00000000-0000-0000-0000-0000000000a3'::uuid, 'editor@demo.local', 'Giáo viên biên tập'),
+      ('00000000-0000-0000-0000-0000000000a4'::uuid, 'giaovien.van@demo.local', 'Lê Thị Hoa'),
+      ('00000000-0000-0000-0000-0000000000a5'::uuid, 'giaovien.nghi@demo.local', 'Trần Minh Tuấn')
     ) as t(id, email, full_name)
   loop
     insert into auth.users (
@@ -35,6 +37,9 @@ end $$;
 update public.profiles set role = 'SUPER_ADMIN' where email = 'superadmin@demo.local';
 update public.profiles set role = 'ADMIN' where email = 'admin@demo.local';
 update public.profiles set role = 'EDITOR' where email = 'editor@demo.local';
+update public.profiles set role = 'EDITOR' where email = 'giaovien.van@demo.local';
+-- Tài khoản đã khóa: giáo viên chuyển trường
+update public.profiles set role = 'EDITOR', is_active = false where email = 'giaovien.nghi@demo.local';
 
 update private.install_state set install_code = null, bootstrapped_at = now(), completed_at = now();
 
@@ -236,3 +241,57 @@ cross join (values
   ('Bộ Giáo dục và Đào tạo', 'https://moet.gov.vn', true, 3)
 ) as i(title, url, new_tab, sort_order)
 where m.code = 'footer';
+
+-- ---------------------------------------------------------------------------
+-- Dữ liệu mẫu Giai đoạn 6: lượt truy cập, lời mời, tài khoản, nhật ký
+-- ---------------------------------------------------------------------------
+
+-- 45 ngày gần nhất: ngày thường đông hơn cuối tuần, không có số ngẫu nhiên để lần nào reset cũng giống nhau
+insert into public.site_visits_daily (day, visits)
+select d::date,
+  case when extract(isodow from d) >= 6 then 35 else 110 end + (extract(doy from d)::int * 37) % 60
+from generate_series(
+  (now() at time zone 'Asia/Ho_Chi_Minh')::date - 45,
+  (now() at time zone 'Asia/Ho_Chi_Minh')::date,
+  interval '1 day'
+) as d;
+
+update auth.users set last_sign_in_at = now() - interval '2 hours' where email = 'superadmin@demo.local';
+update auth.users set last_sign_in_at = now() - interval '1 day' where email = 'admin@demo.local';
+update auth.users set last_sign_in_at = now() - interval '3 days' where email = 'editor@demo.local';
+update auth.users set last_sign_in_at = now() - interval '12 days' where email = 'giaovien.van@demo.local';
+update auth.users set last_sign_in_at = now() - interval '90 days' where email = 'giaovien.nghi@demo.local';
+
+insert into public.invitations (email, role, invited_by, created_at, expires_at, accepted_at) values
+  ('editor@demo.local', 'EDITOR', '00000000-0000-0000-0000-0000000000a1', now() - interval '40 days', now() - interval '26 days', now() - interval '39 days'),
+  ('giaovien.van@demo.local', 'EDITOR', '00000000-0000-0000-0000-0000000000a1', now() - interval '30 days', now() - interval '16 days', now() - interval '28 days'),
+  ('giaovien.toan@demo.local', 'EDITOR', '00000000-0000-0000-0000-0000000000a1', now() - interval '2 days', now() + interval '12 days', null),
+  ('totruong.khtn@demo.local', 'ADMIN', '00000000-0000-0000-0000-0000000000a1', now() - interval '1 day', now() + interval '13 days', null),
+  ('thuky@demo.local', 'EDITOR', '00000000-0000-0000-0000-0000000000a1', now() - interval '20 days', now() - interval '6 days', null);
+
+-- Dòng nhật ký do chính các lệnh seed tạo ra không có người thực hiện, thay bằng lịch sử dễ hình dung
+delete from public.audit_logs where actor_id is null;
+
+insert into public.audit_logs (occurred_at, actor_id, actor_role, action, table_name, record_id, changed_fields, summary)
+select now() - e.ago, e.actor, p.role, e.action, e.table_name, e.record_id, e.fields, e.summary
+from (values
+  (interval '40 days', '00000000-0000-0000-0000-0000000000a1'::uuid, 'INSERT', 'invitations', null, null::text[], 'editor@demo.local'),
+  (interval '30 days', '00000000-0000-0000-0000-0000000000a1', 'INSERT', 'invitations', null, null, 'giaovien.van@demo.local'),
+  (interval '25 days', '00000000-0000-0000-0000-0000000000a2', 'INSERT', 'news', null, null, 'Họp cha mẹ học sinh đầu năm học 2026 - 2027'),
+  (interval '21 days', '00000000-0000-0000-0000-0000000000a1', 'UPDATE', 'site_settings', 'branding', array['value'], 'branding'),
+  (interval '20 days', '00000000-0000-0000-0000-0000000000a1', 'INSERT', 'invitations', null, null, 'thuky@demo.local'),
+  (interval '15 days', '00000000-0000-0000-0000-0000000000a1', 'UPDATE', 'profiles', '00000000-0000-0000-0000-0000000000a5', array['is_active'], 'giaovien.nghi@demo.local'),
+  (interval '14 days', '00000000-0000-0000-0000-0000000000a3', 'INSERT', 'news', null, null, 'Liên đội ra quân "Trường học xanh - sạch - đẹp"'),
+  (interval '14 days' - interval '3 hours', '00000000-0000-0000-0000-0000000000a2', 'UPDATE', 'news', null, array['published_at', 'published_by', 'status'], 'Liên đội ra quân "Trường học xanh - sạch - đẹp"'),
+  (interval '6 days', '00000000-0000-0000-0000-0000000000a2', 'INSERT', 'announcements', null, null, 'Tiêm chủng cho học sinh khối 6'),
+  (interval '5 days', '00000000-0000-0000-0000-0000000000a1', 'UPDATE', 'module_settings', 'albums', array['is_enabled'], 'albums'),
+  (interval '3 days', '00000000-0000-0000-0000-0000000000a3', 'INSERT', 'news', null, null, 'Câu lạc bộ STEM ra mắt mô hình tưới nước thông minh'),
+  (interval '3 days' - interval '2 hours', '00000000-0000-0000-0000-0000000000a2', 'UPDATE', 'news', null, array['is_featured', 'published_at', 'published_by', 'status'], 'Câu lạc bộ STEM ra mắt mô hình tưới nước thông minh'),
+  (interval '2 days', '00000000-0000-0000-0000-0000000000a1', 'INSERT', 'invitations', null, null, 'giaovien.toan@demo.local'),
+  (interval '2 days', '00000000-0000-0000-0000-0000000000a2', 'INSERT', 'homepage_slides', null, null, 'Câu lạc bộ STEM: khám phá và sáng tạo'),
+  (interval '1 day', '00000000-0000-0000-0000-0000000000a1', 'INSERT', 'invitations', null, null, 'totruong.khtn@demo.local'),
+  (interval '20 hours', '00000000-0000-0000-0000-0000000000a2', 'INSERT', 'documents', null, null, 'Thông báo lịch kiểm tra giữa học kỳ I'),
+  (interval '5 hours', '00000000-0000-0000-0000-0000000000a3', 'UPDATE', 'news', null, array['status'], 'Thông tin tuyển sinh lớp 6 và lớp 10'),
+  (interval '2 hours', '00000000-0000-0000-0000-0000000000a1', 'UPDATE', 'site_settings', 'school_identity', array['value'], 'school_identity')
+) as e(ago, actor, action, table_name, record_id, fields, summary)
+join public.profiles p on p.id = e.actor;

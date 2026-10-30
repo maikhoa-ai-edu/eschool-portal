@@ -1,0 +1,349 @@
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Check, Copy, Lock, Mail, RefreshCw, Trash2, Unlock, UserPlus } from 'lucide-react'
+import { AdminPageHeader, Panel, QueryState, TableCard } from '@/components/admin/AdminPage'
+import { confirmAction } from '@/components/admin/confirm'
+import { Alert } from '@/components/ui/Alert'
+import { Badge, type BadgeTone } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { buttonClasses } from '@/components/ui/button-classes'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { Field } from '@/components/ui/Field'
+import { SelectField } from '@/components/ui/FormControls'
+import { ROLE_LABELS, useAuth, type Role } from '@/features/auth/auth-context'
+import { useSite } from '@/features/site/site-context'
+import { toVietnameseError } from '@/lib/errors'
+import { formatDate, formatDateTime } from '@/lib/format'
+import {
+  ACCOUNTS_KEY,
+  changeRole,
+  createInvitation,
+  extendInvitation,
+  fetchAccounts,
+  fetchInvitations,
+  invitationLink,
+  invitationMailto,
+  invitationState,
+  INVITATIONS_KEY,
+  revokeInvitation,
+  setAccountActive,
+  type Account,
+  type Invitation,
+  type InvitationState,
+} from './api'
+
+const ROLE_OPTIONS = (Object.keys(ROLE_LABELS) as Role[]).map((value) => ({
+  value,
+  label: ROLE_LABELS[value],
+}))
+
+const roleLabel = (role: string | null) => ROLE_LABELS[role as Role] ?? 'Chưa có vai trò'
+
+const inviteSchema = z.object({
+  email: z.email('Email không hợp lệ'),
+  role: z.enum(['SUPER_ADMIN', 'ADMIN', 'EDITOR']),
+})
+type InviteValues = z.infer<typeof inviteSchema>
+
+const STATE_BADGES: Record<InvitationState, { tone: BadgeTone; label: string }> = {
+  open: { tone: 'warning', label: 'Chờ đăng ký' },
+  expired: { tone: 'danger', label: 'Hết hạn' },
+  accepted: { tone: 'success', label: 'Đã nhận' },
+}
+
+function InviteLinkBox({ email }: { email: string }) {
+  const { identity } = useSite()
+  const [copied, setCopied] = useState(false)
+  const link = invitationLink(email)
+
+  const copy = async () => {
+    await navigator.clipboard.writeText(link)
+    setCopied(true)
+  }
+
+  return (
+    <Alert tone="success" title={`Đã tạo lời mời cho ${email}`}>
+      <p>
+        Website không tự gửi thư. Hãy gửi liên kết này cho người được mời qua email hoặc Zalo; họ phải đăng ký
+        bằng đúng địa chỉ email trên.
+      </p>
+      <input
+        readOnly
+        aria-label="Liên kết mời"
+        value={link}
+        onFocus={(e) => e.target.select()}
+        className="mt-2 h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm text-text"
+      />
+      <div className="mt-2 flex flex-wrap gap-2">
+        <Button size="sm" variant="outline" onClick={() => void copy()}>
+          {copied ? <Check className="h-4 w-4" aria-hidden /> : <Copy className="h-4 w-4" aria-hidden />}
+          {copied ? 'Đã sao chép' : 'Sao chép liên kết'}
+        </Button>
+        <a href={invitationMailto(email, identity.school_name)} className={buttonClasses('outline', 'sm')}>
+          <Mail className="h-4 w-4" aria-hidden /> Soạn thư
+        </a>
+      </div>
+    </Alert>
+  )
+}
+
+function InviteForm({ onInvited }: { onInvited: (email: string) => void }) {
+  const queryClient = useQueryClient()
+  const [error, setError] = useState<string | null>(null)
+  const form = useForm<InviteValues>({
+    resolver: zodResolver(inviteSchema),
+    defaultValues: { email: '', role: 'EDITOR' },
+  })
+  const e = form.formState.errors
+
+  const onSubmit = form.handleSubmit(async ({ email, role }) => {
+    setError(null)
+    try {
+      await createInvitation(email, role)
+      await queryClient.invalidateQueries({ queryKey: INVITATIONS_KEY })
+      onInvited(email.trim().toLowerCase())
+      form.reset()
+    } catch (err) {
+      setError(toVietnameseError(err))
+    }
+  })
+
+  return (
+    <form onSubmit={onSubmit} noValidate className="space-y-3">
+      {error && <Alert tone="danger" title={error} />}
+      <div className="grid gap-3 sm:grid-cols-[1fr_16rem_auto] sm:items-start">
+        <Field
+          label="Email người được mời"
+          type="email"
+          error={e.email?.message}
+          {...form.register('email')}
+        />
+        <SelectField label="Vai trò" options={ROLE_OPTIONS} {...form.register('role')} />
+        <Button type="submit" className="sm:mt-[1.625rem]" loading={form.formState.isSubmitting}>
+          <UserPlus className="h-4 w-4" aria-hidden /> Tạo lời mời
+        </Button>
+      </div>
+    </form>
+  )
+}
+
+function InvitationsTable({ items, onError }: { items: Invitation[]; onError: (message: string) => void }) {
+  const queryClient = useQueryClient()
+  const [shownLink, setShownLink] = useState<string | null>(null)
+  const action = useMutation({
+    mutationFn: (run: () => Promise<void>) => run(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: INVITATIONS_KEY }),
+    onError: (err) => onError(toVietnameseError(err)),
+  })
+
+  return (
+    <>
+      {shownLink && <InviteLinkBox email={shownLink} />}
+      <TableCard>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Vai trò</th>
+            <th>Người mời</th>
+            <th>Hạn dùng</th>
+            <th>Trạng thái</th>
+            <th aria-label="Thao tác" />
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item) => {
+            const state = invitationState(item)
+            return (
+              <tr key={item.id}>
+                <td className="font-medium">{item.email}</td>
+                <td className="whitespace-nowrap">{roleLabel(item.role)}</td>
+                <td className="text-muted">{item.inviter?.full_name ?? '—'}</td>
+                <td className="whitespace-nowrap text-muted">
+                  {state === 'accepted' ? formatDate(item.accepted_at) : formatDate(item.expires_at)}
+                </td>
+                <td>
+                  <Badge tone={STATE_BADGES[state].tone}>{STATE_BADGES[state].label}</Badge>
+                </td>
+                <td>
+                  {state !== 'accepted' && (
+                    <div className="flex justify-end gap-1.5 whitespace-nowrap">
+                      {state === 'open' && (
+                        <Button size="sm" variant="ghost" onClick={() => setShownLink(item.email)}>
+                          <Copy className="h-4 w-4" aria-hidden /> Liên kết
+                        </Button>
+                      )}
+                      {state === 'expired' && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => action.mutate(() => extendInvitation(item.id))}
+                        >
+                          <RefreshCw className="h-4 w-4" aria-hidden /> Gia hạn
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          if (confirmAction(`Thu hồi lời mời của ${item.email}?`))
+                            action.mutate(() => revokeInvitation(item.id))
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" aria-hidden /> Thu hồi
+                      </Button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </TableCard>
+    </>
+  )
+}
+
+function AccountsTable({ items, onError }: { items: Account[]; onError: (message: string) => void }) {
+  const { profile } = useAuth()
+  const queryClient = useQueryClient()
+  const action = useMutation({
+    mutationFn: (run: () => Promise<void>) => run(),
+    onError: (err) => onError(toVietnameseError(err)),
+    // Luôn tải lại: khi bị từ chối, ô chọn vai trò phải quay về giá trị thật
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ACCOUNTS_KEY }),
+  })
+
+  return (
+    <TableCard>
+      <thead>
+        <tr>
+          <th>Họ tên</th>
+          <th>Vai trò</th>
+          <th>Trạng thái</th>
+          <th>Đăng nhập gần nhất</th>
+          <th aria-label="Thao tác" />
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((account) => {
+          const isSelf = account.id === profile?.id
+          return (
+            <tr key={account.id}>
+              <td>
+                <span className="block font-semibold">
+                  {account.full_name}
+                  {isSelf && <span className="ml-1.5 font-normal text-muted">(bạn)</span>}
+                </span>
+                <span className="block text-xs text-muted">{account.email}</span>
+              </td>
+              <td>
+                {isSelf ? (
+                  roleLabel(account.role)
+                ) : (
+                  <select
+                    aria-label={`Vai trò của ${account.full_name}`}
+                    value={account.role ?? ''}
+                    disabled={action.isPending}
+                    onChange={(e) => {
+                      // Đọc ngay: ô chọn có kiểm soát sẽ quay về giá trị cũ trước khi mutation chạy
+                      const role = e.target.value as Role
+                      action.mutate(() => changeRole(account.id, role))
+                    }}
+                    className="h-9 rounded-lg border border-border bg-surface px-2 text-sm"
+                  >
+                    {account.role === null && <option value="">Chưa có vai trò</option>}
+                    {ROLE_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </td>
+              <td>
+                {account.is_active ? (
+                  <Badge tone="success">Đang hoạt động</Badge>
+                ) : (
+                  <Badge tone="danger">Đã khóa</Badge>
+                )}
+              </td>
+              <td className="whitespace-nowrap text-muted">
+                {formatDateTime(account.last_sign_in_at) || 'Chưa đăng nhập'}
+              </td>
+              <td>
+                {!isSelf && (
+                  <div className="flex justify-end whitespace-nowrap">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      disabled={action.isPending}
+                      onClick={() => {
+                        const message = account.is_active
+                          ? `Khóa tài khoản ${account.full_name}? Người này sẽ không dùng được trang quản trị nữa, các bài đã viết vẫn giữ nguyên.`
+                          : `Mở khóa tài khoản ${account.full_name}?`
+                        if (confirmAction(message))
+                          action.mutate(() => setAccountActive(account.id, !account.is_active))
+                      }}
+                    >
+                      {account.is_active ? (
+                        <Lock className="h-4 w-4" aria-hidden />
+                      ) : (
+                        <Unlock className="h-4 w-4" aria-hidden />
+                      )}
+                      {account.is_active ? 'Khóa' : 'Mở khóa'}
+                    </Button>
+                  </div>
+                )}
+              </td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </TableCard>
+  )
+}
+
+export function AccountsPage() {
+  const [invitedEmail, setInvitedEmail] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const accounts = useQuery({ queryKey: ACCOUNTS_KEY, queryFn: fetchAccounts })
+  const invitations = useQuery({ queryKey: INVITATIONS_KEY, queryFn: fetchInvitations })
+
+  return (
+    <div className="space-y-6">
+      <AdminPageHeader
+        title="Tài khoản"
+        description="Chỉ người được mời mới tạo được tài khoản. Vai trò do Cơ sở dữ liệu kiểm tra ở mọi thao tác."
+      />
+      {error && <Alert tone="danger" title={error} />}
+
+      <Panel title="Mời thành viên">
+        <InviteForm
+          onInvited={(email) => {
+            setError(null)
+            setInvitedEmail(email)
+          }}
+        />
+        {invitedEmail && <InviteLinkBox key={invitedEmail} email={invitedEmail} />}
+      </Panel>
+
+      <section className="space-y-3">
+        <h2 className="text-base font-bold text-primary">Thành viên</h2>
+        <QueryState isPending={accounts.isPending} error={accounts.error} />
+        {accounts.data && <AccountsTable items={accounts.data} onError={setError} />}
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-base font-bold text-primary">Lời mời</h2>
+        <QueryState isPending={invitations.isPending} error={invitations.error} />
+        {invitations.data?.length === 0 && <EmptyState title="Chưa có lời mời nào" />}
+        {invitations.data && invitations.data.length > 0 && (
+          <InvitationsTable items={invitations.data} onError={setError} />
+        )}
+      </section>
+    </div>
+  )
+}

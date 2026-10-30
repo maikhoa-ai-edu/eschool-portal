@@ -904,6 +904,7 @@ export type Database = {
       current_user_role: { Args: never; Returns: string }
       get_install_status: { Args: never; Returns: Json }
       get_schema_version: { Args: never; Returns: string }
+      get_system_health: { Args: never; Returns: Json }
       get_visit_stats: { Args: never; Returns: Json }
       has_permission: { Args: { p_permission: string }; Returns: boolean }
       increment_document_download: {
@@ -912,6 +913,18 @@ export type Database = {
       }
       increment_news_view: { Args: { p_news_id: string }; Returns: undefined }
       is_staff: { Args: never; Returns: boolean }
+      list_accounts: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          is_active: boolean
+          last_sign_in_at: string
+          role: string
+        }[]
+      }
       record_visit: { Args: never; Returns: undefined }
       search_news: {
         Args: { p_limit?: number; p_offset?: number; p_query: string }

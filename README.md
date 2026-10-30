@@ -2,7 +2,7 @@
 
 Cổng thông tin điện tử dành cho trường phổ thông Việt Nam: tin tức, thông báo, văn bản, thư viện ảnh, trang giới thiệu và trang quản trị. Mỗi trường tự cài một bản riêng, dùng cơ sở dữ liệu riêng, tự chọn tên trường, logo, màu sắc và các module cần dùng.
 
-> Trạng thái: **đang phát triển (xong Giai đoạn 5: trang chủ & cấu hình)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
+> Trạng thái: **đang phát triển (xong Giai đoạn 6: quản trị hệ thống)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Quy trình đăng tin
 
@@ -10,6 +10,12 @@ Biên tập viên (giáo viên) soạn bài bằng trình soạn thảo, chèn �
 "Tin chờ duyệt" để **Duyệt & đăng** hoặc **Trả lại tác giả** kèm góp ý; bài đã đăng có thể **Gỡ bài**. Quyền này
 được CSDL kiểm tra (biên tập viên không thể tự đăng, tự đánh dấu nổi bật hay sửa bài đã đăng), giao diện chỉ ẩn
 nút không dùng được.
+
+## Thêm giáo viên
+
+Quản trị viên cấp cao vào **Tài khoản**, nhập email + vai trò rồi bấm **Tạo lời mời**, sau đó gửi liên kết cho giáo viên
+qua email hoặc Zalo (website không tự gửi thư). Giáo viên mở liên kết và tạo tài khoản bằng đúng email đó trong 14 ngày.
+Khi chạy thật, hãy bật **Confirm email** trong Supabase để chỉ chủ email mới kích hoạt được tài khoản.
 
 ## Kiến trúc tóm tắt
 

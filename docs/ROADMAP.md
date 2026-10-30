@@ -57,6 +57,11 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
       cài đặt. Schema 0.4.0 (bảng homepage_slides, ADMIN được sửa trang chủ/dòng chữ chạy). Ảnh lưu đường dẫn trong
       bucket thay vì địa chỉ đầy đủ. Dữ liệu mẫu có ảnh, 4 văn bản PDF, 2 album, 4 slide. 94 pgTAP, 76 unit test,
       E2E kiểm tra mọi chỉnh sửa quản trị hiện ra ở trình duyệt khách
+- [x] Giai đoạn 6: bảng điều khiển có biểu đồ truy cập 30 ngày, việc cần làm, hoạt động gần đây; Tài khoản (đổi vai
+      trò, khóa/mở khóa, lần đăng nhập cuối, mời, gia hạn, thu hồi); đăng ký theo lời mời tại `/dang-ky`; Nhật ký lọc
+      theo người, mục dữ liệu, thời gian; kiểm tra hệ thống (phiên bản schema, Storage, Auth, RLS, bucket, dung lượng).
+      Schema 0.5.0 (`list_accounts`, `get_system_health`, không mời email đã có tài khoản). 118 pgTAP, 90 unit test,
+      E2E nghiệm thu "mời giáo viên làm EDITOR → đăng ký → soạn bài" bằng hai ngữ cảnh trình duyệt
 
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
 
@@ -103,5 +108,12 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
   `node scripts/make-seed-assets.ts <thư-mục-ảnh-gốc>` (Chromium của Playwright nén ảnh, in PDF tiếng Việt).
   Ảnh lấy từ bản demo cũ (ảnh AI); hai ảnh album có chữ tên trường khác, nên thay khi có ảnh thật.
 - Zod 4: khóa không có trong JSON thì `z.unknown()` báo lỗi, phải thêm `.optional()` (đã gặp với `sections`).
+- **Lời mời không tự gửi thư**: website tĩnh chỉ có khóa anon, không gọi được API gửi thư mời của Supabase. Người mời
+  gửi liên kết `/dang-ky?email=...` qua email (nút soạn thư sẵn) hoặc Zalo. Liên kết không chứa bí mật; CSDL chỉ kiểm
+  tra email, nên khi chạy thật phải bật Confirm email (trang kiểm tra hệ thống cảnh báo nếu đang tắt).
+- Lời mời hết hạn vẫn giữ chỗ email (chỉ mục duy nhất), phải gia hạn hoặc thu hồi trước khi mời lại. Gia hạn đặt
+  `invited_by` thành người thao tác vì chính sách RLS yêu cầu vậy.
+- Ô chọn có kiểm soát: đọc `e.target.value` ngay trong handler, không đọc trong closure chạy sau. Trong bảng cuộn ngang,
+  không dùng `sr-only` ở tiêu đề cột (phần tử absolute thoát khỏi khung cuộn, kéo giãn cả trang trên điện thoại).
 - Tài khoản demo khi chạy trên máy (mật khẩu `demo1234`): `superadmin@demo.local`, `admin@demo.local`,
   `editor@demo.local`.

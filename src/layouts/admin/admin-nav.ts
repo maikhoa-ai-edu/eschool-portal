@@ -26,8 +26,6 @@ export interface AdminNavItem {
   permission?: string
   /** Ẩn khi module bị tắt */
   module?: ModuleKey
-  /** Giai đoạn sẽ hoàn thiện (trang giữ chỗ) */
-  phase?: number
 }
 
 export interface AdminNavGroup {
@@ -110,8 +108,8 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         permission: 'settings.manage',
       },
       { label: 'Module', to: '/admin/module', icon: ToggleLeft, permission: 'modules.manage' },
-      { label: 'Tài khoản', to: '/admin/tai-khoan', phase: 6, icon: Users, permission: 'users.manage' },
-      { label: 'Nhật ký', to: '/admin/nhat-ky', phase: 6, icon: ScrollText, permission: 'audit.view' },
+      { label: 'Tài khoản', to: '/admin/tai-khoan', icon: Users, permission: 'users.manage' },
+      { label: 'Nhật ký', to: '/admin/nhat-ky', icon: ScrollText, permission: 'audit.view' },
       { label: 'Trạng thái hệ thống', to: '/admin/he-thong', icon: Activity },
     ],
   },
@@ -129,5 +127,3 @@ export function visibleAdminNav(
     ),
   })).filter((group) => group.items.length > 0)
 }
-
-export const ADMIN_PLACEHOLDER_ROUTES = ADMIN_NAV.flatMap((g) => g.items).filter((i) => i.phase !== undefined)
