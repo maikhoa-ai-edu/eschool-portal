@@ -205,7 +205,8 @@ test('cài đặt từ đầu đến khi vào trang quản trị', async ({ page
     "select value from public.site_settings where key = 'branding'",
   )
   expect(branding!.value.primary_color).toBe('#14532D')
-  expect(branding!.value.logo_url).toMatch(/\/storage\/v1\/object\/public\/media\/branding\/logo-.+\.png$/)
+  // Lưu đường dẫn trong bucket (không gắn với địa chỉ project), giao diện tự đổi thành địa chỉ công khai
+  expect(branding!.value.logo_url).toMatch(/^branding\/logo-.+\.png$/)
   const [albums] = await sql<{ is_enabled: boolean }>(
     "select is_enabled from public.module_settings where module_key = 'albums'",
   )

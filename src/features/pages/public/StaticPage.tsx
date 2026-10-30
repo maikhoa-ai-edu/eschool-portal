@@ -9,6 +9,7 @@ import {
   SidebarBox,
 } from '@/components/content/PublicPage'
 import { RichContent } from '@/components/content/RichContent'
+import { resolveMediaUrl } from '@/features/media/api'
 import { useSite } from '@/features/site/site-context'
 import { cn } from '@/lib/cn'
 import { usePageTitle } from '@/lib/use-page-title'
@@ -74,7 +75,11 @@ export function StaticPage() {
     <article className="rounded-xl bg-surface p-4 shadow-sm sm:p-6">
       <PublicPageHeader title={page.title} crumbs={[{ label: page.title }]} />
       {page.featured_image_url && (
-        <img src={page.featured_image_url} alt="" className="mb-5 max-h-96 w-full rounded-lg object-cover" />
+        <img
+          src={resolveMediaUrl(page.featured_image_url)!}
+          alt=""
+          className="mb-5 max-h-96 w-full rounded-lg object-cover"
+        />
       )}
       <RichContent html={page.content} />
     </article>

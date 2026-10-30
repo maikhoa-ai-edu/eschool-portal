@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { LogIn, LayoutDashboard } from 'lucide-react'
 import { SchoolLogo } from '@/components/SchoolLogo'
 import { useAuth } from '@/features/auth/auth-context'
+import { resolveMediaUrl } from '@/features/media/api'
 import { useSite } from '@/features/site/site-context'
 
 const dateFormat = new Intl.DateTimeFormat('vi-VN', {
@@ -56,12 +57,11 @@ function UtilityBar() {
 
 function BrandBanner() {
   const { identity, branding } = useSite()
+  const banner = resolveMediaUrl(branding.banner_url)
   return (
     <div
       className="relative bg-primary-light bg-cover bg-center text-white"
-      style={
-        branding.banner_url ? { backgroundImage: `url("${encodeURI(branding.banner_url)}")` } : undefined
-      }
+      style={banner ? { backgroundImage: `url("${encodeURI(banner)}")` } : undefined}
     >
       <div
         className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-primary/40"

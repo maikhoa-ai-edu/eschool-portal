@@ -1,3 +1,4 @@
+import { resolveMediaUrl } from '@/features/media/api'
 import type { Branding, SchoolIdentity } from './settings'
 
 /** Áp màu thương hiệu vào biến CSS (màu đã được kiểm tra là mã hex hợp lệ). */
@@ -13,7 +14,7 @@ export function applyDocumentIdentity(
   doc: Document = document,
 ): void {
   doc.title = identity.school_name
-  const iconHref = branding.favicon_url ?? branding.logo_url
+  const iconHref = resolveMediaUrl(branding.favicon_url ?? branding.logo_url)
   if (iconHref) {
     let link = doc.querySelector<HTMLLinkElement>('link[rel="icon"]')
     if (!link) {

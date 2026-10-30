@@ -11,6 +11,7 @@ import {
   WithSidebar,
 } from '@/components/content/PublicPage'
 import { RichContent } from '@/components/content/RichContent'
+import { resolveMediaUrl } from '@/features/media/api'
 import { formatDate, formatNumber } from '@/lib/format'
 import { usePageTitle } from '@/lib/use-page-title'
 import { fetchPublicNewsBySlug, fetchRelatedNews, NEWS_KEY, recordNewsView } from '../api'
@@ -30,7 +31,7 @@ function RelatedNews({ categoryId, excludeId }: { categoryId: string; excludeId:
             <Link to={`/tin-tuc/${n.slug}`} className="flex gap-3 hover:text-primary">
               {n.thumbnail_url && (
                 <img
-                  src={n.thumbnail_url}
+                  src={resolveMediaUrl(n.thumbnail_url)!}
                   alt=""
                   loading="lazy"
                   className="h-14 w-20 shrink-0 rounded object-cover"

@@ -50,6 +50,13 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
       ẩn/hiện, chọn nhanh liên kết). Mọi HTML hiển thị qua DOMPurify. Schema 0.3.0 (chỉ người duyệt được đặt tin
       nổi bật/ngày đăng), 77 kiểm thử pgTAP, 68 unit test, E2E luồng nghiệm thu "tạo → duyệt → đăng; máy khác thấy
       ngay" bằng hai ngữ cảnh trình duyệt riêng
+- [x] Giai đoạn 5: trang chủ theo cấu hình (slide tự chạy, tin nổi bật, tin mới, tin theo chuyên mục, thư viện ảnh;
+      cột phải: thông báo, văn bản, bộ đếm) — quản trị bật/tắt, sắp xếp, đổi tiêu đề, số mục từng khối; quản lý
+      slide có ảnh; dòng chữ chạy có liên kết và tùy chọn tự thêm tin mới; bộ đếm hôm nay/hôm qua/tháng này/tổng
+      kèm số khởi điểm; trang Thông tin trường, Nhận diện (thêm banner, favicon), Module dùng lại biểu mẫu của trình
+      cài đặt. Schema 0.4.0 (bảng homepage_slides, ADMIN được sửa trang chủ/dòng chữ chạy). Ảnh lưu đường dẫn trong
+      bucket thay vì địa chỉ đầy đủ. Dữ liệu mẫu có ảnh, 4 văn bản PDF, 2 album, 4 slide. 94 pgTAP, 76 unit test,
+      E2E kiểm tra mọi chỉnh sửa quản trị hiện ra ở trình duyệt khách
 
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
 
@@ -88,5 +95,13 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
 - Album chỉ cho người có `media.manage` (ADMIN trở lên); biên tập viên tải ảnh trực tiếp trong trình soạn thảo.
   Xóa văn bản/album xóa luôn file trong Storage (qua API, không xóa thẳng bảng `storage.objects`).
 - E2E nội dung tạo dữ liệu tiền tố `E2E` và dọn trong `afterAll`, nên chạy `db:test` sau E2E vẫn đúng số liệu seed.
+- **Ảnh lưu đường dẫn trong bucket media** (vd `seed/logo.jpg`), giao diện đổi thành địa chỉ công khai bằng
+  `resolveMediaUrl`; giá trị cũ dạng `https://...` vẫn dùng được. Nhờ vậy sao lưu/khôi phục sang project khác (GĐ7)
+  không phải sửa địa chỉ. Ảnh chèn trong nội dung bài viết vẫn là địa chỉ đầy đủ.
+- Dữ liệu mẫu: file thật ở `supabase/seed-storage/<bucket>/seed/...`, `npm run db:reset` chạy `db reset` rồi
+  `scripts/seed-storage.ts` (khóa service_role từ `supabase status`, chỉ chạy với Supabase cục bộ). Tạo lại ảnh/PDF:
+  `node scripts/make-seed-assets.ts <thư-mục-ảnh-gốc>` (Chromium của Playwright nén ảnh, in PDF tiếng Việt).
+  Ảnh lấy từ bản demo cũ (ảnh AI); hai ảnh album có chữ tên trường khác, nên thay khi có ảnh thật.
+- Zod 4: khóa không có trong JSON thì `z.unknown()` báo lỗi, phải thêm `.optional()` (đã gặp với `sections`).
 - Tài khoản demo khi chạy trên máy (mật khẩu `demo1234`): `superadmin@demo.local`, `admin@demo.local`,
   `editor@demo.local`.

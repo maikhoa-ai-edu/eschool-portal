@@ -2,7 +2,7 @@
 
 Cổng thông tin điện tử dành cho trường phổ thông Việt Nam: tin tức, thông báo, văn bản, thư viện ảnh, trang giới thiệu và trang quản trị. Mỗi trường tự cài một bản riêng, dùng cơ sở dữ liệu riêng, tự chọn tên trường, logo, màu sắc và các module cần dùng.
 
-> Trạng thái: **đang phát triển (xong Giai đoạn 4: các module nội dung)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
+> Trạng thái: **đang phát triển (xong Giai đoạn 5: trang chủ & cấu hình)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Quy trình đăng tin
 
@@ -36,7 +36,7 @@ Các lệnh khác:
 | `npm run typecheck` / `npm run lint` / `npm test` | Kiểm tra kiểu, lint, unit test                                                                 |
 | `npm run build`                                   | Build ra thư mục `dist/`                                                                       |
 | `npm run test:e2e`                                | Kiểm thử đầu-cuối bằng trình duyệt (Playwright; cần `npx playwright install chromium` lần đầu) |
-| `npm run db:reset`                                | Tạo lại CSDL trên máy từ migrations + seed                                                     |
+| `npm run db:reset`                                | Tạo lại CSDL trên máy từ migrations + seed, tải ảnh & văn bản mẫu lên Storage cục bộ           |
 | `npm run db:test`                                 | Chạy kiểm thử CSDL (pgTAP)                                                                     |
 | `npm run db:types`                                | Sinh kiểu TypeScript từ CSDL                                                                   |
 | `npm run build:install-sql`                       | Ghép migrations thành `dist/install.sql` (bản build cũng tự có file này)                       |

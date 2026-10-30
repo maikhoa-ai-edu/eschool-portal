@@ -139,6 +139,21 @@ const adminContentRoutes: RouteObject[] = [
       page(() => import('@/features/pages/admin/PageEditorPage'), 'PageEditorPage'),
     ),
   ),
+  adminSection('trang-chu', 'homepage.manage', [
+    {
+      index: true,
+      lazy: page(() => import('@/features/homepage/admin/HomepageAdminPage'), 'HomepageAdminPage'),
+    },
+  ]),
+  adminSection('cai-dat', 'settings.manage', [
+    { index: true, lazy: page(() => import('@/features/settings/SettingsPages'), 'SchoolInfoPage') },
+  ]),
+  adminSection('nhan-dien', 'settings.manage', [
+    { index: true, lazy: page(() => import('@/features/settings/SettingsPages'), 'BrandingPage') },
+  ]),
+  adminSection('module', 'modules.manage', [
+    { index: true, lazy: page(() => import('@/features/settings/SettingsPages'), 'ModulesPage') },
+  ]),
   adminSection('menu', 'menus.manage', [
     { index: true, lazy: page(() => import('@/features/menus/MenuPage'), 'MenuPage') },
   ]),

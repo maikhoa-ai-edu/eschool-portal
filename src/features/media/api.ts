@@ -15,6 +15,16 @@ export function publicFileUrl(bucket: string, path: string, download?: string): 
     .getPublicUrl(path, download ? { download } : undefined).data.publicUrl
 }
 
+/**
+ * Ảnh lưu trong CSDL là đường dẫn trong bucket media (vd seed/logo.jpg) để dữ liệu không phụ thuộc địa chỉ
+ * project; giá trị cũ là địa chỉ đầy đủ (http/https, data:, /...) vẫn dùng nguyên.
+ */
+export function resolveMediaUrl(value: string | null | undefined): string | null {
+  if (!value) return null
+  if (/^(https?:|data:|blob:|\/)/i.test(value)) return value
+  return publicFileUrl(MEDIA_BUCKET, value)
+}
+
 export function describeImageProblem(file: File): string | null {
   if (!(IMAGE_TYPES as readonly string[]).includes(file.type)) return 'Chỉ nhận ảnh JPG, PNG, WEBP hoặc GIF.'
   if (file.size > IMAGE_MAX_BYTES) return 'Ảnh quá lớn (tối đa 10 MB).'

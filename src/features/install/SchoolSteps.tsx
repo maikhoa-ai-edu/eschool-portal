@@ -7,6 +7,8 @@ import { ImageUp } from 'lucide-react'
 import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { Field } from '@/components/ui/Field'
+import { ImageUploadField } from '@/components/content/ImageUploadField'
+import { resolveMediaUrl } from '@/features/media/api'
 import { SITE_SETTINGS_QUERY_KEY } from '@/features/site/settings'
 import { useSite } from '@/features/site/site-context'
 import { applyBranding, schoolInitials } from '@/features/site/theme'
@@ -17,7 +19,11 @@ import { adjustLightness, COLOR_PRESETS, contrastRatio, HEX_COLOR } from './colo
 import { MODULE_INFO } from './steps'
 import { StepCard } from './ui'
 
+/** wizard: bước trong trình cài đặt; admin: cùng biểu mẫu đặt trong trang quản trị */
+type StepMode = 'wizard' | 'admin'
+
 interface StepProps {
+  mode?: StepMode
   /** Không có ở bước cấu hình đầu tiên (bước tạo quản trị viên không quay lại được) */
   onBack?: () => void
   onNext: () => void
@@ -51,11 +57,40 @@ function BackButton({ onBack }: { onBack?: () => void }) {
   )
 }
 
+function submitLabel(mode: StepMode | undefined): string {
+  return mode === 'admin' ? 'Lưu thay đổi' : 'Lưu và tiếp tục'
+}
+
+/** Khung của bước: thẻ trình cài đặt, hoặc khối gọn trong trang quản trị (tiêu đề đã có ở đầu trang). */
+function StepFrame({
+  mode,
+  title,
+  description,
+  actions,
+  children,
+}: Parameters<typeof StepCard>[0] & { mode?: StepMode }) {
+  if (mode !== 'admin')
+    return (
+      <StepCard title={title} description={description} actions={actions}>
+        {children}
+      </StepCard>
+    )
+  return (
+    <section aria-label={title} className="rounded-xl border border-border bg-surface p-4 sm:p-6">
+      {description && <div className="text-sm text-muted">{description}</div>}
+      <div className="mt-5 space-y-5">{children}</div>
+      <div className="mt-6 flex justify-end border-t border-border pt-4">{actions}</div>
+    </section>
+  )
+}
+
 function NavActions({
+  mode,
   onBack,
   submitting,
   formId,
 }: {
+  mode?: StepMode
   onBack?: () => void
   submitting: boolean
   formId: string
@@ -64,7 +99,7 @@ function NavActions({
     <>
       <BackButton onBack={onBack} />
       <Button type="submit" form={formId} loading={submitting}>
-        Lưu và tiếp tục
+        {submitLabel(mode)}
       </Button>
     </>
   )
@@ -96,7 +131,7 @@ const schoolSchema = z.object({
 })
 type SchoolValues = z.infer<typeof schoolSchema>
 
-export function SchoolInfoStep({ onBack, onNext }: StepProps) {
+export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
   const { identity } = useSite()
   const { error, save } = useSaveAndContinue(onNext)
   const form = useForm<SchoolValues>({
@@ -117,10 +152,18 @@ export function SchoolInfoStep({ onBack, onNext }: StepProps) {
   const e = form.formState.errors
 
   return (
-    <StepCard
+    <StepFrame
+      mode={mode}
       title="Thông tin nhà trường"
       description="Hiển thị ở đầu trang, chân trang và tiêu đề website. Có thể sửa lại bất cứ lúc nào trong trang quản trị."
-      actions={<NavActions onBack={onBack} submitting={form.formState.isSubmitting} formId="school-form" />}
+      actions={
+        <NavActions
+          mode={mode}
+          onBack={onBack}
+          submitting={form.formState.isSubmitting}
+          formId="school-form"
+        />
+      }
     >
       <form
         id="school-form"
@@ -177,7 +220,7 @@ export function SchoolInfoStep({ onBack, onNext }: StepProps) {
           />
         </fieldset>
       </form>
-    </StepCard>
+    </StepFrame>
   )
 }
 
@@ -185,13 +228,15 @@ export function SchoolInfoStep({ onBack, onNext }: StepProps) {
 // Bước 7: logo, màu sắc, khẩu hiệu
 // ---------------------------------------------------------------------------
 
-export function BrandingStep({ onBack, onNext }: StepProps) {
+export function BrandingStep({ mode, onBack, onNext }: StepProps) {
   const site = useSite()
   const { error, save } = useSaveAndContinue(onNext)
   const [primary, setPrimary] = useState(site.branding.primary_color)
   const [accent, setAccent] = useState(site.branding.accent_color)
   const [logoUrl, setLogoUrl] = useState(site.branding.logo_url)
   const [slogan, setSlogan] = useState(site.identity.slogan)
+  const [bannerUrl, setBannerUrl] = useState(site.branding.banner_url)
+  const [faviconUrl, setFaviconUrl] = useState(site.branding.favicon_url)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -233,6 +278,7 @@ export function BrandingStep({ onBack, onNext }: StepProps) {
         primary_light_color: adjustLightness(primary, 8).toUpperCase(),
         accent_color: accent.toUpperCase(),
         logo_url: logoUrl,
+        ...(mode === 'admin' ? { banner_url: bannerUrl, favicon_url: faviconUrl } : {}),
       })
       await mergeSiteSetting('school_identity', { slogan: slogan.trim() })
     })
@@ -240,14 +286,15 @@ export function BrandingStep({ onBack, onNext }: StepProps) {
   }
 
   return (
-    <StepCard
+    <StepFrame
+      mode={mode}
       title="Logo, màu sắc, khẩu hiệu"
       description="Màu chủ đạo dùng cho đầu trang, chân trang và nút bấm; màu nhấn dùng để làm nổi bật."
       actions={
         <>
           <BackButton onBack={onBack} />
           <Button onClick={() => void submit()} loading={submitting} disabled={!colorsValid || uploading}>
-            Lưu và tiếp tục
+            {submitLabel(mode)}
           </Button>
         </>
       }
@@ -332,6 +379,25 @@ export function BrandingStep({ onBack, onNext }: StepProps) {
             maxLength={120}
             onChange={(ev) => setSlogan(ev.target.value)}
           />
+
+          {mode === 'admin' && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <ImageUploadField
+                label="Ảnh nền đầu trang (banner)"
+                value={bannerUrl}
+                onChange={setBannerUrl}
+                folder="branding"
+                hint="Ảnh ngang, hiện mờ phía sau tên trường."
+              />
+              <ImageUploadField
+                label="Biểu tượng tab (favicon)"
+                value={faviconUrl}
+                onChange={setFaviconUrl}
+                folder="branding"
+                hint="Ảnh vuông nhỏ; để trống sẽ dùng logo."
+              />
+            </div>
+          )}
         </div>
 
         <div aria-label="Xem trước" className="overflow-hidden rounded-xl border border-border">
@@ -360,14 +426,18 @@ export function BrandingStep({ onBack, onNext }: StepProps) {
           </div>
         </div>
       </div>
-    </StepCard>
+    </StepFrame>
   )
 }
 
 function LogoPreview({ url, name, className }: { url: string | null; name: string; className?: string }) {
   if (url) {
     return (
-      <img src={url} alt="Logo đã chọn" className={cn('rounded-full bg-white object-contain', className)} />
+      <img
+        src={resolveMediaUrl(url)!}
+        alt="Logo đã chọn"
+        className={cn('rounded-full bg-white object-contain', className)}
+      />
     )
   }
   return (
@@ -427,7 +497,7 @@ function ColorField({
 // Bước 8: chọn module
 // ---------------------------------------------------------------------------
 
-export function ModulesStep({ onBack, onNext }: StepProps) {
+export function ModulesStep({ mode, onBack, onNext }: StepProps) {
   const { modules } = useSite()
   const { error, save } = useSaveAndContinue(onNext)
   const [enabled, setEnabled] = useState<Record<string, boolean>>(() => ({ ...modules }))
@@ -444,14 +514,15 @@ export function ModulesStep({ onBack, onNext }: StepProps) {
   }
 
   return (
-    <StepCard
+    <StepFrame
+      mode={mode}
       title="Chọn module sử dụng"
       description="Module tắt sẽ ẩn khỏi trang công khai và trang quản trị. Dữ liệu vẫn được giữ, bật lại lúc nào cũng được."
       actions={
         <>
           <BackButton onBack={onBack} />
           <Button onClick={() => void submit()} loading={submitting}>
-            Lưu và tiếp tục
+            {submitLabel(mode)}
           </Button>
         </>
       }
@@ -478,6 +549,6 @@ export function ModulesStep({ onBack, onNext }: StepProps) {
           )
         })}
       </ul>
-    </StepCard>
+    </StepFrame>
   )
 }

@@ -5,9 +5,12 @@ select no_plan();
 -- ===================== KHÁCH (anon) =====================
 select tests.as_anon();
 
-select is((select count(*)::int from public.news), 2, 'Khách chỉ thấy 2 tin đã đăng, không thấy tin chờ duyệt');
-select is((select count(*)::int from public.announcements), 1, 'Khách không thấy thông báo nháp');
-select is((select count(*)::int from public.pages), 2, 'Khách thấy trang đã đăng');
+select ok((select count(*) from public.news) >= 2, 'Khách thấy tin đã đăng');
+select is((select count(*)::int from public.news where status <> 'published'), 0,
+  'Khách không thấy tin chờ duyệt/nháp');
+select is((select count(*)::int from public.announcements where status <> 'published'), 0, 'Khách không thấy thông báo nháp');
+select ok((select count(*) from public.pages) >= 2, 'Khách thấy trang đã đăng');
+select is((select count(*)::int from public.pages where status <> 'published'), 0, 'Khách không thấy trang nháp');
 select ok((select count(*) from public.site_settings) >= 5, 'Khách đọc được cấu hình công khai');
 select lives_ok('select full_name from public.profiles', 'Khách đọc được tên nhân sự');
 select throws_ok('select email from public.profiles', '42501', null, 'Khách không đọc được email nhân sự');
@@ -22,8 +25,8 @@ select throws_ok($$select public.bootstrap_super_admin('ABC')$$, '42501', null, 
 select is((public.get_install_status() ->> 'has_super_admin')::boolean, true, 'Trạng thái cài đặt: đã có admin');
 select lives_ok('select public.record_visit()', 'Khách ghi nhận lượt truy cập');
 select ok((public.get_visit_stats() ->> 'total')::int >= 1, 'Thống kê truy cập tăng');
-select is(
-  (select count(*)::int from public.search_news('hoi thi hoc sinh gioi')), 1,
+select ok(
+  exists (select 1 from public.search_news('hoi thi hoc sinh gioi') where slug = 'hoi-thi-hoc-sinh-gioi-cap-truong'),
   'Tìm kiếm không dấu tìm ra bài có dấu');
 select is((select count(*)::int from public.search_news('tuyen sinh lop 10')), 0,
   'Tìm kiếm không trả về tin chưa đăng');
@@ -31,7 +34,11 @@ select is((select count(*)::int from public.search_news('tuyen sinh lop 10')), 0
 -- ===================== EDITOR =====================
 select tests.as_user('editor@demo.local');
 
-select is((select count(*)::int from public.news), 3, 'Editor thấy tin đã đăng + tin của mình');
+select ok(exists (select 1 from public.news where slug = 'thong-tin-tuyen-sinh-lop-6-va-lop-10'),
+  'Editor thấy tin chờ duyệt của mình');
+select is((select count(*)::int from public.news
+  where status <> 'published' and author_id <> '00000000-0000-0000-0000-0000000000a3'), 0,
+  'Editor không thấy bài chưa đăng của người khác');
 select lives_ok(
   $$insert into public.news (title, slug, category_id, author_id, status)
     values ('Bài nháp của editor', 'bai-nhap-cua-editor', '00000000-0000-0000-0000-0000000000c1',

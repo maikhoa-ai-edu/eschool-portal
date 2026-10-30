@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { getSupabase } from '@/lib/supabase'
+import { homepageSchema, type HomepageSettings } from './homepage-settings'
 
 const text = z.string().trim().catch('')
 const hexColor = (fallback: string) =>
@@ -32,9 +33,33 @@ export const brandingSchema = z.object({
   banner_url: optionalUrl,
 })
 
+export interface MarqueeItem {
+  text: string
+  /** Liên kết trong website (/...) hoặc http(s); không hợp lệ thì bỏ */
+  url: string | null
+}
+
+const marqueeItemSchema = z.union([
+  z.string().transform((text) => ({ text, url: null })),
+  z.object({ text: z.string().catch(''), url: z.string().nullable().catch(null) }),
+])
+
+/** Dòng chữ chạy. Bản cũ lưu mảng chuỗi, bản mới lưu {text, url}; cả hai đều đọc được. */
 export const marqueeSchema = z.object({
   enabled: z.boolean().catch(false),
-  items: z.array(z.string().trim().min(1)).catch([]),
+  include_latest_news: z.boolean().catch(false),
+  items: z
+    .array(z.unknown())
+    .catch([])
+    .transform((list): MarqueeItem[] =>
+      list.flatMap((raw) => {
+        const parsed = marqueeItemSchema.safeParse(raw)
+        if (!parsed.success) return []
+        const text = parsed.data.text.trim()
+        const url = parsed.data.url?.trim() ?? ''
+        return text ? [{ text, url: /^(\/|https?:\/\/)\S*$/.test(url) ? url : null }] : []
+      }),
+    ),
 })
 
 export type SchoolIdentity = z.infer<typeof schoolIdentitySchema>
@@ -45,6 +70,7 @@ export interface SiteSettings {
   identity: SchoolIdentity
   branding: Branding
   marquee: Marquee
+  homepage: HomepageSettings
   modules: Record<string, boolean>
 }
 
@@ -63,6 +89,7 @@ export function parseSiteSettings(
     identity: schoolIdentitySchema.parse(byKey.get('school_identity') ?? {}),
     branding: brandingSchema.parse(byKey.get('branding') ?? {}),
     marquee: marqueeSchema.parse(byKey.get('marquee') ?? {}),
+    homepage: homepageSchema.parse(byKey.get('homepage') ?? {}),
     modules: Object.fromEntries(moduleRows.map((m) => [m.module_key, m.is_enabled])),
   }
 }

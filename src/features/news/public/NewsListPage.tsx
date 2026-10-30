@@ -13,6 +13,7 @@ import { buttonClasses } from '@/components/ui/button-classes'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Pagination } from '@/components/ui/Pagination'
 import { readPage } from '@/components/ui/page-utils'
+import { resolveMediaUrl } from '@/features/media/api'
 import { formatDate } from '@/lib/format'
 import { cn } from '@/lib/cn'
 import { usePageTitle } from '@/lib/use-page-title'
@@ -37,7 +38,7 @@ export function NewsCard({ news }: { news: PublicNewsCard }) {
       >
         {news.thumbnail_url ? (
           <img
-            src={news.thumbnail_url}
+            src={resolveMediaUrl(news.thumbnail_url)!}
             alt=""
             loading="lazy"
             className="h-full w-full object-cover transition group-hover:scale-105"

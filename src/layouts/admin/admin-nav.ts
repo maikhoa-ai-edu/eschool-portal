@@ -93,12 +93,11 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       {
         label: 'Trang chủ',
         to: '/admin/trang-chu',
-        phase: 5,
         icon: LayoutTemplate,
         permission: 'homepage.manage',
       },
       { label: 'Menu', to: '/admin/menu', icon: ListTree, permission: 'menus.manage' },
-      { label: 'Nhận diện', to: '/admin/nhan-dien', phase: 5, icon: Palette, permission: 'settings.manage' },
+      { label: 'Nhận diện', to: '/admin/nhan-dien', icon: Palette, permission: 'settings.manage' },
     ],
   },
   {
@@ -107,11 +106,10 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       {
         label: 'Thông tin trường',
         to: '/admin/cai-dat',
-        phase: 5,
         icon: Settings,
         permission: 'settings.manage',
       },
-      { label: 'Module', to: '/admin/module', phase: 5, icon: ToggleLeft, permission: 'modules.manage' },
+      { label: 'Module', to: '/admin/module', icon: ToggleLeft, permission: 'modules.manage' },
       { label: 'Tài khoản', to: '/admin/tai-khoan', phase: 6, icon: Users, permission: 'users.manage' },
       { label: 'Nhật ký', to: '/admin/nhat-ky', phase: 6, icon: ScrollText, permission: 'audit.view' },
       { label: 'Trạng thái hệ thống', to: '/admin/he-thong', icon: Activity },

@@ -1,10 +1,10 @@
 import { useId, useRef, useState } from 'react'
 import { ImageUp, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { uploadImage } from '@/features/media/api'
+import { resolveMediaUrl, uploadImage } from '@/features/media/api'
 import { toVietnameseError } from '@/lib/errors'
 
-/** Ô chọn một ảnh (ảnh đại diện bài viết, ảnh trang...): tải lên ngay, trả về đường dẫn công khai. */
+/** Ô chọn một ảnh (ảnh đại diện bài viết, ảnh trang...): tải lên ngay, trả về đường dẫn trong bucket media. */
 export function ImageUploadField({
   label,
   value,
@@ -27,7 +27,7 @@ export function ImageUploadField({
     setError(null)
     setUploading(true)
     try {
-      onChange((await uploadImage(file, folder)).url)
+      onChange((await uploadImage(file, folder)).path)
     } catch (err) {
       setError(toVietnameseError(err))
     } finally {
@@ -42,7 +42,7 @@ export function ImageUploadField({
       </p>
       {value ? (
         <img
-          src={value}
+          src={resolveMediaUrl(value)!}
           alt=""
           className="aspect-video w-full rounded-lg border border-border object-cover"
         />

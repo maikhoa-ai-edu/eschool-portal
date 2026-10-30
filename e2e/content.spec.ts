@@ -115,11 +115,13 @@ test.describe('Tin tức', () => {
 
   test('danh sách tin công khai (ảnh chụp)', async ({ page }, info) => {
     await page.goto('/tin-tuc')
-    await expect(page.getByRole('link', { name: 'Khai giảng năm học 2026 - 2027' })).toBeVisible()
+    await expect(
+      page.getByRole('link', { name: 'Câu lạc bộ STEM ra mắt mô hình tưới nước thông minh' }),
+    ).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Chuyên mục' })).toBeVisible()
     await page.screenshot({ path: screenshotPath('news-list', info), fullPage: true })
-    await page.getByRole('link', { name: 'Khai giảng năm học 2026 - 2027' }).click()
-    await expect(page.getByRole('heading', { name: 'Không khí ngày hội' })).toBeVisible()
+    await page.getByRole('link', { name: 'Câu lạc bộ STEM ra mắt mô hình tưới nước thông minh' }).click()
+    await expect(page.getByRole('heading', { name: 'Cách hoạt động' })).toBeVisible()
     await page.screenshot({ path: screenshotPath('news-detail-seed', info), fullPage: true })
   })
 })

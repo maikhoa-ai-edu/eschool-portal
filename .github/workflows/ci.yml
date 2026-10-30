@@ -45,6 +45,8 @@ jobs:
           version: 2.122.0
       - run: npm ci
       - run: supabase start
+      - name: Tải ảnh & văn bản mẫu lên Storage cục bộ
+        run: npm run db:seed-storage
       - name: Tạo .env.local từ Supabase cục bộ
         run: |
           eval "$(supabase status -o env | grep -E '^(API_URL|ANON_KEY)=')"

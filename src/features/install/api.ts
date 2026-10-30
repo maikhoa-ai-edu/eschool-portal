@@ -281,7 +281,7 @@ export function describeLogoProblem(file: File): string | null {
   return null
 }
 
-/** Tải logo lên bucket media (tên file ngẫu nhiên), trả về đường dẫn công khai. */
+/** Tải logo lên bucket media (tên file ngẫu nhiên), trả về đường dẫn trong bucket (xem resolveMediaUrl). */
 export async function uploadLogo(file: File): Promise<string> {
   const problem = describeLogoProblem(file)
   if (problem) throw new Error(problem)
@@ -290,5 +290,5 @@ export async function uploadLogo(file: File): Promise<string> {
   const storage = getSupabase().storage.from('media')
   const { error } = await storage.upload(path, file, { contentType: file.type, upsert: false })
   if (error) throw error
-  return storage.getPublicUrl(path).data.publicUrl
+  return path
 }

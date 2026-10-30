@@ -4,14 +4,7 @@ import { Mail, MapPin, Phone, UserRound } from 'lucide-react'
 import { fetchMenu, hideDisabledModules, isExternalUrl } from '@/features/site/menu'
 import { safeExternalUrl } from '@/features/site/settings'
 import { useSite } from '@/features/site/site-context'
-import { getSupabase } from '@/lib/supabase'
-
-async function fetchVisitStats(): Promise<{ total: number; today: number }> {
-  const { data, error } = await getSupabase().rpc('get_visit_stats')
-  if (error) throw error
-  const stats = data as { total?: number; today?: number } | null
-  return { total: Number(stats?.total ?? 0), today: Number(stats?.today ?? 0) }
-}
+import { fetchVisitStats, VISIT_STATS_KEY } from '@/features/site/visits'
 
 const numberFormat = new Intl.NumberFormat('vi-VN')
 const CURRENT_YEAR = new Date().getFullYear()
@@ -23,7 +16,7 @@ export function SiteFooter() {
     queryFn: () => fetchMenu('footer'),
   })
   const quickLinks = hideDisabledModules(footerMenu, isModuleEnabled)
-  const { data: visits } = useQuery({ queryKey: ['visit-stats'], queryFn: fetchVisitStats })
+  const { data: visits } = useQuery({ queryKey: VISIT_STATS_KEY, queryFn: fetchVisitStats })
 
   const socials = [
     ['Facebook', safeExternalUrl(identity.facebook_url)],
