@@ -63,6 +63,11 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
       Schema 0.5.0 (`list_accounts`, `get_system_health`, không mời email đã có tài khoản). 118 pgTAP, 90 unit test,
       E2E nghiệm thu "mời giáo viên làm EDITOR → đăng ký → soạn bài" bằng hai ngữ cảnh trình duyệt
 
+- [x] Giai đoạn 7: sao lưu ra file ZIP (dữ liệu + ảnh, văn bản; không có mật khẩu và mã mời), khôi phục trong một giao
+      dịch sang project mới, kiểm tra bản mới trên GitHub Releases, trang Cập nhật đưa đúng SQL nâng cấp theo phiên bản
+      CSDL hiện tại. Schema 0.7.0, 142 pgTAP, 98 unit test. Đã nghiệm thu trên project Supabase cục bộ thứ hai: nâng cấp 0.5.0 → 0.7.0
+      bằng SQL của trang Cập nhật, sao lưu trường A, khôi phục sang project mới; CI chạy bản giả lập trong `e2e/backup.spec.ts`
+
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
 
 Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã đăng nhập (mọi thao tác ghi đều qua RLS):
@@ -117,5 +122,12 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
   `invited_by` thành người thao tác vì chính sách RLS yêu cầu vậy.
 - Ô chọn có kiểm soát: đọc `e.target.value` ngay trong handler, không đọc trong closure chạy sau. Trong bảng cuộn ngang,
   không dùng `sr-only` ở tiêu đề cột (phần tử absolute thoát khỏi khung cuộn, kéo giãn cả trang trên điện thoại).
+- **Sao lưu**: `export_backup`/`restore_backup` chạy trên CSDL; file do trình duyệt tải và đóng gói ZIP không nén
+  (`Blob.slice` để đọc nên không nạp cả file vào RAM). Khôi phục tải file lên trước, dữ liệu sau trong một giao dịch nên
+  lỗi giữa chừng không mất dữ liệu; file thừa trên project đích không bị xóa. Hồ sơ cùng email khác id được đổi tham chiếu
+  sang id đang có. Tài khoản tạo lại chưa có mật khẩu (dùng Quên mật khẩu). Nhật ký cũ được giữ, không xóa được bằng khôi phục.
+  Bảng nghiệp vụ mới phải thêm vào `private.backup_content_tables` và danh sách xóa trong `restore_backup`.
+- **Nâng cấp**: mỗi lần tăng `schema_version` là một bước; `buildUpgrades` sinh `/upgrades/<phiên-bản>.sql` và `index.json`
+  từ migrations, mỗi file kiểm tra phiên bản trước khi chạy và nằm trong giao dịch.
 - Tài khoản demo khi chạy trên máy (mật khẩu `demo1234`): `superadmin@demo.local`, `admin@demo.local`,
   `editor@demo.local`.

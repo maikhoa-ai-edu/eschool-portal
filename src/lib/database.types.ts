@@ -905,6 +905,7 @@ export type Database = {
       }
       complete_install: { Args: never; Returns: undefined }
       current_user_role: { Args: never; Returns: string }
+      export_backup: { Args: never; Returns: Json }
       get_install_status: { Args: never; Returns: Json }
       get_schema_version: { Args: never; Returns: string }
       get_system_health: { Args: never; Returns: Json }
@@ -929,6 +930,7 @@ export type Database = {
         }[]
       }
       record_visit: { Args: never; Returns: undefined }
+      restore_backup: { Args: { p_backup: Json }; Returns: Json }
       search_news: {
         Args: { p_limit?: number; p_offset?: number; p_query: string }
         Returns: {

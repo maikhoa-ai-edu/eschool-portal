@@ -12,12 +12,15 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { Panel } from '@/components/admin/AdminPage'
+import { Alert } from '@/components/ui/Alert'
 import { useAuth } from '@/features/auth/auth-context'
 import { AuditActionBadge } from '@/features/audit/AuditLogPage'
 import { AUDIT_KEY, auditActorName, auditTarget, fetchRecentAudit } from '@/features/audit/api'
 import { useSite } from '@/features/site/site-context'
 import { formatDateTime, formatNumber } from '@/lib/format'
+import { compareVersions } from '@/lib/semver'
 import { getSupabase, requireUserId } from '@/lib/supabase'
+import { REQUIRED_SCHEMA_VERSION } from '@/lib/version'
 import { addDays, fillVisitDays, vietnamToday } from './visits'
 import { VisitsChart } from './VisitsChart'
 
@@ -112,6 +115,12 @@ async function fetchTodos(canManageAnnouncements: boolean, canManageUsers: boole
   }
 }
 
+async function fetchSchemaVersion(): Promise<string> {
+  const { data, error } = await getSupabase().rpc('get_schema_version')
+  if (error) throw error
+  return String(data)
+}
+
 function StatCard({
   icon: Icon,
   label,
@@ -185,6 +194,9 @@ export function DashboardPage() {
     queryFn: () => fetchTodos(canManageAnnouncements, canManageUsers),
   })
 
+  const schema = useQuery({ queryKey: ['schema-version'], queryFn: fetchSchemaVersion })
+  const schemaBehind = schema.data ? compareVersions(schema.data, REQUIRED_SCHEMA_VERSION) < 0 : false
+
   const newsOn = isModuleEnabled('news')
   const pending = canPublish && newsOn ? (data?.pendingNews ?? 0) : 0
   const returned = newsOn ? (todos.data?.returnedNews ?? 0) : 0
@@ -198,6 +210,17 @@ export function DashboardPage() {
         <h1 className="text-xl font-bold text-primary">Xin chào, {profile?.full_name}</h1>
         <p className="text-sm text-muted">Tổng quan hoạt động của cổng thông tin.</p>
       </div>
+      {schemaBehind && (
+        <Alert tone="warning" title={`CSDL cần nâng cấp lên ${REQUIRED_SCHEMA_VERSION}`}>
+          {can('backup.manage') ? (
+            <Link to="/admin/cap-nhat" className="text-primary underline">
+              Mở trang Cập nhật
+            </Link>
+          ) : (
+            'Một số chức năng có thể lỗi. Hãy báo Quản trị viên cấp cao.'
+          )}
+        </Alert>
+      )}
       {isError && <p className="text-sm text-danger">Không tải được số liệu.</p>}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard

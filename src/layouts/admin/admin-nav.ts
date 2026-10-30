@@ -1,6 +1,8 @@
 import {
   Activity,
+  ArchiveRestore,
   Bell,
+  CloudDownload,
   FileText,
   FolderTree,
   Images,
@@ -110,6 +112,8 @@ export const ADMIN_NAV: AdminNavGroup[] = [
       { label: 'Module', to: '/admin/module', icon: ToggleLeft, permission: 'modules.manage' },
       { label: 'Tài khoản', to: '/admin/tai-khoan', icon: Users, permission: 'users.manage' },
       { label: 'Nhật ký', to: '/admin/nhat-ky', icon: ScrollText, permission: 'audit.view' },
+      { label: 'Sao lưu', to: '/admin/sao-luu', icon: ArchiveRestore, permission: 'backup.manage' },
+      { label: 'Cập nhật', to: '/admin/cap-nhat', icon: CloudDownload, permission: 'backup.manage' },
       { label: 'Trạng thái hệ thống', to: '/admin/he-thong', icon: Activity },
     ],
   },

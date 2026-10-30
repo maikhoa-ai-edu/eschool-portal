@@ -4,9 +4,9 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
 import pkg from './package.json' with { type: 'json' }
-import { buildInstallSql } from './scripts/build-install-sql.ts'
+import { buildInstallSql, buildUpgrades, upgradesIndex } from './scripts/build-install-sql.ts'
 
-/** /install.sql luôn khớp migrations: dev thì sinh khi được gọi, build thì đưa vào dist/. */
+/** /install.sql và /upgrades/* luôn khớp migrations: dev thì sinh khi được gọi, build thì đưa vào dist/. */
 function installSql(): Plugin {
   return {
     name: 'eschool-install-sql',
@@ -15,9 +15,25 @@ function installSql(): Plugin {
         res.setHeader('Content-Type', 'application/sql; charset=utf-8')
         res.end(buildInstallSql())
       })
+      server.middlewares.use('/upgrades/', (req, res, next) => {
+        const name = (req.url ?? '').split('?')[0]!.slice(1)
+        const upgrades = buildUpgrades()
+        const body =
+          name === 'index.json' ? upgradesIndex(upgrades) : upgrades.find((u) => u.file === name)?.sql
+        if (body === undefined) return next()
+        res.setHeader(
+          'Content-Type',
+          name.endsWith('.json') ? 'application/json' : 'application/sql; charset=utf-8',
+        )
+        res.end(body)
+      })
     },
     generateBundle() {
       this.emitFile({ type: 'asset', fileName: 'install.sql', source: buildInstallSql() })
+      const upgrades = buildUpgrades()
+      this.emitFile({ type: 'asset', fileName: 'upgrades/index.json', source: upgradesIndex(upgrades) })
+      for (const u of upgrades)
+        this.emitFile({ type: 'asset', fileName: `upgrades/${u.file}`, source: u.sql })
     },
   }
 }

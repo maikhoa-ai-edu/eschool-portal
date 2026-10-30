@@ -28,6 +28,7 @@ export const AUDIT_TABLE_LABELS: Record<string, string> = {
   media: 'Ảnh',
   albums: 'Album',
   homepage_slides: 'Slide trang chủ',
+  backup: 'Sao lưu',
 }
 
 /** Dòng cấu hình và module được nhận diện bằng khóa nội bộ, không có tiêu đề */

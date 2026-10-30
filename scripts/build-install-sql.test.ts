@@ -3,7 +3,27 @@ import { mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { buildInstallSql, listMigrations } from './build-install-sql.ts'
+import { buildInstallSql, buildUpgrades, listMigrations } from './build-install-sql.ts'
+
+describe('buildUpgrades', () => {
+  it('các bước nối liền nhau, mỗi bước kiểm tra phiên bản trước khi chạy và nằm trong giao dịch', () => {
+    const upgrades = buildUpgrades()
+    expect(upgrades.length).toBeGreaterThan(0)
+    upgrades.forEach((u, i) => {
+      if (i > 0) expect(u.from).toBe(upgrades[i - 1]!.version)
+      expect(u.sql).toContain(`public.get_schema_version() <> '${u.from}'`)
+      expect(u.sql.indexOf('begin;')).toBeLessThan(u.sql.indexOf('====='))
+      expect(u.sql.trimEnd().endsWith('commit;')).toBe(true)
+    })
+  })
+
+  it('đủ mọi migration sau bản cài đầu tiên', () => {
+    const all = buildUpgrades()
+      .map((u) => u.sql)
+      .join('\n')
+    for (const file of listMigrations().slice(-3)) expect(all).toContain(`===== ${file} =====`)
+  })
+})
 
 describe('buildInstallSql', () => {
   it('ghép đủ migration theo thứ tự, bọc trong giao dịch và in mã cài đặt ở cuối', () => {

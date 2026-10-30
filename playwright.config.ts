@@ -21,9 +21,11 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] }, testIgnore: /install\.spec/ },
-    { name: 'mobile', use: { ...devices['Pixel 7'] }, testIgnore: /install\.spec/ },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'] }, testIgnore: /(install|backup)\.spec/ },
+    { name: 'mobile', use: { ...devices['Pixel 7'] }, testIgnore: /(install|backup)\.spec/ },
     { name: 'install', use: { ...devices['Desktop Chrome'] }, testMatch: /install\.spec/ },
+    // Xóa rồi khôi phục dữ liệu, nên chạy riêng sau cùng
+    { name: 'backup', use: { ...devices['Desktop Chrome'] }, testMatch: /backup\.spec/ },
   ],
   webServer: [
     {

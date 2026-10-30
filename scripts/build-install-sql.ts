@@ -55,6 +55,60 @@ export function buildInstallSql(dir: string = MIGRATIONS_DIR): string {
   return parts.join('\n')
 }
 
+export interface UpgradeFile {
+  /** Phiên bản schema sau khi chạy */
+  version: string
+  /** Phiên bản schema phải có trước khi chạy */
+  from: string
+  file: string
+  sql: string
+}
+
+const VERSION_LINE = /update public\.app_meta set value = '(\d+\.\d+\.\d+)'/g
+
+/** Mỗi lần tăng schema_version là một bước nâng cấp; migration đầu tiên chỉ dùng khi cài mới. */
+export function buildUpgrades(dir: string = MIGRATIONS_DIR): UpgradeFile[] {
+  const upgrades: UpgradeFile[] = []
+  let current: string | null = null
+  let pending: string[] = []
+  for (const name of listMigrations(dir)) {
+    const body = readFileSync(join(dir, name), 'utf8').trim()
+    pending.push(`-- ===== ${name} =====\n\n${body}`)
+    const version = [...body.matchAll(VERSION_LINE)].at(-1)?.[1]
+    if (!version) continue
+    if (current) {
+      upgrades.push({
+        version,
+        from: current,
+        file: `${version}.sql`,
+        sql: [
+          `-- eSchool Portal: nâng cấp CSDL ${current} -> ${version} (tự sinh từ supabase/migrations, KHÔNG sửa tay)`,
+          'begin;',
+          '',
+          'do $guard$',
+          'begin',
+          `  if public.get_schema_version() <> '${current}' then`,
+          `    raise exception 'CSDL phải đang ở phiên bản ${current}. Hãy chạy các bước nâng cấp theo đúng thứ tự.';`,
+          '  end if;',
+          'end',
+          '$guard$;',
+          '',
+          ...pending,
+          '',
+          'commit;',
+        ].join('\n'),
+      })
+    }
+    current = version
+    pending = []
+  }
+  return upgrades
+}
+
+export function upgradesIndex(upgrades: UpgradeFile[] = buildUpgrades()): string {
+  return JSON.stringify(upgrades.map(({ version, from, file }) => ({ version, from, file })))
+}
+
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const out = resolve(process.argv[2] ?? join(ROOT, 'dist', 'install.sql'))
   mkdirSync(dirname(out), { recursive: true })

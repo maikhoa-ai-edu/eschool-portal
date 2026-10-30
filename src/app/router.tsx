@@ -158,6 +158,12 @@ const adminContentRoutes: RouteObject[] = [
   adminSection('tai-khoan', 'users.manage', [
     { index: true, lazy: page(() => import('@/features/accounts/AccountsPage'), 'AccountsPage') },
   ]),
+  adminSection('sao-luu', 'backup.manage', [
+    { index: true, lazy: page(() => import('@/features/backup/BackupPage'), 'BackupPage') },
+  ]),
+  adminSection('cap-nhat', 'backup.manage', [
+    { index: true, lazy: page(() => import('@/features/backup/UpdatePage'), 'UpdatePage') },
+  ]),
   adminSection('nhat-ky', 'audit.view', [
     { index: true, lazy: page(() => import('@/features/audit/AuditLogPage'), 'AuditLogPage') },
   ]),

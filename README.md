@@ -2,7 +2,7 @@
 
 Cổng thông tin điện tử dành cho trường phổ thông Việt Nam: tin tức, thông báo, văn bản, thư viện ảnh, trang giới thiệu và trang quản trị. Mỗi trường tự cài một bản riêng, dùng cơ sở dữ liệu riêng, tự chọn tên trường, logo, màu sắc và các module cần dùng.
 
-> Trạng thái: **đang phát triển (xong Giai đoạn 6: quản trị hệ thống)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
+> Trạng thái: **đang phát triển (xong Giai đoạn 7: sao lưu & cập nhật)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Quy trình đăng tin
 
@@ -17,6 +17,14 @@ Quản trị viên cấp cao vào **Tài khoản**, nhập email + vai trò rồ
 qua email hoặc Zalo (website không tự gửi thư). Liên kết có mã bí mật, dùng được một lần trong 14 ngày, nên chỉ gửi riêng
 cho đúng người. Quên mật khẩu: bấm **Quên mật khẩu?** ở trang đăng nhập để nhận liên kết qua email; muốn liên kết quay về
 đúng website, đặt **Site URL** trong Supabase (Authentication → URL Configuration) bằng địa chỉ website.
+
+## Sao lưu & cập nhật
+
+- **Sao lưu:** vào **Sao lưu**, bấm **Tải bản sao lưu**, cất file ZIP ở nơi an toàn. File không có mật khẩu nhưng có email nhân sự.
+- **Chuyển sang project Supabase mới:** cài website với project mới, đăng nhập, vào **Sao lưu**, chọn file rồi xác nhận. Sau đó
+  từng người bấm **Quên mật khẩu?** để đặt lại mật khẩu.
+- **Cập nhật:** trang **Cập nhật** báo khi có bản mới. Sau khi thay website, nếu CSDL cần nâng cấp, trang này đưa đoạn SQL để
+  dán vào SQL Editor của Supabase.
 
 ## Kiến trúc tóm tắt
 
