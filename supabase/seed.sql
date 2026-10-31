@@ -64,7 +64,7 @@ update public.site_settings set value = value || jsonb_build_object(
 ) where key = 'branding';
 
 update public.site_settings set value = jsonb_build_object(
-  'header_social', true, 'nav_search', true, 'footer_link_icons', true, 'footer_connect_icons', true,
+  'header_social', true, 'nav_search', true, 'content_sidebar', true, 'footer_link_icons', true, 'footer_connect_icons', true,
   'footer_info_lines', jsonb_build_array(
     jsonb_build_object('icon', 'clock', 'text', 'Giờ làm việc: 7h00 - 17h00, thứ Hai đến thứ Sáu', 'url', null)
   )
@@ -380,6 +380,24 @@ select m.id, 'Chuyên đề', '/chuyen-de/hoc-tap-va-lam-theo-bac', 'star', 7
 from public.menus m where m.code = 'main';
 update public.menu_items set icon = 'users'
 where title = 'Cơ cấu tổ chức';
+
+-- Phân loại thông báo, thư mục văn bản, tác giả và nguồn bài
+insert into public.content_groups (id, scope, parent_id, name, sort_order) values
+  ('00000000-0000-0000-0000-0000000000f1', 'announcement', null, 'Học vụ', 0),
+  ('00000000-0000-0000-0000-0000000000f2', 'announcement', null, 'Lịch nghỉ, lịch học', 1),
+  ('00000000-0000-0000-0000-0000000000f3', 'announcement', null, 'Tuyển sinh, học bổng', 2),
+  ('00000000-0000-0000-0000-0000000000f4', 'document', null, 'Văn bản nhà trường', 0),
+  ('00000000-0000-0000-0000-0000000000f5', 'document', '00000000-0000-0000-0000-0000000000f4', 'Kế hoạch', 0),
+  ('00000000-0000-0000-0000-0000000000f6', 'document', '00000000-0000-0000-0000-0000000000f4', 'Quyết định, thông báo', 1),
+  ('00000000-0000-0000-0000-0000000000f7', 'document', null, 'Biểu mẫu, tài liệu', 1);
+update public.announcements set group_id = '00000000-0000-0000-0000-0000000000f1' where title ilike '%kiểm tra%';
+update public.announcements set group_id = '00000000-0000-0000-0000-0000000000f2' where title ilike 'Lịch nghỉ%';
+update public.announcements set group_id = '00000000-0000-0000-0000-0000000000f3' where title ilike '%học bổng%';
+update public.documents set folder_id = '00000000-0000-0000-0000-0000000000f5' where document_type = 'ke_hoach';
+update public.documents set folder_id = '00000000-0000-0000-0000-0000000000f6' where document_type in ('quyet_dinh', 'thong_bao');
+update public.documents set folder_id = '00000000-0000-0000-0000-0000000000f7' where folder_id is null;
+update public.documents set view_count = 40 + (download_count * 2) + length(title);
+update public.news set author_name = 'Tổ Truyền thông', source_name = 'Trường THCS & THPT Vĩnh Phong' where status = 'published';
 
 -- Mẫu "Báo điện tử" (xem src/features/homepage/admin/presets.ts)
 update public.site_settings set value = jsonb_set(value, '{sections}', jsonb_build_array(

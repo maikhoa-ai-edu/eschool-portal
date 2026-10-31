@@ -133,6 +133,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           expires_at: string | null
+          group_id: string | null
           id: string
           is_pinned: boolean
           priority: string
@@ -146,6 +147,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           expires_at?: string | null
+          group_id?: string | null
           id?: string
           is_pinned?: boolean
           priority?: string
@@ -159,6 +161,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           expires_at?: string | null
+          group_id?: string | null
           id?: string
           is_pinned?: boolean
           priority?: string
@@ -173,6 +176,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcements_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "content_groups"
             referencedColumns: ["id"]
           },
         ]
@@ -239,6 +249,41 @@ export type Database = {
           },
         ]
       }
+      content_groups: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          parent_id: string | null
+          scope: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          parent_id?: string | null
+          scope: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          parent_id?: string | null
+          scope?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_groups_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "content_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           created_at: string
@@ -251,6 +296,7 @@ export type Database = {
           file_name: string
           file_path: string
           file_size: number
+          folder_id: string | null
           id: string
           is_featured: boolean
           issue_date: string | null
@@ -262,6 +308,7 @@ export type Database = {
           status: string
           title: string
           updated_at: string
+          view_count: number
         }
         Insert: {
           created_at?: string
@@ -274,6 +321,7 @@ export type Database = {
           file_name: string
           file_path: string
           file_size: number
+          folder_id?: string | null
           id?: string
           is_featured?: boolean
           issue_date?: string | null
@@ -285,6 +333,7 @@ export type Database = {
           status?: string
           title: string
           updated_at?: string
+          view_count?: number
         }
         Update: {
           created_at?: string
@@ -297,6 +346,7 @@ export type Database = {
           file_name?: string
           file_path?: string
           file_size?: number
+          folder_id?: string | null
           id?: string
           is_featured?: boolean
           issue_date?: string | null
@@ -308,6 +358,7 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+          view_count?: number
         }
         Relationships: [
           {
@@ -315,6 +366,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "content_groups"
             referencedColumns: ["id"]
           },
         ]
@@ -559,6 +617,7 @@ export type Database = {
       news: {
         Row: {
           author_id: string
+          author_name: string | null
           category_id: string
           content: string
           created_at: string
@@ -570,6 +629,8 @@ export type Database = {
           review_note: string | null
           search_vector: unknown
           slug: string
+          source_name: string | null
+          source_url: string | null
           status: string
           thumbnail_url: string | null
           title: string
@@ -578,6 +639,7 @@ export type Database = {
         }
         Insert: {
           author_id: string
+          author_name?: string | null
           category_id: string
           content?: string
           created_at?: string
@@ -589,6 +651,8 @@ export type Database = {
           review_note?: string | null
           search_vector?: unknown
           slug: string
+          source_name?: string | null
+          source_url?: string | null
           status?: string
           thumbnail_url?: string | null
           title: string
@@ -597,6 +661,7 @@ export type Database = {
         }
         Update: {
           author_id?: string
+          author_name?: string | null
           category_id?: string
           content?: string
           created_at?: string
@@ -608,6 +673,8 @@ export type Database = {
           review_note?: string | null
           search_vector?: unknown
           slug?: string
+          source_name?: string | null
+          source_url?: string | null
           status?: string
           thumbnail_url?: string | null
           title?: string
@@ -1001,6 +1068,10 @@ export type Database = {
         Args: { p_document_id: string }
         Returns: undefined
       }
+      increment_document_view: {
+        Args: { p_document_id: string }
+        Returns: undefined
+      }
       increment_news_view: { Args: { p_news_id: string }; Returns: undefined }
       is_staff: { Args: never; Returns: boolean }
       list_accounts: {
@@ -1021,6 +1092,7 @@ export type Database = {
         Args: { p_limit?: number; p_offset?: number; p_query: string }
         Returns: {
           author_id: string
+          author_name: string | null
           category_id: string
           content: string
           created_at: string
@@ -1032,6 +1104,8 @@ export type Database = {
           review_note: string | null
           search_vector: unknown
           slug: string
+          source_name: string | null
+          source_url: string | null
           status: string
           thumbnail_url: string | null
           title: string

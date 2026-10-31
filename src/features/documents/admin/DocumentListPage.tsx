@@ -49,9 +49,14 @@ export function DocumentListPage() {
         title="Văn bản"
         description="Kế hoạch, quyết định, công văn, biểu mẫu... công khai cho phụ huynh và giáo viên tải về."
         actions={
-          <Link to="/admin/van-ban/moi" className={buttonClasses('primary')}>
-            <Plus className="h-4 w-4" aria-hidden /> Thêm văn bản
-          </Link>
+          <>
+            <Link to="/admin/van-ban/thu-muc" className={buttonClasses('outline')}>
+              Thư mục
+            </Link>
+            <Link to="/admin/van-ban/moi" className={buttonClasses('primary')}>
+              <Plus className="h-4 w-4" aria-hidden /> Thêm văn bản
+            </Link>
+          </>
         }
       />
       <div className="mb-4 flex flex-col gap-2 sm:flex-row">

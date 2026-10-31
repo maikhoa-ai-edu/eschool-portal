@@ -178,7 +178,7 @@ export async function fetchNewsForEdit(id: string) {
   const { data, error } = await getSupabase()
     .from('news')
     .select(
-      'id, title, slug, excerpt, content, thumbnail_url, category_id, author_id, status, is_featured, review_note, published_at, author:profiles!news_author_id_fkey(full_name), news_tag_map(news_tags(name))',
+      'id, title, slug, excerpt, content, thumbnail_url, category_id, author_id, author_name, source_name, source_url, status, is_featured, review_note, published_at, author:profiles!news_author_id_fkey(full_name), news_tag_map(news_tags(name))',
     )
     .eq('id', id)
     .maybeSingle()
@@ -200,6 +200,9 @@ export interface NewsInput {
   content: string
   thumbnail_url: string | null
   category_id: string
+  author_name: string
+  source_name: string
+  source_url: string
   tags: string[]
   status: NewsStatus
   review_note: string | null
@@ -211,7 +214,13 @@ export interface NewsInput {
 export async function saveNews(input: NewsInput, id?: string): Promise<string> {
   const supabase = getSupabase()
   const { tags, ...fields } = input
-  const row = { ...fields, excerpt: fields.excerpt.trim() || null }
+  const row = {
+    ...fields,
+    excerpt: fields.excerpt.trim() || null,
+    author_name: fields.author_name.trim() || null,
+    source_name: fields.source_name.trim() || null,
+    source_url: fields.source_url.trim() || null,
+  }
   let newsId = id
 
   if (id) {
@@ -320,7 +329,7 @@ export async function fetchPublicNewsBySlug(slug: string) {
   const { data, error } = await getSupabase()
     .from('news')
     .select(
-      'id, title, slug, excerpt, content, thumbnail_url, published_at, view_count, status, category_id, category:news_categories(name, slug), author:profiles!news_author_id_fkey(full_name), news_tag_map(news_tags(name, slug))',
+      'id, title, slug, excerpt, content, thumbnail_url, published_at, view_count, status, category_id, author_name, source_name, source_url, category:news_categories(name, slug), author:profiles!news_author_id_fkey(full_name), news_tag_map(news_tags(name, slug))',
     )
     .eq('slug', slug)
     .maybeSingle()
@@ -334,7 +343,23 @@ export async function fetchPublicNewsBySlug(slug: string) {
   }
 }
 
-export async function fetchRelatedNews(categoryId: string, excludeId: string) {
+/** Bài cùng thẻ, mới nhất trước; bài gắn nhiều thẻ trùng chỉ lấy một lần. */
+export async function fetchNewsByTags(tagSlugs: string[], excludeId: string, limit: number) {
+  if (tagSlugs.length === 0) return []
+  const { data, error } = await getSupabase()
+    .from('news')
+    .select('id, title, slug, thumbnail_url, published_at, news_tag_map!inner(news_tags!inner(slug))')
+    .eq('status', 'published')
+    .lte('published_at', new Date().toISOString())
+    .in('news_tag_map.news_tags.slug', tagSlugs)
+    .neq('id', excludeId)
+    .order('published_at', { ascending: false })
+    .limit(limit * 2)
+  if (error) throw error
+  return data.filter((n, i) => data.findIndex((x) => x.id === n.id) === i).slice(0, limit)
+}
+
+export async function fetchRelatedNews(categoryId: string, excludeId: string, limit = 4) {
   const { data, error } = await getSupabase()
     .from('news')
     .select('id, title, slug, thumbnail_url, published_at')
@@ -343,7 +368,7 @@ export async function fetchRelatedNews(categoryId: string, excludeId: string) {
     .eq('category_id', categoryId)
     .neq('id', excludeId)
     .order('published_at', { ascending: false })
-    .limit(4)
+    .limit(limit)
   if (error) throw error
   return data
 }

@@ -27,6 +27,7 @@ export function ChromeTab() {
   const queryClient = useQueryClient()
   const [headerSocial, setHeaderSocial] = useState(chrome.header_social)
   const [navSearch, setNavSearch] = useState(chrome.nav_search)
+  const [contentSidebar, setContentSidebar] = useState(chrome.content_sidebar)
   const [linkIcons, setLinkIcons] = useState(chrome.footer_link_icons)
   const [connectIcons, setConnectIcons] = useState(chrome.footer_connect_icons)
   const [rows, setRows] = useState<Row[]>(() =>
@@ -46,6 +47,7 @@ export function ChromeTab() {
       await saveSetting('site_chrome', {
         header_social: headerSocial,
         nav_search: navSearch,
+        content_sidebar: contentSidebar,
         footer_link_icons: linkIcons,
         footer_connect_icons: connectIcons,
         footer_info_lines: rows
@@ -82,6 +84,14 @@ export function ChromeTab() {
           </Link>
           ; kênh để trống thì không hiện.
         </p>
+      </Panel>
+      <Panel title="Trang Thông báo và Văn bản">
+        <CheckboxField
+          label="Bố cục nội dung chính + cột phải"
+          hint="Cột phải có phân loại thông báo, cây thư mục, văn bản xem nhiều và tải nhiều."
+          checked={contentSidebar}
+          onChange={(e) => setContentSidebar(e.target.checked)}
+        />
       </Panel>
       <Panel title="Chân trang">
         <CheckboxField

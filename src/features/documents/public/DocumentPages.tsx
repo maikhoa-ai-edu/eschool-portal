@@ -1,13 +1,26 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Download, FileText, Search } from 'lucide-react'
+import { Download, Eye, FileText, Folder, Search } from 'lucide-react'
 import { NotFound } from '@/components/NotFound'
-import { DraftPreviewNotice, PublicPageHeader, PublicQueryState } from '@/components/content/PublicPage'
+import {
+  DraftPreviewNotice,
+  PublicPageHeader,
+  PublicQueryState,
+  SidebarBox,
+  WithSidebar,
+} from '@/components/content/PublicPage'
 import { buttonClasses } from '@/components/ui/button-classes'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Pagination } from '@/components/ui/Pagination'
 import { readPage } from '@/components/ui/page-utils'
+import {
+  CONTENT_GROUPS_KEY,
+  fetchContentGroups,
+  groupWithChildren,
+  type ContentGroup,
+} from '@/features/content-groups/api'
+import { useSite } from '@/features/site/site-context'
 import { cn } from '@/lib/cn'
 import { formatDate, formatFileSize, formatNumber } from '@/lib/format'
 import { usePageTitle } from '@/lib/use-page-title'
@@ -22,7 +35,9 @@ import {
   documentViewUrl,
   fetchDocument,
   fetchPublicDocuments,
+  fetchTopDocuments,
   isDocumentType,
+  recordDocumentView,
   recordDownload,
 } from '../api'
 
@@ -50,6 +65,96 @@ function DownloadLink({
   )
 }
 
+const FOLDER_PARAM = 'thu-muc'
+
+function useFolders() {
+  return useQuery({
+    queryKey: [...CONTENT_GROUPS_KEY, 'document'],
+    queryFn: () => fetchContentGroups('document'),
+  })
+}
+
+function TopDocuments({ by, title }: { by: 'view_count' | 'download_count'; title: string }) {
+  const { data = [] } = useQuery({
+    queryKey: [...DOCUMENTS_KEY, 'top', by],
+    queryFn: () => fetchTopDocuments(by),
+  })
+  if (data.length === 0) return null
+  return (
+    <SidebarBox title={title}>
+      <ul className="space-y-2.5">
+        {data.map((d) => (
+          <li key={d.id}>
+            <Link to={`/van-ban/${d.id}`} className="line-clamp-2 text-sm font-medium hover:text-primary">
+              {d.title}
+            </Link>
+            <span className="flex items-center gap-1 text-xs text-muted">
+              {by === 'view_count' ? (
+                <Eye className="h-3 w-3" aria-hidden />
+              ) : (
+                <Download className="h-3 w-3" aria-hidden />
+              )}
+              {formatNumber(d[by])}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </SidebarBox>
+  )
+}
+
+function FolderTree({ folders, current }: { folders: ContentGroup[]; current?: string | null }) {
+  if (folders.length === 0) return null
+  const row = (id: string | null, name: string, child = false) => {
+    const active = (current ?? null) === id
+    return (
+      <Link
+        to={id ? `/van-ban?${FOLDER_PARAM}=${id}` : '/van-ban'}
+        aria-current={active ? 'true' : undefined}
+        className={cn(
+          'flex items-center gap-1.5 rounded px-2 py-1.5 text-sm hover:bg-bg',
+          child && 'ml-4',
+          active && 'bg-primary/10 font-semibold text-primary',
+        )}
+      >
+        <Folder className="h-4 w-4 shrink-0 text-accent" aria-hidden /> {name}
+      </Link>
+    )
+  }
+  return (
+    <SidebarBox title="Thư mục văn bản">
+      <ul>
+        <li>{row(null, 'Tất cả văn bản')}</li>
+        {folders
+          .filter((f) => !f.parent_id)
+          .map((root) => (
+            <li key={root.id}>
+              {row(root.id, root.name)}
+              <ul>
+                {folders
+                  .filter((f) => f.parent_id === root.id)
+                  .map((f) => (
+                    <li key={f.id}>{row(f.id, f.name, true)}</li>
+                  ))}
+              </ul>
+            </li>
+          ))}
+      </ul>
+    </SidebarBox>
+  )
+}
+
+function DocumentSidebar({ current }: { current?: string | null }) {
+  const { data: folders = [] } = useFolders()
+  return (
+    <>
+      <FolderTree folders={folders} current={current} />
+      <TopDocuments by="view_count" title="Xem nhiều" />
+      <TopDocuments by="download_count" title="Tải nhiều" />
+    </>
+  )
+}
+
 export function DocumentListPage() {
   const [params, setParams] = useSearchParams()
   const page = readPage(params)
@@ -58,10 +163,16 @@ export function DocumentListPage() {
   const query = (params.get('q') ?? '').trim()
   const [draft, setDraft] = useState(query)
   usePageTitle('Văn bản')
+  const { chrome } = useSite()
+  const folder = chrome.content_sidebar ? params.get(FOLDER_PARAM) : null
+  const folders = useFolders()
+  const folderIds = folder ? groupWithChildren(folders.data ?? [], folder) : undefined
 
   const { data, isPending, error } = useQuery({
-    queryKey: [...DOCUMENTS_KEY, 'public', { page, type, query }],
-    queryFn: () => fetchPublicDocuments({ page, type, query }),
+    queryKey: [...DOCUMENTS_KEY, 'public', { page, type, query, folderIds }],
+    queryFn: () => fetchPublicDocuments({ page, type, query, folderIds }),
+    // Chưa có cây thư mục thì chưa biết thư mục con
+    enabled: !folder || folders.isSuccess,
   })
 
   const update = (key: string, value: string) => {
@@ -78,7 +189,7 @@ export function DocumentListPage() {
       active ? 'bg-primary text-white' : 'bg-surface text-text hover:bg-primary/10',
     )
 
-  return (
+  const body = (
     <div>
       <PublicPageHeader title="Văn bản" crumbs={[{ label: 'Văn bản' }]} />
       <div className="mb-4 space-y-3">
@@ -127,7 +238,10 @@ export function DocumentListPage() {
 
       <PublicQueryState isPending={isPending} error={error} />
       {data && data.items.length === 0 && (
-        <EmptyState icon={FileText} title={query || type ? 'Không có văn bản phù hợp' : 'Chưa có văn bản'} />
+        <EmptyState
+          icon={FileText}
+          title={query || type || folder ? 'Không có văn bản phù hợp' : 'Chưa có văn bản'}
+        />
       )}
       {data && data.items.length > 0 && (
         <>
@@ -162,6 +276,11 @@ export function DocumentListPage() {
       )}
     </div>
   )
+  return chrome.content_sidebar ? (
+    <WithSidebar sidebar={<DocumentSidebar current={folder} />}>{body}</WithSidebar>
+  ) : (
+    body
+  )
 }
 
 export function DocumentDetailPage() {
@@ -177,6 +296,11 @@ export function DocumentDetailPage() {
     enabled: isUuid,
   })
   usePageTitle(doc?.title)
+  const { chrome } = useSite()
+  const published = doc?.status === 'published'
+  useEffect(() => {
+    if (published) void recordDocumentView(id)
+  }, [id, published])
 
   if (!isUuid) return <NotFound />
   if (isPending || error) return <PublicQueryState isPending={isPending} error={error} />
@@ -192,8 +316,8 @@ export function DocumentDetailPage() {
     ['Dung lượng', formatFileSize(doc.file_size)],
   ]
 
-  return (
-    <div className="mx-auto max-w-5xl">
+  const body = (
+    <>
       {doc.status !== 'published' && <DraftPreviewNotice />}
       <PublicPageHeader title={doc.title} crumbs={[{ label: 'Văn bản', to: '/van-ban' }]} />
       <div className="space-y-5 rounded-xl bg-surface p-4 shadow-sm sm:p-6">
@@ -219,6 +343,11 @@ export function DocumentDetailPage() {
           />
         )}
       </div>
-    </div>
+    </>
+  )
+  return chrome.content_sidebar ? (
+    <WithSidebar sidebar={<DocumentSidebar current={doc.folder_id} />}>{body}</WithSidebar>
+  ) : (
+    <div className="mx-auto max-w-5xl">{body}</div>
   )
 }

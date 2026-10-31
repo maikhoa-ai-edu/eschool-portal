@@ -96,12 +96,14 @@ export function documentViewUrl(doc: { file_path: string }): string {
 }
 
 const LIST_COLUMNS =
-  'id, title, document_number, document_type, issuing_authority, signer, issue_date, status, is_featured, download_count, file_name, file_size, file_path, mime_type, updated_at'
+  'id, title, document_number, document_type, issuing_authority, signer, issue_date, status, is_featured, download_count, view_count, folder_id, file_name, file_size, file_path, mime_type, updated_at'
 
 export interface DocumentFilter {
   page: number
   type: DocumentType | null
   query: string
+  /** Thư mục và các thư mục con */
+  folderIds?: string[]
 }
 
 export async function fetchAdminDocuments(filter: DocumentFilter) {
@@ -143,6 +145,7 @@ export interface DocumentInput {
   issue_date: string
   effective_date: string
   excerpt: string
+  folder_id: string
   is_featured: boolean
   status: DocumentStatus
 }
@@ -164,6 +167,7 @@ export async function saveDocument(
     issue_date: input.issue_date || null,
     effective_date: input.effective_date || null,
     excerpt: input.excerpt || null,
+    folder_id: input.folder_id || null,
     is_featured: input.is_featured,
     status: input.status,
   }
@@ -221,6 +225,7 @@ export async function fetchPublicDocuments(filter: DocumentFilter) {
     .order('published_at', { ascending: false })
     .range(...pageRange(filter.page, DOCUMENT_PAGE_SIZE))
   if (filter.type) query = query.eq('document_type', filter.type)
+  if (filter.folderIds?.length) query = query.in('folder_id', filter.folderIds)
   if (filter.query) {
     query = query.textSearch('search_vector', toSearchQuery(filter.query), {
       type: 'websearch',
@@ -236,4 +241,21 @@ export type PublicDocument = Awaited<ReturnType<typeof fetchPublicDocuments>>['i
 
 export async function recordDownload(id: string): Promise<void> {
   await getSupabase().rpc('increment_document_download', { p_document_id: id })
+}
+
+export async function recordDocumentView(id: string): Promise<void> {
+  await getSupabase().rpc('increment_document_view', { p_document_id: id })
+}
+
+/** Văn bản xem nhiều hoặc tải nhiều ở cột phải; chỉ văn bản có ít nhất một lượt. */
+export async function fetchTopDocuments(by: 'view_count' | 'download_count', limit = 5) {
+  const { data, error } = await getSupabase()
+    .from('documents')
+    .select('id, title, view_count, download_count')
+    .eq('status', 'published')
+    .gt(by, 0)
+    .order(by, { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return data
 }

@@ -81,6 +81,8 @@ export interface FooterInfoLine {
 export const siteChromeSchema = z.object({
   header_social: z.boolean().catch(false),
   nav_search: z.boolean().catch(false),
+  /** Trang Thông báo, Văn bản có cột phải */
+  content_sidebar: z.boolean().catch(false),
   footer_link_icons: z.boolean().catch(false),
   footer_connect_icons: z.boolean().catch(false),
   footer_info_lines: z

@@ -11,6 +11,7 @@ import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { Field } from '@/components/ui/Field'
 import { CheckboxField, SelectField, TextareaField } from '@/components/ui/FormControls'
+import { CONTENT_GROUPS_KEY, fetchContentGroups, groupOptions } from '@/features/content-groups/api'
 import { toVietnameseError } from '@/lib/errors'
 import { formatFileSize } from '@/lib/format'
 import {
@@ -39,6 +40,7 @@ const schema = z.object({
   issue_date: z.string(),
   effective_date: z.string(),
   excerpt: z.string().trim().max(1000, 'Tối đa 1000 ký tự'),
+  folder_id: z.string(),
   is_featured: z.boolean(),
   status: z.enum(DOCUMENT_STATUSES),
 })
@@ -56,6 +58,10 @@ function DocumentForm({ doc }: { doc: DocumentRecord | null }) {
   )
   const [error, setError] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const { data: folders = [] } = useQuery({
+    queryKey: [...CONTENT_GROUPS_KEY, 'document'],
+    queryFn: () => fetchContentGroups('document'),
+  })
 
   const form = useForm<Values>({
     resolver: zodResolver(schema),
@@ -68,6 +74,7 @@ function DocumentForm({ doc }: { doc: DocumentRecord | null }) {
       issue_date: doc?.issue_date ?? '',
       effective_date: doc?.effective_date ?? '',
       excerpt: doc?.excerpt ?? '',
+      folder_id: doc?.folder_id ?? '',
       is_featured: doc?.is_featured ?? false,
       status: asDocumentStatus(doc?.status ?? 'published'),
     },
@@ -129,6 +136,12 @@ function DocumentForm({ doc }: { doc: DocumentRecord | null }) {
                 label="Loại văn bản"
                 options={DOCUMENT_TYPES.map((t) => ({ value: t, label: DOCUMENT_TYPE_LABELS[t] }))}
                 {...form.register('document_type')}
+              />
+              <SelectField
+                label="Thư mục"
+                placeholder="(Không thuộc thư mục)"
+                options={groupOptions(folders)}
+                {...form.register('folder_id')}
               />
               <Field
                 label="Cơ quan ban hành"

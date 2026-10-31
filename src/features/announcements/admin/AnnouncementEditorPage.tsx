@@ -12,6 +12,7 @@ import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { Field } from '@/components/ui/Field'
 import { CheckboxField, SelectField } from '@/components/ui/FormControls'
+import { CONTENT_GROUPS_KEY, fetchContentGroups, groupOptions } from '@/features/content-groups/api'
 import { toVietnameseError } from '@/lib/errors'
 import { formatDateTime, fromDateTimeLocal, toDateTimeLocal } from '@/lib/format'
 import {
@@ -32,6 +33,7 @@ const schema = z.object({
   content: z.string(),
   priority: z.enum(PRIORITIES),
   is_pinned: z.boolean(),
+  group_id: z.string(),
   expires_at: z.string(),
 })
 type Values = z.infer<typeof schema>
@@ -47,6 +49,10 @@ function AnnouncementForm({ announcement }: { announcement: EditableAnnouncement
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState<Action | 'delete' | null>(null)
   const published = announcement?.status === 'published'
+  const { data: groups = [] } = useQuery({
+    queryKey: [...CONTENT_GROUPS_KEY, 'announcement'],
+    queryFn: () => fetchContentGroups('announcement'),
+  })
 
   const form = useForm<Values>({
     resolver: zodResolver(schema),
@@ -55,6 +61,7 @@ function AnnouncementForm({ announcement }: { announcement: EditableAnnouncement
       content: announcement?.content ?? '',
       priority: asPriority(announcement?.priority ?? 'normal'),
       is_pinned: announcement?.is_pinned ?? false,
+      group_id: announcement?.group_id ?? '',
       expires_at: toDateTimeLocal(announcement?.expires_at),
     },
   })
@@ -77,6 +84,7 @@ function AnnouncementForm({ announcement }: { announcement: EditableAnnouncement
           content: values.content,
           priority: values.priority,
           is_pinned: values.is_pinned,
+          group_id: values.group_id || null,
           status,
           expires_at: expiresAt,
         },
@@ -213,6 +221,12 @@ function AnnouncementForm({ announcement }: { announcement: EditableAnnouncement
               label="Mức độ"
               options={PRIORITIES.map((p) => ({ value: p, label: PRIORITY_LABELS[p] }))}
               {...form.register('priority')}
+            />
+            <SelectField
+              label="Phân loại"
+              placeholder="(Không phân loại)"
+              options={groupOptions(groups)}
+              {...form.register('group_id')}
             />
             <CheckboxField label="Ghim lên đầu" {...form.register('is_pinned')} />
             <Field

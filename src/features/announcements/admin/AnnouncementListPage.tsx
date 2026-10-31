@@ -38,9 +38,14 @@ export function AnnouncementListPage() {
         title="Thông báo"
         description="Thông báo điều hành gửi phụ huynh, học sinh. Thông báo ghim luôn nằm đầu danh sách."
         actions={
-          <Link to="/admin/thong-bao/moi" className={buttonClasses('primary')}>
-            <Plus className="h-4 w-4" aria-hidden /> Thêm thông báo
-          </Link>
+          <>
+            <Link to="/admin/thong-bao/phan-loai" className={buttonClasses('outline')}>
+              Phân loại
+            </Link>
+            <Link to="/admin/thong-bao/moi" className={buttonClasses('primary')}>
+              <Plus className="h-4 w-4" aria-hidden /> Thêm thông báo
+            </Link>
+          </>
         }
       />
       <QueryState isPending={isPending} error={error} />

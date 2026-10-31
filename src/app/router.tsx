@@ -109,22 +109,26 @@ const adminContentRoutes: RouteObject[] = [
   adminSection('chuyen-muc', 'news.manage_taxonomy', [
     { index: true, lazy: page(() => import('@/features/news/admin/TaxonomyPage'), 'TaxonomyPage') },
   ]),
-  adminSection(
-    'thong-bao',
-    'announcements.manage',
-    listAndEditor(
+  adminSection('thong-bao', 'announcements.manage', [
+    {
+      path: 'phan-loai',
+      lazy: page(() => import('@/features/content-groups/ContentGroupsPage'), 'AnnouncementGroupsPage'),
+    },
+    ...listAndEditor(
       page(() => import('@/features/announcements/admin/AnnouncementListPage'), 'AnnouncementListPage'),
       page(() => import('@/features/announcements/admin/AnnouncementEditorPage'), 'AnnouncementEditorPage'),
     ),
-  ),
-  adminSection(
-    'van-ban',
-    'documents.manage',
-    listAndEditor(
+  ]),
+  adminSection('van-ban', 'documents.manage', [
+    {
+      path: 'thu-muc',
+      lazy: page(() => import('@/features/content-groups/ContentGroupsPage'), 'DocumentFoldersPage'),
+    },
+    ...listAndEditor(
       page(() => import('@/features/documents/admin/DocumentListPage'), 'DocumentListPage'),
       page(() => import('@/features/documents/admin/DocumentEditorPage'), 'DocumentEditorPage'),
     ),
-  ),
+  ]),
   adminSection(
     'thu-vien-anh',
     'media.manage',

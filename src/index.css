@@ -94,6 +94,10 @@ body {
 }
 
 /* Nội dung soạn bằng trình soạn thảo (tin, thông báo, trang tĩnh); dùng chung cho cả ô soạn thảo */
+/* Bấm mục lục: tiêu đề không bị menu dính che */
+.rich-content :is(h2, h3) {
+  scroll-margin-top: 4rem;
+}
 .rich-content {
   line-height: 1.75;
   overflow-wrap: anywhere;

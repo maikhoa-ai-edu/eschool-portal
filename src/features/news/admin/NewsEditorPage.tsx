@@ -45,6 +45,15 @@ const schema = z.object({
   excerpt: z.string().max(500, 'Tối đa 500 ký tự'),
   content: z.string(),
   category_id: z.string().min(1, 'Vui lòng chọn chuyên mục'),
+  author_name: z.string().trim().max(150),
+  source_name: z.string().trim().max(200),
+  source_url: z.union([
+    z.literal(''),
+    z
+      .string()
+      .trim()
+      .regex(/^https?:\/\/\S+$/, 'Liên kết phải bắt đầu bằng https://'),
+  ]),
   tags: z.string(),
   thumbnail_url: z.string().nullable(),
   is_featured: z.boolean(),
@@ -91,6 +100,9 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
       excerpt: news?.excerpt ?? '',
       content: news?.content ?? '',
       category_id: news?.category_id ?? categories.find((c) => c.is_active)?.id ?? '',
+      author_name: news?.author_name ?? '',
+      source_name: news?.source_name ?? '',
+      source_url: news?.source_url ?? '',
       tags: news?.tags.join(', ') ?? '',
       thumbnail_url: news?.thumbnail_url ?? null,
       is_featured: news?.is_featured ?? false,
@@ -130,6 +142,9 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
           content: values.content,
           thumbnail_url: values.thumbnail_url,
           category_id: values.category_id,
+          author_name: values.author_name,
+          source_name: values.source_name,
+          source_url: values.source_url,
           tags: parseTags(values.tags),
           status: targetStatus(action, status),
           review_note: reviewNote,
@@ -337,6 +352,27 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
                 {...form.register('is_featured')}
               />
             )}
+          </Panel>
+
+          <Panel title="Tác giả và nguồn">
+            <Field
+              label="Tên tác giả"
+              hint="Hiện cuối bài. Để trống thì dùng tên tài khoản người viết."
+              error={e.author_name?.message}
+              {...form.register('author_name')}
+            />
+            <Field
+              label="Nguồn bài viết"
+              placeholder="vd: Báo Giáo dục và Thời đại"
+              error={e.source_name?.message}
+              {...form.register('source_name')}
+            />
+            <Field
+              label="Liên kết nguồn"
+              placeholder="https://..."
+              error={e.source_url?.message}
+              {...form.register('source_url')}
+            />
           </Panel>
 
           <Panel title="Ảnh đại diện">

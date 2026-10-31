@@ -31,4 +31,3 @@ create policy "Quản lý trang chủ, chữ chạy, đầu và chân trang" on 
   using (key in ('homepage', 'marquee', 'site_chrome') and public.has_permission('homepage.manage'))
   with check (key in ('homepage', 'marquee', 'site_chrome') and public.has_permission('homepage.manage'));
 
-update public.app_meta set value = '0.10.0', updated_at = now() where key = 'schema_version';

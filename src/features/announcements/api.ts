@@ -48,7 +48,7 @@ export async function fetchAdminAnnouncements(page: number) {
 export async function fetchAnnouncement(id: string) {
   const { data, error } = await getSupabase()
     .from('announcements')
-    .select('id, title, content, priority, is_pinned, status, published_at, expires_at')
+    .select('id, title, content, priority, is_pinned, group_id, status, published_at, expires_at')
     .eq('id', id)
     .maybeSingle()
   if (error) throw error
@@ -62,6 +62,7 @@ export interface AnnouncementInput {
   content: string
   priority: Priority
   is_pinned: boolean
+  group_id: string | null
   status: 'draft' | 'published'
   expires_at: string | null
 }
@@ -88,9 +89,13 @@ export async function deleteAnnouncement(id: string): Promise<void> {
 }
 
 /** Thông báo đang hiệu lực; lọc tường minh vì nhân sự đăng nhập đọc được cả bản nháp. */
-export async function fetchPublicAnnouncements(page: number, pageSize = ANNOUNCEMENT_PAGE_SIZE) {
+export async function fetchPublicAnnouncements(
+  page: number,
+  pageSize = ANNOUNCEMENT_PAGE_SIZE,
+  groupId: string | null = null,
+) {
   const now = new Date().toISOString()
-  const { data, error, count } = await getSupabase()
+  let query = getSupabase()
     .from('announcements')
     .select('id, title, content, priority, is_pinned, published_at', { count: 'exact' })
     .eq('status', 'published')
@@ -99,6 +104,8 @@ export async function fetchPublicAnnouncements(page: number, pageSize = ANNOUNCE
     .order('is_pinned', { ascending: false })
     .order('published_at', { ascending: false })
     .range(...pageRange(page, pageSize))
+  if (groupId) query = query.eq('group_id', groupId)
+  const { data, error, count } = await query
   if (error) throw error
   return { items: data, total: count ?? 0 }
 }
@@ -106,7 +113,7 @@ export async function fetchPublicAnnouncements(page: number, pageSize = ANNOUNCE
 export async function fetchPublicAnnouncement(id: string) {
   const { data, error } = await getSupabase()
     .from('announcements')
-    .select('id, title, content, priority, is_pinned, status, published_at, expires_at')
+    .select('id, title, content, priority, is_pinned, group_id, status, published_at, expires_at')
     .eq('id', id)
     .maybeSingle()
   if (error) throw error
