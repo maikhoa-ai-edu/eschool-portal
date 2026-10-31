@@ -472,3 +472,18 @@ from (values
   (interval '2 hours', '00000000-0000-0000-0000-0000000000a1', 'UPDATE', 'site_settings', 'school_identity', array['value'], 'school_identity')
 ) as e(ago, actor, action, table_name, record_id, fields, summary)
 join public.profiles p on p.id = e.actor;
+
+-- Video, tài nguyên, kế hoạch công tác mẫu (link YouTube giả lập bằng video công khai của YouTube)
+insert into public.videos (title, url, description, sort_order, created_by) values
+  ('Giới thiệu nhà trường', 'https://www.youtube.com/watch?v=aqz-KE-bpKQ', 'Video minh họa, thay bằng video của trường.', 0, '00000000-0000-0000-0000-0000000000a2'),
+  ('Hoạt động ngoại khóa', 'https://www.youtube.com/watch?v=ScMzIvxBSi4', 'Video minh họa, thay bằng video của trường.', 1, '00000000-0000-0000-0000-0000000000a2');
+insert into public.resources (title, url, kind, description, sort_order, created_by) values
+  ('Phần mềm vnEdu', 'https://vnedu.vn', 'phan_mem', 'Sổ liên lạc và quản lý nhà trường.', 0, '00000000-0000-0000-0000-0000000000a2'),
+  ('Biểu mẫu đơn xin nghỉ học', 'https://example.com/bieu-mau-nghi-hoc', 'bieu_mau', 'Link minh họa.', 1, '00000000-0000-0000-0000-0000000000a2'),
+  ('Giáo án mẫu môn Ngữ văn', 'https://example.com/giao-an-ngu-van', 'giao_an', 'Link minh họa.', 2, '00000000-0000-0000-0000-0000000000a2');
+insert into public.work_plans (id, year, month, title, note, status, created_by) values
+  ('00000000-0000-0000-0000-0000000000d9', 2026, 11, 'Kế hoạch công tác tháng 11/2026', 'Trọng tâm: chào mừng Ngày Nhà giáo Việt Nam 20/11.', 'published', '00000000-0000-0000-0000-0000000000a2');
+insert into public.work_plan_items (plan_id, sort_order, time_text, content, assignee) values
+  ('00000000-0000-0000-0000-0000000000d9', 0, '02/11', 'Họp hội đồng sư phạm tháng 11', 'Ban giám hiệu'),
+  ('00000000-0000-0000-0000-0000000000d9', 1, '03/11 - 14/11', 'Hội giảng chào mừng 20/11', 'Các tổ chuyên môn'),
+  ('00000000-0000-0000-0000-0000000000d9', 2, '20/11', 'Lễ kỷ niệm Ngày Nhà giáo Việt Nam', 'Công đoàn, Đoàn trường');

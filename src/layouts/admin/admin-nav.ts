@@ -2,8 +2,10 @@ import {
   Activity,
   ArchiveRestore,
   Bell,
+  CalendarRange,
   CloudDownload,
   FileText,
+  FolderDown,
   FolderTree,
   Images,
   LayoutDashboard,
@@ -17,6 +19,7 @@ import {
   Sparkles,
   ToggleLeft,
   Users,
+  Video,
   type LucideIcon,
 } from 'lucide-react'
 import type { ModuleKey } from '@/features/site/settings'
@@ -78,6 +81,27 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         icon: Images,
         permission: 'media.manage',
         module: 'albums',
+      },
+      {
+        label: 'Video',
+        to: '/admin/video',
+        icon: Video,
+        permission: 'media.manage',
+        module: 'videos',
+      },
+      {
+        label: 'Tài nguyên',
+        to: '/admin/tai-nguyen',
+        icon: FolderDown,
+        permission: 'media.manage',
+        module: 'resources',
+      },
+      {
+        label: 'Kế hoạch công tác',
+        to: '/admin/ke-hoach',
+        icon: CalendarRange,
+        permission: 'plans.manage',
+        module: 'plans',
       },
       {
         label: 'Trang tĩnh',

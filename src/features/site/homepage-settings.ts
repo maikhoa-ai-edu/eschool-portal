@@ -96,7 +96,8 @@ export const SECTION_INFO: Record<HomepageSectionKey, SectionInfo> = {
     defaultTitle: 'Thư viện ảnh',
     defaultLimit: 4,
     maxLimit: 8,
-    module: 'albums',
+    // Không gắn module: tắt Thư viện ảnh mà còn video, tài nguyên thì khối vẫn hiện các tab đó
+    module: null,
     columns: true,
     noSidebar: true,
   },

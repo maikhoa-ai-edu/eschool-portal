@@ -65,6 +65,15 @@ const publicModuleRoutes: RouteObject[] = [
     { index: true, lazy: page(() => import('@/features/albums/public/AlbumPages'), 'AlbumListPage') },
     { path: ':slug', lazy: page(() => import('@/features/albums/public/AlbumPages'), 'AlbumDetailPage') },
   ]),
+  publicModule('video', 'videos', [
+    { index: true, lazy: page(() => import('@/features/library/public/LibraryPages'), 'VideoListPage') },
+  ]),
+  publicModule('tai-nguyen', 'resources', [
+    { index: true, lazy: page(() => import('@/features/library/public/LibraryPages'), 'ResourceListPage') },
+  ]),
+  publicModule('ke-hoach', 'plans', [
+    { index: true, lazy: page(() => import('@/features/plans/PublicPlanPage'), 'PublicPlanPage') },
+  ]),
   publicModule('trang', 'pages', [
     { index: true, element: <Navigate to="/" replace /> },
     { path: ':slug', lazy: page(() => import('@/features/pages/public/StaticPage'), 'StaticPage') },
@@ -135,6 +144,23 @@ const adminContentRoutes: RouteObject[] = [
     listAndEditor(
       page(() => import('@/features/albums/admin/AlbumListPage'), 'AlbumListPage'),
       page(() => import('@/features/albums/admin/AlbumEditorPage'), 'AlbumEditorPage'),
+    ),
+  ),
+  adminSection('video', 'media.manage', [
+    { index: true, lazy: page(() => import('@/features/library/admin/LibraryAdminPages'), 'VideoAdminPage') },
+  ]),
+  adminSection('tai-nguyen', 'media.manage', [
+    {
+      index: true,
+      lazy: page(() => import('@/features/library/admin/LibraryAdminPages'), 'ResourceAdminPage'),
+    },
+  ]),
+  adminSection(
+    'ke-hoach',
+    'plans.manage',
+    listAndEditor(
+      page(() => import('@/features/plans/PlanAdminPages'), 'PlanListPage'),
+      page(() => import('@/features/plans/PlanAdminPages'), 'PlanEditorPage'),
     ),
   ),
   adminSection(

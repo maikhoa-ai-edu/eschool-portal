@@ -113,6 +113,9 @@ const MODULE_LINKS: Array<{ module: ModuleKey | null; title: string; url: string
   { module: 'documents', title: 'Văn bản', url: '/van-ban' },
   { module: 'albums', title: 'Thư viện ảnh', url: '/thu-vien-anh' },
   { module: 'topics', title: 'Chuyên đề', url: '/chuyen-de' },
+  { module: 'videos', title: 'Thư viện video', url: '/video' },
+  { module: 'resources', title: 'Tài nguyên', url: '/tai-nguyen' },
+  { module: 'plans', title: 'Kế hoạch công tác', url: '/ke-hoach' },
 ]
 
 /** Gợi ý liên kết khi thêm mục menu: trang chức năng, chuyên mục tin, trang tĩnh đã đăng. */

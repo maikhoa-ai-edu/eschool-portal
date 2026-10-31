@@ -54,6 +54,9 @@ const MODULE_PATHS: Array<[ModuleKey, string]> = [
   ['albums', '/thu-vien-anh'],
   ['pages', '/trang'],
   ['topics', '/chuyen-de'],
+  ['videos', '/video'],
+  ['resources', '/tai-nguyen'],
+  ['plans', '/ke-hoach'],
 ]
 
 export function moduleOfUrl(url: string): ModuleKey | null {

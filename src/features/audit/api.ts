@@ -29,6 +29,9 @@ export const AUDIT_TABLE_LABELS: Record<string, string> = {
   albums: 'Album',
   homepage_slides: 'Slide trang chủ',
   topics: 'Chuyên đề',
+  videos: 'Video',
+  resources: 'Tài nguyên',
+  work_plans: 'Kế hoạch công tác',
   backup: 'Sao lưu',
 }
 
@@ -46,6 +49,10 @@ const SUMMARY_LABELS: Record<string, string> = {
   albums: 'Thư viện ảnh',
   pages: 'Trang tĩnh',
   topics: 'Chuyên đề',
+  videos: 'Thư viện video',
+  resources: 'Tài nguyên',
+  plans: 'Kế hoạch công tác',
+  site_chrome: 'Đầu và chân trang',
 }
 
 const FIELD_LABELS: Record<string, string> = {

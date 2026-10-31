@@ -1,6 +1,7 @@
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronRight, Eye, FileText, Images, Pin } from 'lucide-react'
+import { ChevronRight, ExternalLink, Eye, FileText, Images, Pin } from 'lucide-react'
 import { SidebarBox } from '@/components/content/PublicPage'
 import { Badge } from '@/components/ui/Badge'
 import { ALBUMS_KEY, fetchPublicAlbums } from '@/features/albums/api'
@@ -12,11 +13,21 @@ import {
   PRIORITY_TONES,
 } from '@/features/announcements/api'
 import { DOCUMENTS_KEY, documentTypeLabel } from '@/features/documents/api'
+import {
+  fetchResources,
+  fetchVideos,
+  RESOURCES_KEY,
+  resourceKindLabel,
+  videoEmbedUrl,
+  VIDEOS_KEY,
+} from '@/features/library/api'
+import { VideoThumb } from '@/features/library/VideoThumb'
 import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
 import { fetchCategories, NEWS_KEY } from '@/features/news/api'
 import { categoryTitle, sectionTitle, type HomepageSection } from '@/features/site/homepage-settings'
 import { fetchMenu, hideDisabledModules, isExternalUrl } from '@/features/site/menu'
 import { MenuIcon } from '@/features/site/menu-icons'
+import { safeExternalUrl } from '@/features/site/settings'
 import { useSite } from '@/features/site/site-context'
 import { fetchVisitStats, VISIT_STATS_KEY } from '@/features/site/visits'
 import { cn } from '@/lib/cn'
@@ -105,53 +116,155 @@ export function CategoryNews({ section }: { section: HomepageSection }) {
   )
 }
 
+type LibraryTab = 'albums' | 'videos' | 'resources'
+
+const LIBRARY_TABS: Record<LibraryTab, { label: string; more: string }> = {
+  albums: { label: 'Thư viện ảnh', more: '/thu-vien-anh' },
+  videos: { label: 'Video', more: '/video' },
+  resources: { label: 'Tài nguyên', more: '/tai-nguyen' },
+}
+
+/**
+ * Khối Thư viện. Chỉ có album thì hiện như cũ; có thêm video hoặc tài nguyên thì thành các tab.
+ * Chờ đủ dữ liệu rồi mới hiện để hàng tab không đẩy nội dung.
+ */
 export function AlbumsBlock({ section }: { section: HomepageSection }) {
+  const { isModuleEnabled } = useSite()
+  const [picked, setPicked] = useState<LibraryTab | null>(null)
+  const withAlbums = isModuleEnabled('albums')
+  const withVideos = isModuleEnabled('videos')
+  const withResources = isModuleEnabled('resources')
   const { data, isPending } = useQuery({
     queryKey: [...ALBUMS_KEY, 'public', 1],
     queryFn: () => fetchPublicAlbums(1),
+    enabled: withAlbums,
+  })
+  const videos = useQuery({
+    queryKey: [...VIDEOS_KEY, 'home', section.limit],
+    queryFn: () => fetchVideos(true, section.limit),
+    enabled: withVideos,
+  })
+  const resources = useQuery({
+    queryKey: [...RESOURCES_KEY, 'home', section.limit],
+    queryFn: () => fetchResources(true, section.limit),
+    enabled: withResources,
   })
   const items = (data?.items ?? []).slice(0, section.limit)
-  if (isPending) return <BlockSkeleton className="h-48" />
-  if (items.length === 0) return null
+  const videoItems = (videos.data ?? []).filter((v) => videoEmbedUrl(v.url))
+  const resourceItems = (resources.data ?? []).filter((r) => safeExternalUrl(r.url))
+  if ((withAlbums && isPending) || (withVideos && videos.isPending) || (withResources && resources.isPending))
+    return <BlockSkeleton className="h-48" />
+  const tabs: LibraryTab[] = [
+    ...(items.length > 0 ? (['albums'] as const) : []),
+    ...(videoItems.length > 0 ? (['videos'] as const) : []),
+    ...(resourceItems.length > 0 ? (['resources'] as const) : []),
+  ]
+  const active = picked && tabs.includes(picked) ? picked : tabs[0]
+  if (!active) return null
   // Chưa chọn số cột: giữ lưới gốc, trừ khi khối chỉ rộng nửa trang
   const columns = section.columns ?? (section.half ? 2 : null)
   const sizes = columns
     ? `(min-width: 1024px) ${Math.round(blockWidth(section.zone, section.half) / columns)}px, 50vw`
     : '(min-width: 1024px) 240px, 50vw'
+  const grid = columns ? GRID_CLASSES[columns] : 'grid-cols-2 lg:grid-cols-4'
+  const hasTabs = tabs.length > 1
   return (
-    <MainBlock title={sectionTitle(section)} more="/thu-vien-anh" icon={section.icon}>
-      <div className="@container">
-        <ul className={cn('grid gap-3', columns ? GRID_CLASSES[columns] : 'grid-cols-2 lg:grid-cols-4')}>
-          {items.map((album) => (
-            <li key={album.id}>
-              <Link
-                to={`/thu-vien-anh/${album.slug}`}
-                className="group relative block overflow-hidden rounded-xl"
+    <MainBlock
+      title={hasTabs ? section.title || 'Thư viện' : section.title || LIBRARY_TABS[active].label}
+      more={LIBRARY_TABS[active].more}
+      icon={section.icon}
+    >
+      {hasTabs && (
+        <div role="tablist" aria-label="Chọn thư viện" className="mb-3 flex flex-wrap gap-1.5">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              role="tab"
+              aria-selected={tab === active}
+              onClick={() => setPicked(tab)}
+              className={cn(
+                'rounded-full px-3 py-1 text-sm font-medium',
+                tab === active ? 'bg-primary text-white' : 'bg-bg hover:bg-primary/10',
+              )}
+            >
+              {LIBRARY_TABS[tab].label}
+            </button>
+          ))}
+        </div>
+      )}
+      {active === 'videos' && (
+        <div className="@container">
+          <ul className={cn('grid gap-3', grid)}>
+            {videoItems.map((v) => (
+              <li key={v.id}>
+                <Link to={`/video?xem=${v.id}`} className="group block">
+                  <VideoThumb url={v.url} />
+                  <span className="mt-1.5 line-clamp-2 block text-sm font-semibold leading-snug group-hover:text-primary">
+                    {v.title}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {active === 'resources' && (
+        <ul className="grid gap-x-6 sm:grid-cols-2">
+          {resourceItems.map((r) => (
+            <li key={r.id} className="border-b border-dashed border-border py-2">
+              <a
+                href={safeExternalUrl(r.url)!}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-start gap-2"
               >
-                <div className="aspect-[4/3] bg-bg">
-                  {album.coverUrl ? (
-                    <img
-                      src={album.coverUrl}
-                      {...responsiveImage(album.coverUrl, sizes)}
-                      alt=""
-                      loading="lazy"
-                      className="h-full w-full object-cover transition group-hover:scale-105"
-                    />
-                  ) : (
-                    <span className="flex h-full items-center justify-center text-muted">
-                      <Images className="h-8 w-8" aria-hidden />
-                    </span>
-                  )}
-                </div>
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 text-white">
-                  <p className="line-clamp-2 text-sm font-semibold leading-snug">{album.title}</p>
-                  <p className="text-xs text-white/80">{album.imageCount} ảnh</p>
-                </div>
-              </Link>
+                <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold leading-snug group-hover:text-primary">
+                    {r.title}
+                  </span>
+                  <span className="text-xs text-muted">{resourceKindLabel(r.kind)}</span>
+                </span>
+              </a>
             </li>
           ))}
         </ul>
-      </div>
+      )}
+      {active === 'albums' && (
+        <div className="@container">
+          <ul className={cn('grid gap-3', grid)}>
+            {items.map((album) => (
+              <li key={album.id}>
+                <Link
+                  to={`/thu-vien-anh/${album.slug}`}
+                  className="group relative block overflow-hidden rounded-xl"
+                >
+                  <div className="aspect-[4/3] bg-bg">
+                    {album.coverUrl ? (
+                      <img
+                        src={album.coverUrl}
+                        {...responsiveImage(album.coverUrl, sizes)}
+                        alt=""
+                        loading="lazy"
+                        className="h-full w-full object-cover transition group-hover:scale-105"
+                      />
+                    ) : (
+                      <span className="flex h-full items-center justify-center text-muted">
+                        <Images className="h-8 w-8" aria-hidden />
+                      </span>
+                    )}
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 text-white">
+                    <p className="line-clamp-2 text-sm font-semibold leading-snug">{album.title}</p>
+                    <p className="text-xs text-white/80">{album.imageCount} ảnh</p>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </MainBlock>
   )
 }

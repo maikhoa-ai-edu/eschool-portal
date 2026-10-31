@@ -123,7 +123,17 @@ export interface SiteSettings {
 
 export const SITE_SETTINGS_QUERY_KEY = ['site-settings'] as const
 
-export const MODULE_KEYS = ['news', 'announcements', 'documents', 'albums', 'pages', 'topics'] as const
+export const MODULE_KEYS = [
+  'news',
+  'announcements',
+  'documents',
+  'albums',
+  'videos',
+  'resources',
+  'plans',
+  'pages',
+  'topics',
+] as const
 export type ModuleKey = (typeof MODULE_KEYS)[number]
 
 /** Chuyển các dòng site_settings/module_settings thành cấu hình đã kiểm tra hợp lệ. */

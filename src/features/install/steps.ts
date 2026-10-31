@@ -17,6 +17,9 @@ export const MODULE_INFO: Record<string, { label: string; description: string }>
   announcements: { label: 'Thông báo', description: 'Thông báo ngắn, có thể ghim lên đầu trang.' },
   documents: { label: 'Văn bản', description: 'Công văn, kế hoạch, biểu mẫu cho phép tải về.' },
   albums: { label: 'Thư viện ảnh', description: 'Album ảnh hoạt động của nhà trường.' },
+  videos: { label: 'Thư viện video', description: 'Video nhúng từ YouTube hoặc Google Drive.' },
+  resources: { label: 'Tài nguyên', description: 'Link phần mềm, giáo án, biểu mẫu.' },
+  plans: { label: 'Kế hoạch công tác', description: 'Kế hoạch theo tháng, nhập tay hoặc từ file Word.' },
   pages: { label: 'Trang thông tin', description: 'Giới thiệu, cơ cấu tổ chức, lịch sử nhà trường...' },
   topics: {
     label: 'Chuyên đề',
