@@ -749,6 +749,64 @@ export type Database = {
           },
         ]
       }
+      news_comments: {
+        Row: {
+          author_name: string
+          content: string
+          created_at: string
+          id: string
+          moderated_at: string | null
+          moderated_by: string | null
+          news_id: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          author_name: string
+          content: string
+          created_at?: string
+          id?: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          news_id: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          author_name?: string
+          content?: string
+          created_at?: string
+          id?: string
+          moderated_at?: string | null
+          moderated_by?: string | null
+          news_id?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_comments_moderated_by_fkey"
+            columns: ["moderated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_comments_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       news_tag_map: {
         Row: {
           news_id: string

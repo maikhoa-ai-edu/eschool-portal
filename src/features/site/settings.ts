@@ -48,7 +48,12 @@ const marqueeItemSchema = z.union([
 /** Dòng chữ chạy. Bản cũ lưu mảng chuỗi, bản mới lưu {text, url}; cả hai đều đọc được. */
 export const marqueeSchema = z.object({
   enabled: z.boolean().catch(false),
-  label: z.string().trim().max(40).catch('').transform((v) => v || 'Tin nổi bật'),
+  label: z
+    .string()
+    .trim()
+    .max(40)
+    .catch('')
+    .transform((v) => v || 'Tin nổi bật'),
   /** Khóa trong MENU_ICONS; rỗng = tia sét như bản cũ */
   icon: text,
   /** Rỗng = nền trắng như bản cũ */
@@ -101,12 +106,26 @@ export const siteChromeSchema = z.object({
         const text = parsed.data.text.trim()
         const url = parsed.data.url?.trim() ?? ''
         return text
-          ? [{ icon: parsed.data.icon, text, url: /^(\/|https?:\/\/|tel:|mailto:)\S*$/.test(url) ? url : null }]
+          ? [
+              {
+                icon: parsed.data.icon,
+                text,
+                url: /^(\/|https?:\/\/|tel:|mailto:)\S*$/.test(url) ? url : null,
+              },
+            ]
           : []
       }),
     ),
 })
 
+/** Đăng nhập: Client Secret của Google chỉ nằm trong Supabase, không bao giờ lưu ở đây. */
+export const authOptionsSchema = z.object({
+  allow_self_signup: z.boolean().catch(false),
+  google_enabled: z.boolean().catch(false),
+  google_client_id: text,
+})
+
+export type AuthOptions = z.infer<typeof authOptionsSchema>
 export type SiteChrome = z.infer<typeof siteChromeSchema>
 export type SchoolIdentity = z.infer<typeof schoolIdentitySchema>
 export type Branding = z.infer<typeof brandingSchema>
@@ -117,6 +136,7 @@ export interface SiteSettings {
   branding: Branding
   marquee: Marquee
   chrome: SiteChrome
+  authOptions: AuthOptions
   homepage: HomepageSettings
   modules: Record<string, boolean>
 }
@@ -131,6 +151,7 @@ export const MODULE_KEYS = [
   'videos',
   'resources',
   'plans',
+  'comments',
   'pages',
   'topics',
 ] as const
@@ -147,6 +168,7 @@ export function parseSiteSettings(
     branding: brandingSchema.parse(byKey.get('branding') ?? {}),
     marquee: marqueeSchema.parse(byKey.get('marquee') ?? {}),
     chrome: siteChromeSchema.parse(byKey.get('site_chrome') ?? {}),
+    authOptions: authOptionsSchema.parse(byKey.get('auth_options') ?? {}),
     homepage: homepageSchema.parse(byKey.get('homepage') ?? {}),
     modules: Object.fromEntries(moduleRows.map((m) => [m.module_key, m.is_enabled])),
   }

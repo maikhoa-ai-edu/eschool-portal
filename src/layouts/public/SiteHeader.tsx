@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { LogIn, LayoutDashboard } from 'lucide-react'
+import { LogIn, LogOut, LayoutDashboard } from 'lucide-react'
 import { SchoolLogo } from '@/components/SchoolLogo'
 import { useAuth } from '@/features/auth/auth-context'
 import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
@@ -31,7 +31,7 @@ function useNow(intervalMs = 30_000): Date {
 
 function UtilityBar() {
   const now = useNow()
-  const { status, role } = useAuth()
+  const { status, role, profile, signOut } = useAuth()
   const { chrome } = useSite()
   const date = dateFormat.format(now)
 
@@ -49,6 +49,17 @@ function UtilityBar() {
             <Link to="/admin" className="inline-flex items-center gap-1.5 whitespace-nowrap hover:text-white">
               <LayoutDashboard className="h-3.5 w-3.5" aria-hidden /> Trang quản trị
             </Link>
+          ) : status === 'signed_in' ? (
+            <>
+              <span className="max-w-32 truncate">{profile?.full_name}</span>
+              <button
+                type="button"
+                onClick={() => void signOut()}
+                className="inline-flex items-center gap-1.5 whitespace-nowrap hover:text-white"
+              >
+                <LogOut className="h-3.5 w-3.5" aria-hidden /> Đăng xuất
+              </button>
+            </>
           ) : (
             <Link
               to="/dang-nhap"

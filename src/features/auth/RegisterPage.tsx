@@ -8,6 +8,7 @@ import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { Field } from '@/components/ui/Field'
 import { toVietnameseError } from '@/lib/errors'
+import { useSite } from '@/features/site/site-context'
 import { getSupabase } from '@/lib/supabase'
 import { useAuth } from './auth-context'
 import { AuthCard } from './AuthCard'
@@ -21,14 +22,23 @@ const registerSchema = z
   .refine((v) => v.password === v.confirm, { path: ['confirm'], message: 'Mật khẩu nhập lại không khớp' })
 type RegisterValues = z.infer<typeof registerSchema>
 
-/** Đăng ký bằng liên kết mời: CSDL (trigger handle_new_user) kiểm tra email + mã và tự gán vai trò. */
+/**
+ * Đăng ký bằng liên kết mời, hoặc tự đăng ký thành viên khi trường cho phép.
+ * Mọi trường hợp đều do CSDL (trigger handle_new_user) kiểm tra lại và gán vai trò.
+ */
 export function RegisterPage() {
-  const { status } = useAuth()
+  const { status, role } = useAuth()
+  const { authOptions } = useSite()
   const [params] = useSearchParams()
   const [error, setError] = useState<string | null>(null)
   const [pendingEmail, setPendingEmail] = useState<string | null>(null)
-  const email = params.get('email') ?? ''
+  const invitedEmail = params.get('email') ?? ''
   const token = params.get('ma') ?? ''
+  const invited = Boolean(invitedEmail && token)
+  const selfSignup = !invited && authOptions.allow_self_signup
+  const [typedEmail, setTypedEmail] = useState('')
+  const [emailError, setEmailError] = useState<string | null>(null)
+  const email = invited ? invitedEmail : typedEmail.trim()
 
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
@@ -36,17 +46,22 @@ export function RegisterPage() {
   })
   const e = form.formState.errors
 
-  if (status === 'signed_in') return <Navigate to="/admin" replace />
+  if (status === 'signed_in') return <Navigate to={role ? '/admin' : '/'} replace />
 
   const onSubmit = form.handleSubmit(async ({ fullName, password }) => {
     setError(null)
+    setEmailError(null)
+    if (!z.email().safeParse(email).success) {
+      setEmailError('Email không hợp lệ')
+      return
+    }
     try {
       const { data, error: signUpError } = await getSupabase().auth.signUp({
         email,
         password,
         options: {
           data: { full_name: fullName, invite_token: token },
-          emailRedirectTo: `${window.location.origin}/admin`,
+          emailRedirectTo: `${window.location.origin}${invited ? '/admin' : '/'}`,
         },
       })
       if (signUpError) throw signUpError
@@ -60,8 +75,8 @@ export function RegisterPage() {
   })
 
   return (
-    <AuthCard title="Tạo tài khoản theo lời mời">
-      {!email || !token ? (
+    <AuthCard title={selfSignup ? 'Đăng ký thành viên' : 'Tạo tài khoản theo lời mời'}>
+      {!invited && !selfSignup ? (
         <Alert tone="warning" title="Cần có liên kết mời">
           Chỉ tạo được tài khoản bằng liên kết mời do quản trị viên của trường gửi. Hãy mở đúng liên kết đó
           hoặc liên hệ nhà trường để được mời.
@@ -72,7 +87,7 @@ export function RegisterPage() {
             Mở hộp thư <strong>{pendingEmail}</strong> và bấm vào liên kết xác nhận, sau đó đăng nhập.
           </Alert>
           <Link
-            to="/dang-nhap?next=%2Fadmin"
+            to={invited ? '/dang-nhap?next=%2Fadmin' : '/dang-nhap'}
             className="flex items-center justify-center gap-2 text-sm text-primary hover:underline"
           >
             <MailCheck className="h-4 w-4" aria-hidden /> Tôi đã xác nhận, đăng nhập
@@ -81,11 +96,22 @@ export function RegisterPage() {
       ) : (
         <form onSubmit={onSubmit} noValidate className="space-y-4">
           {error && <Alert tone="danger" title={error} />}
-          <Field label="Email được mời" type="email" value={email} readOnly className="bg-bg text-muted" />
+          {invited ? (
+            <Field label="Email được mời" type="email" value={email} readOnly className="bg-bg text-muted" />
+          ) : (
+            <Field
+              label="Email"
+              type="email"
+              autoComplete="email"
+              value={typedEmail}
+              error={emailError ?? undefined}
+              onChange={(event) => setTypedEmail(event.target.value)}
+            />
+          )}
           <Field
             label="Họ và tên"
             autoComplete="name"
-            autoFocus
+            autoFocus={invited}
             error={e.fullName?.message}
             {...form.register('fullName')}
           />

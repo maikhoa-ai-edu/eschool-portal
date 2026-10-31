@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { z } from 'zod'
@@ -16,6 +16,7 @@ import { cn } from '@/lib/cn'
 import { toVietnameseError } from '@/lib/errors'
 import { LOGO_TYPES, mergeSiteSetting, saveModules, uploadLogo } from './api'
 import { adjustLightness, COLOR_PRESETS, contrastRatio, HEX_COLOR } from './color'
+import { GoogleLoginFields } from './GoogleLoginFields'
 import { MODULE_INFO } from './steps'
 import { StepCard } from './ui'
 
@@ -129,11 +130,20 @@ const schoolSchema = z.object({
   youtube_url: optionalUrl,
   zalo_url: optionalUrl,
   tiktok_url: optionalUrl,
+  allow_self_signup: z.boolean(),
+  google_enabled: z.boolean(),
+  google_client_id: z.union([
+    z.literal(''),
+    z
+      .string()
+      .trim()
+      .regex(/^[\w.-]+\.apps\.googleusercontent\.com$/, 'Client ID có dạng ....apps.googleusercontent.com'),
+  ]),
 })
 type SchoolValues = z.infer<typeof schoolSchema>
 
 export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
-  const { identity } = useSite()
+  const { identity, authOptions } = useSite()
   const { error, save } = useSaveAndContinue(onNext)
   const form = useForm<SchoolValues>({
     resolver: zodResolver(schoolSchema),
@@ -149,9 +159,16 @@ export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
       youtube_url: identity.youtube_url,
       zalo_url: identity.zalo_url,
       tiktok_url: identity.tiktok_url,
+      allow_self_signup: authOptions.allow_self_signup,
+      google_enabled: authOptions.google_enabled,
+      google_client_id: authOptions.google_client_id,
     },
   })
   const e = form.formState.errors
+  const [googleEnabled, selfSignup, clientId] = useWatch({
+    control: form.control,
+    name: ['google_enabled', 'allow_self_signup', 'google_client_id'],
+  })
 
   return (
     <StepFrame
@@ -171,7 +188,12 @@ export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
         id="school-form"
         noValidate
         className="space-y-4"
-        onSubmit={form.handleSubmit((values) => save(() => mergeSiteSetting('school_identity', values)))}
+        onSubmit={form.handleSubmit(({ allow_self_signup, google_enabled, google_client_id, ...values }) =>
+          save(async () => {
+            await mergeSiteSetting('school_identity', values)
+            await mergeSiteSetting('auth_options', { allow_self_signup, google_enabled, google_client_id })
+          }),
+        )}
       >
         {error && <Alert tone="danger" title={error} />}
         <Field
@@ -227,6 +249,17 @@ export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
             {...form.register('tiktok_url')}
           />
         </fieldset>
+        <GoogleLoginFields
+          enabled={googleEnabled}
+          selfSignup={selfSignup}
+          clientId={clientId}
+          clientIdError={e.google_client_id?.message}
+          register={{
+            enabled: form.register('google_enabled'),
+            selfSignup: form.register('allow_self_signup'),
+            clientId: form.register('google_client_id'),
+          }}
+        />
       </form>
     </StepFrame>
   )

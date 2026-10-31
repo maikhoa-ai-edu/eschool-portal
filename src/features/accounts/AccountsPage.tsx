@@ -41,7 +41,7 @@ const ROLE_OPTIONS = (Object.keys(ROLE_LABELS) as Role[]).map((value) => ({
   label: ROLE_LABELS[value],
 }))
 
-const roleLabel = (role: string | null) => ROLE_LABELS[role as Role] ?? 'Chưa có vai trò'
+const roleLabel = (role: string | null) => ROLE_LABELS[role as Role] ?? 'Thành viên'
 
 const inviteSchema = z.object({
   email: z.email('Email không hợp lệ'),
@@ -255,7 +255,7 @@ function AccountsTable({ items, onError }: { items: Account[]; onError: (message
                     }}
                     className="h-9 rounded-lg border border-border bg-surface px-2 text-sm"
                   >
-                    {account.role === null && <option value="">Chưa có vai trò</option>}
+                    {account.role === null && <option value="">Thành viên</option>}
                     {ROLE_OPTIONS.map((o) => (
                       <option key={o.value} value={o.value}>
                         {o.label}

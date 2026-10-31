@@ -10,6 +10,7 @@ import {
   SidebarBox,
   WithSidebar,
 } from '@/components/content/PublicPage'
+import { NewsComments } from '@/features/comments/NewsComments'
 import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
 import { safeExternalUrl } from '@/features/site/settings'
 import { formatDate, formatNumber } from '@/lib/format'
@@ -254,6 +255,7 @@ export function NewsDetailPage() {
           </div>
         )}
       </article>
+      {isPublished && <NewsComments newsId={news.id} />}
       {isPublished && (
         <BottomRelated
           categoryId={news.category_id}

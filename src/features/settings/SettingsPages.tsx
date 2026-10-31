@@ -44,7 +44,7 @@ export function SchoolInfoPage() {
   return (
     <SettingsPage
       title="Thông tin trường"
-      description="Tên trường, cơ quan chủ quản, địa chỉ, liên hệ và mạng xã hội."
+      description="Tên trường, cơ quan chủ quản, địa chỉ, liên hệ, mạng xã hội, đăng nhập Google và thành viên."
       Step={SchoolInfoStep}
     />
   )

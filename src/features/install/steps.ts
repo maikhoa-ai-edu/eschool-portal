@@ -20,6 +20,10 @@ export const MODULE_INFO: Record<string, { label: string; description: string }>
   videos: { label: 'Thư viện video', description: 'Video nhúng từ YouTube hoặc Google Drive.' },
   resources: { label: 'Tài nguyên', description: 'Link phần mềm, giáo án, biểu mẫu.' },
   plans: { label: 'Kế hoạch công tác', description: 'Kế hoạch theo tháng, nhập tay hoặc từ file Word.' },
+  comments: {
+    label: 'Bình luận',
+    description: 'Người đăng nhập bình luận dưới bài viết, có duyệt trước khi hiện.',
+  },
   pages: { label: 'Trang thông tin', description: 'Giới thiệu, cơ cấu tổ chức, lịch sử nhà trường...' },
   topics: {
     label: 'Chuyên đề',

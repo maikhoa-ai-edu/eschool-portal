@@ -7,11 +7,24 @@ export type AppSupabaseClient = SupabaseClient<Database>
 let client: AppSupabaseClient | null = null
 
 /** Gọi một lần khi khởi động, sau khi đã đọc được cấu hình. */
+let connection: RuntimeConfig | null = null
+
 export function initSupabase(config: RuntimeConfig): AppSupabaseClient {
+  connection = config
   client = createClient<Database>(config.supabaseUrl, config.supabaseAnonKey, {
     auth: { persistSession: true, autoRefreshToken: true },
   })
   return client
+}
+
+export function getSupabaseUrl(): string {
+  if (!connection) throw new Error('Supabase chưa được khởi tạo (thiếu cấu hình kết nối)')
+  return connection.supabaseUrl.replace(/\/$/, '')
+}
+
+export function getSupabaseAnonKey(): string {
+  if (!connection) throw new Error('Supabase chưa được khởi tạo (thiếu cấu hình kết nối)')
+  return connection.supabaseAnonKey
 }
 
 export function getSupabase(): AppSupabaseClient {

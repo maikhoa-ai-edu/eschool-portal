@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   LayoutTemplate,
   ListTree,
+  MessageSquare,
   Newspaper,
   NotebookText,
   Palette,
@@ -81,6 +82,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         icon: Images,
         permission: 'media.manage',
         module: 'albums',
+      },
+      {
+        label: 'Bình luận',
+        to: '/admin/binh-luan',
+        icon: MessageSquare,
+        permission: 'comments.manage',
+        module: 'comments',
       },
       {
         label: 'Video',

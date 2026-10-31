@@ -146,6 +146,9 @@ const adminContentRoutes: RouteObject[] = [
       page(() => import('@/features/albums/admin/AlbumEditorPage'), 'AlbumEditorPage'),
     ),
   ),
+  adminSection('binh-luan', 'comments.manage', [
+    { index: true, lazy: page(() => import('@/features/comments/CommentsAdminPage'), 'CommentsAdminPage') },
+  ]),
   adminSection('video', 'media.manage', [
     { index: true, lazy: page(() => import('@/features/library/admin/LibraryAdminPages'), 'VideoAdminPage') },
   ]),

@@ -487,3 +487,13 @@ insert into public.work_plan_items (plan_id, sort_order, time_text, content, ass
   ('00000000-0000-0000-0000-0000000000d9', 0, '02/11', 'Họp hội đồng sư phạm tháng 11', 'Ban giám hiệu'),
   ('00000000-0000-0000-0000-0000000000d9', 1, '03/11 - 14/11', 'Hội giảng chào mừng 20/11', 'Các tổ chuyên môn'),
   ('00000000-0000-0000-0000-0000000000d9', 2, '20/11', 'Lễ kỷ niệm Ngày Nhà giáo Việt Nam', 'Công đoàn, Đoàn trường');
+
+-- Bình luận mẫu: đã duyệt và đang chờ duyệt (kết nối seed là kết nối tin cậy nên trigger không đổi trạng thái)
+insert into public.news_comments (news_id, user_id, author_name, content, status, created_at)
+select n.id, '00000000-0000-0000-0000-0000000000a2', 'Quản trị nội dung', c.content, c.status, now() - c.age
+from (select id from public.news where status = 'published' order by published_at desc limit 1) n
+cross join (values
+  ('Cảm ơn nhà trường đã cập nhật thông tin kịp thời.', 'approved', interval '2 days'),
+  ('Phụ huynh có thể đăng ký tham dự ở đâu ạ?', 'approved', interval '1 day'),
+  ('Bình luận mẫu đang chờ duyệt.', 'pending', interval '1 hour')
+) as c(content, status, age);

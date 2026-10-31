@@ -32,6 +32,7 @@ export const AUDIT_TABLE_LABELS: Record<string, string> = {
   videos: 'Video',
   resources: 'Tài nguyên',
   work_plans: 'Kế hoạch công tác',
+  news_comments: 'Bình luận',
   backup: 'Sao lưu',
 }
 
@@ -52,6 +53,8 @@ const SUMMARY_LABELS: Record<string, string> = {
   videos: 'Thư viện video',
   resources: 'Tài nguyên',
   plans: 'Kế hoạch công tác',
+  comments: 'Bình luận',
+  auth_options: 'Đăng nhập',
   site_chrome: 'Đầu và chân trang',
 }
 
