@@ -6,6 +6,7 @@ import {
   Building2,
   Calendar,
   CircleDot,
+  Clock,
   ClipboardList,
   Contact,
   Download,
@@ -47,6 +48,7 @@ export const DEFAULT_MENU_ICON = 'circle-dot'
 export const MENU_ICONS: Record<string, { label: string; icon: LucideIcon }> = {
   'circle-dot': { label: 'Mặc định', icon: CircleDot },
   home: { label: 'Trang chủ', icon: House },
+  clock: { label: 'Đồng hồ', icon: Clock },
   info: { label: 'Thông tin', icon: Info },
   newspaper: { label: 'Tin tức', icon: Newspaper },
   bell: { label: 'Thông báo', icon: Bell },

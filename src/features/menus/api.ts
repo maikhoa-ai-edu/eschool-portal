@@ -18,6 +18,7 @@ export interface AdminMenuItem {
   url: string
   open_in_new_tab: boolean
   icon: string | null
+  image_path: string | null
   is_active: boolean
   sort_order: number
 }
@@ -34,7 +35,7 @@ export async function fetchMenus() {
 export async function fetchMenuItems(menuId: string): Promise<AdminMenuItem[]> {
   const { data, error } = await getSupabase()
     .from('menu_items')
-    .select('id, menu_id, parent_id, title, url, open_in_new_tab, icon, is_active, sort_order')
+    .select('id, menu_id, parent_id, title, url, open_in_new_tab, icon, image_path, is_active, sort_order')
     .eq('menu_id', menuId)
     .order('sort_order')
   if (error) throw error
@@ -47,6 +48,7 @@ export interface MenuItemInput {
   parent_id: string | null
   open_in_new_tab: boolean
   icon: string | null
+  image_path: string | null
   is_active: boolean
 }
 
@@ -105,6 +107,7 @@ export interface LinkSuggestion {
 
 const MODULE_LINKS: Array<{ module: ModuleKey | null; title: string; url: string }> = [
   { module: null, title: 'Trang chủ', url: '/' },
+  { module: null, title: 'Tìm kiếm', url: '/tim-kiem' },
   { module: 'news', title: 'Tin tức', url: '/tin-tuc' },
   { module: 'announcements', title: 'Thông báo', url: '/thong-bao' },
   { module: 'documents', title: 'Văn bản', url: '/van-ban' },

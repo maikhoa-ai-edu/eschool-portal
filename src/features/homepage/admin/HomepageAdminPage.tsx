@@ -2,6 +2,7 @@ import { Link, useSearchParams } from 'react-router'
 import { ExternalLink } from 'lucide-react'
 import { AdminPageHeader } from '@/components/admin/AdminPage'
 import { cn } from '@/lib/cn'
+import { ChromeTab } from './ChromeTab'
 import { CounterTab } from './CounterTab'
 import { LayoutTab } from './LayoutTab'
 import { MarqueeTab } from './MarqueeTab'
@@ -11,6 +12,7 @@ const TABS = [
   { key: 'slide', label: 'Slide', Component: SlidesTab },
   { key: 'bo-cuc', label: 'Bố cục', Component: LayoutTab },
   { key: 'chu-chay', label: 'Dòng chữ chạy', Component: MarqueeTab },
+  { key: 'dau-chan-trang', label: 'Đầu và chân trang', Component: ChromeTab },
   { key: 'bo-dem', label: 'Bộ đếm truy cập', Component: CounterTab },
 ] as const
 

@@ -114,8 +114,8 @@ export const SECTION_INFO: Record<HomepageSectionKey, SectionInfo> = {
     label: 'Lối tắt',
     zone: 'top',
     defaultTitle: '',
-    defaultLimit: 0,
-    maxLimit: 0,
+    defaultLimit: 6,
+    maxLimit: 6,
     module: null,
     defaultOff: true,
     noSidebar: true,
@@ -369,8 +369,15 @@ export const homepageSchema = z
     show_slides: z.boolean().catch(true),
     /** Giây giữa hai slide */
     slide_interval: z.number().int().min(3).max(30).catch(6),
-    /** full: slide toàn chiều rộng; split: slide 2/3 + cột Tiêu điểm 1/3 */
-    hero: z.enum(['full', 'split']).catch('full'),
+    /**
+     * full: slide toàn chiều rộng; split: slide 2/3 + cột Tiêu điểm 1/3;
+     * portal: như split, thêm dải tin trượt dưới slide và tab Xem nhiều ở cột phải
+     */
+    hero: z.enum(['full', 'split', 'portal']).catch('full'),
+    /** Làm nổi thông báo đăng gần nhất ở khối Thông báo */
+    highlight_latest_announcement: z.boolean().catch(false),
+    /** Khối Văn bản chạy lên thay vì đứng yên */
+    documents_ticker: z.boolean().catch(false),
     /** Kiểu tiêu đề khối cho toàn trang */
     heading_style: z.enum(['underline', 'bar']).catch('underline'),
     /** Kiểu trang danh sách tin (/tin-tuc, chuyên mục, thẻ, tìm kiếm) */

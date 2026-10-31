@@ -266,7 +266,7 @@ function SectionRow({
           <Link to="/admin/menu" className="text-primary hover:underline">
             Menu → Lối tắt trang chủ
           </Link>{' '}
-          (icon, tên, liên kết). Hiện tối đa {SHORTCUTS_MAX_ITEMS} ô.
+          (icon hoặc logo, tên, liên kết). Ô Số mục là số ô hiện, tối đa {SHORTCUTS_MAX_ITEMS}.
         </p>
       )}
       {moduleOff && section.enabled && (
@@ -488,12 +488,34 @@ export function LayoutTab() {
                   }
                   warning={inactive ? 'Chuyên mục này đã xóa hoặc đang ẩn nên khối không hiện.' : undefined}
                   extra={
-                    section.key === 'topic_banner' && (
-                      <BannerFields
-                        banner={draft.banner}
-                        onChange={(patch) => setDraft((d) => ({ ...d, banner: { ...d.banner, ...patch } }))}
-                      />
-                    )
+                    <>
+                      {section.key === 'topic_banner' && (
+                        <BannerFields
+                          banner={draft.banner}
+                          onChange={(patch) => setDraft((d) => ({ ...d, banner: { ...d.banner, ...patch } }))}
+                        />
+                      )}
+                      {section.key === 'announcements' && (
+                        <div className="pl-6">
+                          <CheckboxField
+                            label="Làm nổi thông báo mới nhất (nền màu, nhãn Mới)"
+                            checked={draft.highlight_latest_announcement}
+                            onChange={(e) =>
+                              setDraft((d) => ({ ...d, highlight_latest_announcement: e.target.checked }))
+                            }
+                          />
+                        </div>
+                      )}
+                      {section.key === 'documents' && (
+                        <div className="pl-6">
+                          <CheckboxField
+                            label="Danh sách văn bản chạy lên (nên đặt 5-7 mục)"
+                            checked={draft.documents_ticker}
+                            onChange={(e) => setDraft((d) => ({ ...d, documents_ticker: e.target.checked }))}
+                          />
+                        </div>
+                      )}
+                    </>
                   }
                 />
               )
@@ -578,6 +600,24 @@ export function LayoutTab() {
                   sketch: (
                     <span className="grid h-10 grid-cols-[2fr_1fr] gap-1">
                       <span className={SKETCH_BOX} />
+                      <span className={cn(SKETCH_BOX, 'opacity-25')} />
+                    </span>
+                  ),
+                },
+                {
+                  value: 'portal',
+                  label: 'Slide + dải tin + tab Xem nhiều',
+                  sketch: (
+                    <span className="grid h-10 grid-cols-[2fr_1fr] gap-1">
+                      <span className="grid grid-rows-[2fr_1fr] gap-0.5">
+                        <span className={SKETCH_BOX} />
+                        <span className="grid grid-cols-4 gap-0.5">
+                          <span className={SKETCH_BOX} />
+                          <span className={SKETCH_BOX} />
+                          <span className={SKETCH_BOX} />
+                          <span className={SKETCH_BOX} />
+                        </span>
+                      </span>
                       <span className={cn(SKETCH_BOX, 'opacity-25')} />
                     </span>
                   ),

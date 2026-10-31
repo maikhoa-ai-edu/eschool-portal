@@ -22,6 +22,7 @@ export const schoolIdentitySchema = z.object({
   facebook_url: text,
   youtube_url: text,
   zalo_url: text,
+  tiktok_url: text,
 })
 
 export const brandingSchema = z.object({
@@ -47,6 +48,13 @@ const marqueeItemSchema = z.union([
 /** Dòng chữ chạy. Bản cũ lưu mảng chuỗi, bản mới lưu {text, url}; cả hai đều đọc được. */
 export const marqueeSchema = z.object({
   enabled: z.boolean().catch(false),
+  label: z.string().trim().max(40).catch('').transform((v) => v || 'Tin nổi bật'),
+  /** Khóa trong MENU_ICONS; rỗng = tia sét như bản cũ */
+  icon: text,
+  /** Rỗng = nền trắng như bản cũ */
+  bg_color: text.transform((v) => (/^#[0-9a-fA-F]{6}$/.test(v) ? v : '')),
+  /** Giây cho một vòng chạy */
+  speed: z.union([z.literal(25), z.literal(40), z.literal(60)]).catch(40),
   include_latest_news: z.boolean().catch(false),
   items: z
     .array(z.unknown())
@@ -62,6 +70,42 @@ export const marqueeSchema = z.object({
     ),
 })
 
+export interface FooterInfoLine {
+  icon: string
+  text: string
+  /** Trong website (/...), http(s), tel: hoặc mailto:; không hợp lệ thì chỉ hiện chữ */
+  url: string | null
+}
+
+/** Đầu trang và chân trang. Thiếu khóa (cấu hình cũ) thì mọi tùy chọn tắt, giao diện giữ nguyên. */
+export const siteChromeSchema = z.object({
+  header_social: z.boolean().catch(false),
+  nav_search: z.boolean().catch(false),
+  footer_link_icons: z.boolean().catch(false),
+  footer_connect_icons: z.boolean().catch(false),
+  footer_info_lines: z
+    .array(z.unknown())
+    .catch([])
+    .transform((list): FooterInfoLine[] =>
+      list.flatMap((raw) => {
+        const parsed = z
+          .object({
+            icon: z.string().catch('info'),
+            text: z.string().catch(''),
+            url: z.string().nullable().catch(null),
+          })
+          .safeParse(raw)
+        if (!parsed.success) return []
+        const text = parsed.data.text.trim()
+        const url = parsed.data.url?.trim() ?? ''
+        return text
+          ? [{ icon: parsed.data.icon, text, url: /^(\/|https?:\/\/|tel:|mailto:)\S*$/.test(url) ? url : null }]
+          : []
+      }),
+    ),
+})
+
+export type SiteChrome = z.infer<typeof siteChromeSchema>
 export type SchoolIdentity = z.infer<typeof schoolIdentitySchema>
 export type Branding = z.infer<typeof brandingSchema>
 export type Marquee = z.infer<typeof marqueeSchema>
@@ -70,6 +114,7 @@ export interface SiteSettings {
   identity: SchoolIdentity
   branding: Branding
   marquee: Marquee
+  chrome: SiteChrome
   homepage: HomepageSettings
   modules: Record<string, boolean>
 }
@@ -89,6 +134,7 @@ export function parseSiteSettings(
     identity: schoolIdentitySchema.parse(byKey.get('school_identity') ?? {}),
     branding: brandingSchema.parse(byKey.get('branding') ?? {}),
     marquee: marqueeSchema.parse(byKey.get('marquee') ?? {}),
+    chrome: siteChromeSchema.parse(byKey.get('site_chrome') ?? {}),
     homepage: homepageSchema.parse(byKey.get('homepage') ?? {}),
     modules: Object.fromEntries(moduleRows.map((m) => [m.module_key, m.is_enabled])),
   }

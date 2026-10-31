@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { ArrowDown, ArrowUp, CornerDownRight, ExternalLink, Pencil, Plus, Trash2 } from 'lucide-react'
 import { AdminPageHeader, Panel, QueryState } from '@/components/admin/AdminPage'
 import { confirmAction } from '@/components/admin/confirm'
+import { ImageUploadField } from '@/components/content/ImageUploadField'
 import { Alert } from '@/components/ui/Alert'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -41,6 +42,7 @@ const schema = z.object({
   parent_id: z.string(),
   open_in_new_tab: z.boolean(),
   icon: z.string().nullable(),
+  image_path: z.string().nullable(),
   is_active: z.boolean(),
 })
 type Values = z.infer<typeof schema>
@@ -117,6 +119,7 @@ function ItemForm({
       parent_id: item?.parent_id ?? editing.parentId ?? '',
       open_in_new_tab: item?.open_in_new_tab ?? false,
       icon: item?.icon ?? null,
+      image_path: item?.image_path ?? null,
       is_active: item?.is_active ?? true,
     },
   })
@@ -187,11 +190,24 @@ function ItemForm({
         error={e.url?.message}
         {...form.register('url')}
       />
-      {location !== 'footer' && (
+      <Controller
+        control={form.control}
+        name="icon"
+        render={({ field }) => <IconPicker value={field.value} onChange={field.onChange} />}
+      />
+      {location === 'shortcuts' && (
         <Controller
           control={form.control}
-          name="icon"
-          render={({ field }) => <IconPicker value={field.value} onChange={field.onChange} />}
+          name="image_path"
+          render={({ field }) => (
+            <ImageUploadField
+              label="Logo hoặc ảnh (thay cho icon)"
+              value={field.value}
+              onChange={field.onChange}
+              folder="menus"
+              hint="Ví dụ logo Bộ GD&ĐT, vnEdu, SMAS. Bỏ ảnh thì dùng icon ở trên."
+            />
+          )}
         />
       )}
       {!isFlat && (
@@ -403,8 +419,9 @@ function MenuEditor({ menuId, location }: { menuId: string; location: string }) 
         )}
         {location === 'shortcuts' && (
           <p className="text-sm text-muted">
-            Các ô icon + tên trên trang chủ. Chỉ hiện {SHORTCUTS_MAX_ITEMS} mục đầu tiên đang bật. Bật khối
-            Lối tắt ở Trang chủ → Bố cục.
+            Các ô trên một hàng ở trang chủ, tối đa {SHORTCUTS_MAX_ITEMS} ô. Số ô hiện (4, 5 hoặc 6) chọn ở
+            Trang chủ → Bố cục → Lối tắt, mỗi ô dùng icon hoặc logo và trỏ tới trang trong website hoặc link
+            ngoài.
           </p>
         )}
         {tree.length === 0 ? (

@@ -7,7 +7,15 @@ describe('parseSiteSettings', () => {
     const s = parseSiteSettings([], [])
     expect(s.identity.school_name).toBe('Tên trường')
     expect(s.branding.primary_color).toBe('#002B66')
-    expect(s.marquee).toEqual({ enabled: false, include_latest_news: false, items: [] })
+    expect(s.marquee).toEqual({
+      enabled: false,
+      include_latest_news: false,
+      items: [],
+      label: 'Tin nổi bật',
+      icon: '',
+      bg_color: '',
+      speed: 40,
+    })
     expect(s.homepage.sections).toHaveLength(8)
   })
 

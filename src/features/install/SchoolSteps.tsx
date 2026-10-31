@@ -128,6 +128,7 @@ const schoolSchema = z.object({
   facebook_url: optionalUrl,
   youtube_url: optionalUrl,
   zalo_url: optionalUrl,
+  tiktok_url: optionalUrl,
 })
 type SchoolValues = z.infer<typeof schoolSchema>
 
@@ -147,6 +148,7 @@ export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
       facebook_url: identity.facebook_url,
       youtube_url: identity.youtube_url,
       zalo_url: identity.zalo_url,
+      tiktok_url: identity.tiktok_url,
     },
   })
   const e = form.formState.errors
@@ -198,7 +200,7 @@ export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
           <Field label="Điện thoại" type="tel" error={e.phone?.message} {...form.register('phone')} />
           <Field label="Email liên hệ" type="email" error={e.email?.message} {...form.register('email')} />
         </div>
-        <fieldset className="grid gap-4 sm:grid-cols-3">
+        <fieldset className="grid gap-4 sm:grid-cols-2">
           <legend className="mb-2 text-sm font-semibold text-text">Mạng xã hội (không bắt buộc)</legend>
           <Field
             label="Facebook"
@@ -217,6 +219,12 @@ export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
             placeholder="https://zalo.me/..."
             error={e.zalo_url?.message}
             {...form.register('zalo_url')}
+          />
+          <Field
+            label="TikTok"
+            placeholder="https://tiktok.com/@..."
+            error={e.tiktok_url?.message}
+            {...form.register('tiktok_url')}
           />
         </fieldset>
       </form>

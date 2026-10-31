@@ -65,6 +65,34 @@ body {
   }
 }
 
+/* Danh sách chạy lên (khối Văn bản): track chứa hai bản giống nhau nên -50% khớp liền */
+.ticker {
+  overflow: hidden;
+}
+.ticker-track {
+  animation: ticker 20s linear infinite;
+}
+.ticker:hover .ticker-track,
+.ticker:focus-within .ticker-track {
+  animation-play-state: paused;
+}
+@keyframes ticker {
+  to {
+    transform: translateY(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker {
+    overflow-y: auto;
+  }
+  .ticker-track {
+    animation: none;
+  }
+  .ticker-track > [aria-hidden] {
+    display: none;
+  }
+}
+
 /* Nội dung soạn bằng trình soạn thảo (tin, thông báo, trang tĩnh); dùng chung cho cả ô soạn thảo */
 .rich-content {
   line-height: 1.75;

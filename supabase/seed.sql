@@ -51,7 +51,10 @@ update public.site_settings set value = value || jsonb_build_object(
   'address', 'Xã Vĩnh Phong, tỉnh An Giang',
   'phone', '',
   'email', '',
-  'principal', 'Nguyễn Văn An'
+  'principal', 'Nguyễn Văn An',
+  'facebook_url', 'https://facebook.com/example',
+  'youtube_url', 'https://youtube.com/example',
+  'zalo_url', 'https://zalo.me/example'
 ) where key = 'school_identity';
 
 -- Ảnh lấy từ supabase/seed-storage (npm run db:reset tự tải lên Storage cục bộ); lưu đường dẫn trong bucket media
@@ -61,7 +64,15 @@ update public.site_settings set value = value || jsonb_build_object(
 ) where key = 'branding';
 
 update public.site_settings set value = jsonb_build_object(
+  'header_social', true, 'nav_search', true, 'footer_link_icons', true, 'footer_connect_icons', true,
+  'footer_info_lines', jsonb_build_array(
+    jsonb_build_object('icon', 'clock', 'text', 'Giờ làm việc: 7h00 - 17h00, thứ Hai đến thứ Sáu', 'url', null)
+  )
+) where key = 'site_chrome';
+
+update public.site_settings set value = jsonb_build_object(
   'enabled', true,
+  'label', 'Tin nổi bật',
   'include_latest_news', false,
   'items', jsonb_build_array(
     jsonb_build_object('text', 'Chào mừng năm học mới 2026 - 2027', 'url', null),
@@ -382,7 +393,7 @@ update public.site_settings set value = jsonb_set(value, '{sections}', jsonb_bui
     jsonb_build_object('key', 'documents', 'zone', 'sidebar', 'limit', 5, 'icon', 'file-text'),
     jsonb_build_object('key', 'visit_counter', 'zone', 'sidebar'),
     jsonb_build_object('key', 'albums', 'zone', 'bottom', 'columns', 4, 'limit', 4, 'icon', 'images')
-  )) || jsonb_build_object('hero', 'split', 'heading_style', 'bar') || jsonb_build_object('banner', jsonb_build_object(
+  )) || jsonb_build_object('hero', 'portal', 'heading_style', 'bar', 'highlight_latest_announcement', true, 'documents_ticker', true) || jsonb_build_object('banner', jsonb_build_object(
     'image_path', 'seed/slide-bac-ho-rsw.jpg', 'alt', '', 'badge', 'Chuyên đề đặc biệt',
     'title', 'Học tập và làm theo Bác',
     'subtitle', 'Thầy và trò rèn đức, luyện tài, làm theo Bác bằng những việc làm cụ thể mỗi ngày.',

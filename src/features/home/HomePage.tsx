@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Alert } from '@/components/ui/Alert'
-import { HOMEPAGE_KEY, fetchSlides } from '@/features/homepage/api'
+import { HOMEPAGE_KEY, fetchLatestNewsWithImage, fetchSlides } from '@/features/homepage/api'
 import { FULL_SLIDE_ASPECT, HeroSlider, SPLIT_SLIDE_ASPECT } from '@/features/homepage/HeroSlider'
 import { TopicBanner } from '@/features/homepage/TopicBanner'
 import {
@@ -16,8 +16,13 @@ import {
   VisitCounterBox,
 } from '@/features/homepage/HomeSections'
 import { useFeaturedNews } from '@/features/homepage/hooks'
-import { bannerImageSizes, HERO_RAIL_COUNT, HeadingStyleContext } from '@/features/homepage/layout'
-import { HeroRail } from '@/features/homepage/NewsBlock'
+import {
+  bannerImageSizes,
+  HERO_STRIP_COUNT,
+  HeadingStyleContext,
+  railCount,
+} from '@/features/homepage/layout'
+import { HeroRail, HeroStrip, HeroTabsRail } from '@/features/homepage/NewsBlock'
 import { readPreviewDraft } from '@/features/homepage/preview'
 import {
   groupRows,
@@ -50,17 +55,28 @@ export function HomePage() {
     enabled: homepage.show_slides,
   })
   const hasSlides = homepage.show_slides && (slides.isPending || (slides.data?.length ?? 0) > 0)
-  const wantsRail = homepage.hero === 'split' && isModuleEnabled('news') && hasSlides
+  const wantsRail = homepage.hero !== 'full' && isModuleEnabled('news') && hasSlides
+  const portal = homepage.hero === 'portal' && wantsRail
 
   // Cột Tiêu điểm và khối "Tin nổi bật" dùng chung một truy vấn; "Tin mới nhất" bỏ các bài đã hiện ở hai nơi này
   const featuredSection = [...top, ...main, ...sidebar, ...bottom].find((s) => s.key === 'featured_news')
-  const railLimit = homepage.hero === 'split' ? HERO_RAIL_COUNT : 0
+  const railLimit = railCount(homepage.hero)
   const featuredTotal = railLimit + (featuredSection?.limit ?? 0)
   const featured = useFeaturedNews(featuredTotal, Boolean(featuredSection) || wantsRail)
   const featuredData = featured.data ?? []
   const railItems = wantsRail ? featuredData.slice(0, railLimit) : []
   const featuredItems = featuredData.slice(railItems.length, railItems.length + (featuredSection?.limit ?? 0))
-  const shownIds = [...railItems, ...(featuredSection ? featuredItems : [])].map((n) => n.id)
+  // Lấy dư để sau khi bỏ bài đã có ở cột phải vẫn đủ số thẻ
+  const stripQuery = useQuery({
+    queryKey: [...HOMEPAGE_KEY, 'strip', HERO_STRIP_COUNT + railLimit],
+    queryFn: () => fetchLatestNewsWithImage(HERO_STRIP_COUNT + railLimit),
+    enabled: portal,
+  })
+  const railIds = railItems.map((n) => n.id)
+  const stripItems = portal
+    ? (stripQuery.data ?? []).filter((n) => !railIds.includes(n.id)).slice(0, HERO_STRIP_COUNT)
+    : []
+  const shownIds = [...railItems, ...(featuredSection ? featuredItems : []), ...stripItems].map((n) => n.id)
   const split = wantsRail && (featured.isPending || featuredData.length > 0)
 
   const renderBlock = (section: HomepageSection) => {
@@ -80,8 +96,8 @@ export function HomePage() {
             key={section.id}
             section={section}
             excludeIds={shownIds}
-            excludeCount={featuredTotal}
-            excludePending={featuredTotal > 0 && featured.isPending}
+            excludeCount={featuredTotal + (portal ? HERO_STRIP_COUNT : 0)}
+            excludePending={(featuredTotal > 0 && featured.isPending) || (portal && stripQuery.isPending)}
           />
         )
       case 'category_news':
@@ -99,9 +115,15 @@ export function HomePage() {
       case 'shortcuts':
         return <ShortcutsBlock key={section.id} section={section} />
       case 'announcements':
-        return <AnnouncementsBox key={section.id} section={section} />
+        return (
+          <AnnouncementsBox
+            key={section.id}
+            section={section}
+            highlightLatest={homepage.highlight_latest_announcement}
+          />
+        )
       case 'documents':
-        return <DocumentsBox key={section.id} section={section} />
+        return <DocumentsBox key={section.id} section={section} ticker={homepage.documents_ticker} />
       case 'visit_counter':
         return <VisitCounterBox key={section.id} section={section} />
     }
@@ -154,8 +176,15 @@ export function HomePage() {
           <div className="min-w-0">
             {slider}
             {sliderPlaceholder}
+            {portal && (
+              <HeroStrip items={stripItems} isPending={stripQuery.isPending || featured.isPending} />
+            )}
           </div>
-          <HeroRail items={railItems} isPending={featured.isPending} />
+          {portal ? (
+            <HeroTabsRail items={railItems} isPending={featured.isPending} />
+          ) : (
+            <HeroRail items={railItems} isPending={featured.isPending} />
+          )}
         </div>
       ) : (
         <>

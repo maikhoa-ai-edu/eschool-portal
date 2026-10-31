@@ -79,7 +79,7 @@ export async function saveSlideOrder(ordered: Slide[]): Promise<void> {
 // ---------------------------------------------------------------------------
 
 /** Ghi đè toàn bộ giá trị một khóa cấu hình; RLS chặn thì báo lỗi thay vì im lặng. */
-export async function saveSetting(key: 'homepage' | 'marquee', value: Json): Promise<void> {
+export async function saveSetting(key: 'homepage' | 'marquee' | 'site_chrome', value: Json): Promise<void> {
   const { data, error } = await getSupabase()
     .from('site_settings')
     .update({ value })
@@ -122,6 +122,30 @@ export async function fetchLatestNews(limit: number) {
   return data
 }
 
+/** Tin mới có ảnh cho dải tin trượt dưới slide. */
+export async function fetchLatestNewsWithImage(limit: number) {
+  const { data, error } = await publishedNews()
+    .not('thumbnail_url', 'is', null)
+    .order('published_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return data
+}
+
+/** Chỉ lưu tổng lượt xem của từng bài, nên giới hạn bài đăng gần đây để bài cũ không đứng đầu mãi. */
+export const MOST_VIEWED_DAYS = 90
+
+export async function fetchMostViewedNews(limit: number) {
+  const since = new Date(Date.now() - MOST_VIEWED_DAYS * 86_400_000).toISOString()
+  const { data, error } = await publishedNews()
+    .gte('published_at', since)
+    .order('view_count', { ascending: false })
+    .order('published_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return data
+}
+
 export async function fetchCategoryNews(categoryId: string, limit: number) {
   const { data, error } = await publishedNews()
     .eq('category_id', categoryId)
@@ -142,3 +166,5 @@ export async function fetchLatestDocuments(limit: number) {
   if (error) throw error
   return data
 }
+
+export type LatestDocument = Awaited<ReturnType<typeof fetchLatestDocuments>>[number]

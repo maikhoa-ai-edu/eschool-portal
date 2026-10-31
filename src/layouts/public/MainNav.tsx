@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import { NavLink, useLocation } from 'react-router'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { NavLink, useLocation, useNavigate } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
-import { ChevronDown, Menu, X } from 'lucide-react'
+import { ChevronDown, Menu, Search, X } from 'lucide-react'
 import { fetchMenu, hideDisabledModules, isExternalUrl, type MenuNode } from '@/features/site/menu'
 import { MenuIcon } from '@/features/site/menu-icons'
 import { useSite } from '@/features/site/site-context'
@@ -106,12 +106,75 @@ function MobileItems({
   )
 }
 
+/** Kính lúp thả xuống hộp tìm kiếm; Esc hoặc bấm ra ngoài thì đóng. */
+function NavSearch() {
+  const navigate = useNavigate()
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const box = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!open) return
+    const onPointer = (event: PointerEvent) => {
+      if (!box.current?.contains(event.target as Node)) setOpen(false)
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('pointerdown', onPointer)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onPointer)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+  const submit = (event: FormEvent) => {
+    event.preventDefault()
+    const q = query.trim()
+    if (!q) return
+    setOpen(false)
+    void navigate(`/tim-kiem?q=${encodeURIComponent(q)}`)
+  }
+  return (
+    <div ref={box} className="relative">
+      <button
+        type="button"
+        className="flex h-10 w-10 items-center justify-center rounded-lg text-white hover:bg-white/10"
+        aria-expanded={open}
+        aria-label={open ? 'Đóng tìm kiếm' : 'Mở tìm kiếm'}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <Search className="h-5 w-5" aria-hidden />
+      </button>
+      {open && (
+        <form
+          role="search"
+          onSubmit={submit}
+          className="absolute right-0 top-full z-30 flex w-72 max-w-[calc(100vw-1rem)] gap-2 rounded-b-lg border border-border bg-surface p-2 shadow-lg"
+        >
+          <input
+            autoFocus
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Tìm tin, thông báo, văn bản..."
+            aria-label="Từ khóa tìm kiếm"
+            className="h-9 min-w-0 flex-1 rounded-lg border border-border bg-surface px-3 text-sm text-text"
+          />
+          <button type="submit" className="rounded-lg bg-primary px-3 text-sm font-medium text-white">
+            Tìm
+          </button>
+        </form>
+      )}
+    </div>
+  )
+}
+
 export function MainNav() {
   const location = useLocation()
   // Menu chỉ mở trên trang đã bấm mở; chuyển trang là tự đóng (không cần effect)
   const [openPath, setOpenPath] = useState<string | null>(null)
   const open = openPath === location.pathname
-  const { isModuleEnabled } = useSite()
+  const { isModuleEnabled, chrome } = useSite()
   const { data = [] } = useQuery({ queryKey: ['menu', 'main'], queryFn: () => fetchMenu('main') })
   const nodes = hideDisabledModules(data, isModuleEnabled)
 
@@ -136,6 +199,7 @@ export function MainNav() {
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
+        {chrome.nav_search && <NavSearch />}
       </div>
       {open && (
         <div

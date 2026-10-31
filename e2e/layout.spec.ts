@@ -168,7 +168,7 @@ test.describe('Quản trị bố cục', () => {
     await login(page, 'admin@demo.local', '/admin/trang-chu?tab=bo-cuc')
     const guest = await otherMachine(browser, info)
     await guest.goto('/')
-    await expect(guest.getByRole('heading', { name: 'Tiêu điểm', level: 2 })).toBeVisible()
+    await expect(guest.getByRole('tab', { name: 'Tiêu điểm' })).toBeVisible()
     await expect(block(guest, 'Tin mới nhất').locator('img').first()).toBeAttached()
 
     await page.getByRole('radio', { name: 'Danh sách gọn cho khối Tin mới nhất' }).check({ force: true })
@@ -184,17 +184,17 @@ test.describe('Quản trị bố cục', () => {
     const popup = await popupPromise
     await expect(popup.getByText('Bản xem trước bố cục, chưa lưu')).toBeVisible()
     await expect(popup.getByRole('heading', { name: 'Tin mới nhất', level: 2 })).toBeVisible()
-    await expect(popup.getByRole('heading', { name: 'Tiêu điểm', level: 2 })).toHaveCount(0)
+    await expect(popup.getByRole('tab', { name: 'Tiêu điểm' })).toHaveCount(0)
     await popup.close()
     await guest.reload()
-    await expect(guest.getByRole('heading', { name: 'Tiêu điểm', level: 2 })).toBeVisible()
+    await expect(guest.getByRole('tab', { name: 'Tiêu điểm' })).toBeVisible()
 
     await page.getByRole('button', { name: 'Lưu bố cục' }).click()
     await expect(page.getByText('Đã lưu bố cục. Trang chủ đã cập nhật.')).toBeVisible()
 
     await guest.reload()
     await expect(guest.getByRole('heading', { name: 'Tin mới nhất', level: 2 })).toBeVisible()
-    await expect(guest.getByRole('heading', { name: 'Tiêu điểm', level: 2 })).toHaveCount(0)
+    await expect(guest.getByRole('tab', { name: 'Tiêu điểm' })).toHaveCount(0)
     await expect(block(guest, 'Tin mới nhất').locator('img')).toHaveCount(0)
     await guest.screenshot({ path: screenshotPath('layout-after-admin', info), fullPage: true })
     await guest.context().close()

@@ -21,12 +21,13 @@ interface LayoutPreset {
 export const LAYOUT_PRESETS = {
   news: {
     label: 'Báo điện tử',
-    description: 'Slide kèm cột Tiêu điểm, nhiều tin ở cột chính, hai chuyên mục song song',
-    hero: 'split',
+    description:
+      'Slide kèm dải tin và cột Tiêu điểm / Xem nhiều, nhiều tin ở cột chính, hai chuyên mục song song',
+    hero: 'portal',
     heading_style: 'bar',
     blocks: [
       { key: 'topic_banner', zone: 'top' },
-      { key: 'shortcuts', zone: 'top', enabled: false },
+      { key: 'shortcuts', zone: 'top', enabled: true },
       { key: 'featured_news', zone: 'main', variant: 'magazine', limit: 5 },
       { key: 'latest_news', zone: 'main', variant: 'grid', columns: 3, limit: 6 },
       { key: 'category_news', zone: 'main', half: true, variant: 'spotlight', limit: 4 },

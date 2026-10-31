@@ -12,6 +12,15 @@ export const HeadingStyleContext = createContext<HomepageSettings['heading_style
 
 /** Số bài ở cột Tiêu điểm cạnh slide; màn hình nhỏ hơn xl chỉ đủ chỗ cho 3 bài. */
 export const HERO_RAIL_COUNT = 4
+/** Kiểu đầu trang đầy đủ: cột phải cao bằng slide + dải tin nên đủ chỗ cho 5 bài */
+export const PORTAL_RAIL_COUNT = 5
+/** Số bài của dải tin trượt dưới slide (hiện 4 bài trên máy tính, phần còn lại trượt ngang) */
+export const HERO_STRIP_COUNT = 8
+
+export function railCount(hero: HomepageSettings['hero']): number {
+  if (hero === 'portal') return PORTAL_RAIL_COUNT
+  return hero === 'split' ? HERO_RAIL_COUNT : 0
+}
 
 /** Độ rộng tối đa (px) của từng vùng khi đủ chỗ: khung 1280 - lề 32; cột phải 320; khe giữa hai cột 32. */
 const ZONE_WIDTH: Record<HomepageZone, number> = { top: 1248, bottom: 1248, main: 896, sidebar: 320 }

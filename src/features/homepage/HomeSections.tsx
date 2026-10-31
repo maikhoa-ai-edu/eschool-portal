@@ -12,7 +12,7 @@ import {
   PRIORITY_TONES,
 } from '@/features/announcements/api'
 import { DOCUMENTS_KEY, documentTypeLabel } from '@/features/documents/api'
-import { responsiveImage } from '@/features/media/api'
+import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
 import { fetchCategories, NEWS_KEY } from '@/features/news/api'
 import { categoryTitle, sectionTitle, type HomepageSection } from '@/features/site/homepage-settings'
 import { fetchMenu, hideDisabledModules, isExternalUrl } from '@/features/site/menu'
@@ -21,7 +21,13 @@ import { useSite } from '@/features/site/site-context'
 import { fetchVisitStats, VISIT_STATS_KEY } from '@/features/site/visits'
 import { cn } from '@/lib/cn'
 import { formatDate, formatNumber } from '@/lib/format'
-import { fetchCategoryNews, fetchLatestDocuments, fetchLatestNews, type HomeNews } from './api'
+import {
+  fetchCategoryNews,
+  fetchLatestDocuments,
+  fetchLatestNews,
+  type HomeNews,
+  type LatestDocument,
+} from './api'
 import { blockWidth, GRID_CLASSES } from './layout'
 import { BlockSkeleton, MainBlock, NewsBlock } from './NewsBlock'
 import { SHORTCUTS_MAX_ITEMS } from './shortcuts'
@@ -150,61 +156,65 @@ export function AlbumsBlock({ section }: { section: HomepageSection }) {
   )
 }
 
-/** Tên lớp phải viết đủ để Tailwind quét được. */
-const SHORTCUT_COLUMNS: Record<number, string> = {
-  1: '@2xl:grid-cols-1',
-  2: '@2xl:grid-cols-2',
-  3: '@2xl:grid-cols-3',
-  4: '@2xl:grid-cols-4',
-  5: '@2xl:grid-cols-3 @5xl:grid-cols-5',
-  6: '@2xl:grid-cols-3 @5xl:grid-cols-6',
-}
-
-/** Lưới ô icon + tên, dữ liệu từ menu "shortcuts". Mục trỏ tới module đang tắt tự ẩn. */
+/**
+ * Một hàng ô, dữ liệu từ menu "shortcuts"; mỗi ô có ảnh/logo hoặc icon. Ô giãn đều khi đủ chỗ,
+ * hẹp quá thì vuốt ngang chứ không xuống dòng. Mục trỏ tới module đang tắt tự ẩn.
+ */
 export function ShortcutsBlock({ section }: { section: HomepageSection }) {
   const { isModuleEnabled } = useSite()
   const { data, isPending } = useQuery({
     queryKey: ['menu', 'shortcuts'],
     queryFn: () => fetchMenu('shortcuts'),
   })
-  const items = hideDisabledModules(data ?? [], isModuleEnabled).slice(0, SHORTCUTS_MAX_ITEMS)
-  if (isPending) return <BlockSkeleton className="h-44 @2xl:h-20" />
+  const items = hideDisabledModules(data ?? [], isModuleEnabled).slice(
+    0,
+    Math.min(section.limit, SHORTCUTS_MAX_ITEMS),
+  )
+  if (isPending) return <BlockSkeleton className="h-20" />
   if (items.length === 0) return null
   const tile =
-    'group flex h-full items-center gap-3 rounded-xl border border-border bg-surface p-3 transition hover:border-primary hover:shadow-md sm:p-4'
+    'group flex h-full items-center gap-3 rounded-xl border border-primary/15 bg-primary/5 p-3 transition hover:border-primary hover:bg-primary/10 hover:shadow-md sm:p-4'
   const grid = (
-    <div className="@container">
-      <ul className={cn('grid grid-cols-2 gap-3 sm:gap-4', SHORTCUT_COLUMNS[items.length])}>
-        {items.map((item) => {
-          const body = (
-            <>
+    <ul className="flex snap-x gap-3 overflow-x-auto [scrollbar-width:thin] sm:gap-4">
+      {items.map((item) => {
+        const image = resolveMediaUrl(item.image_path)
+        const body = (
+          <>
+            {image ? (
+              <img
+                src={image}
+                alt=""
+                loading="lazy"
+                className="h-10 w-10 shrink-0 rounded-lg bg-white object-contain p-0.5"
+              />
+            ) : (
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white">
                 <MenuIcon name={item.icon} className="h-5 w-5" />
               </span>
-              <span className="min-w-0 text-sm font-semibold leading-snug">{item.title}</span>
-            </>
-          )
-          return (
-            <li key={item.id}>
-              {isExternalUrl(item.url) ? (
-                <a
-                  href={item.url}
-                  target={item.open_in_new_tab ? '_blank' : undefined}
-                  rel={item.open_in_new_tab ? 'noopener noreferrer' : undefined}
-                  className={tile}
-                >
-                  {body}
-                </a>
-              ) : (
-                <Link to={item.url} className={tile}>
-                  {body}
-                </Link>
-              )}
-            </li>
-          )
-        })}
-      </ul>
-    </div>
+            )}
+            <span className="min-w-0 text-sm font-semibold leading-snug">{item.title}</span>
+          </>
+        )
+        return (
+          <li key={item.id} className="min-w-40 flex-1 snap-start">
+            {isExternalUrl(item.url) ? (
+              <a
+                href={item.url}
+                target={item.open_in_new_tab ? '_blank' : undefined}
+                rel={item.open_in_new_tab ? 'noopener noreferrer' : undefined}
+                className={tile}
+              >
+                {body}
+              </a>
+            ) : (
+              <Link to={item.url} className={tile}>
+                {body}
+              </Link>
+            )}
+          </li>
+        )
+      })}
+    </ul>
   )
   return section.title ? (
     <MainBlock title={section.title} icon={section.icon}>
@@ -230,12 +240,25 @@ function SideMore({ to }: { to: string }) {
   )
 }
 
-export function AnnouncementsBox({ section }: { section: HomepageSection }) {
+export function AnnouncementsBox({
+  section,
+  highlightLatest = false,
+}: {
+  section: HomepageSection
+  highlightLatest?: boolean
+}) {
   const { data } = useQuery({
     queryKey: [...ANNOUNCEMENTS_KEY, 'home', section.limit],
     queryFn: () => fetchPublicAnnouncements(1, section.limit),
   })
   const items = data?.items ?? []
+  // Danh sách xếp bài ghim lên đầu nên bài mới nhất không nhất thiết đứng đầu
+  const newestId = highlightLatest
+    ? items.reduce<(typeof items)[number] | null>(
+        (best, a) => (!best || (a.published_at ?? '') > (best.published_at ?? '') ? a : best),
+        null,
+      )?.id
+    : null
   return (
     <SidebarBox title={sectionTitle(section)} icon={boxIcon(section)}>
       {items.length === 0 ? (
@@ -244,14 +267,31 @@ export function AnnouncementsBox({ section }: { section: HomepageSection }) {
         <ul className="divide-y divide-border">
           {items.map((a) => {
             const p = asPriority(a.priority)
+            const newest = a.id === newestId
             return (
-              <li key={a.id} className="py-2.5 first:pt-0">
+              <li
+                key={a.id}
+                className={cn(
+                  'py-2.5 first:pt-0',
+                  newest && '-mx-2 rounded-lg bg-accent/10 px-2 first:pt-2.5',
+                )}
+              >
                 <Link to={`/thong-bao/${a.id}`} className="group block">
                   <span className="flex flex-wrap items-center gap-1.5">
+                    {newest && (
+                      <span className="rounded bg-danger px-1.5 py-0.5 text-[11px] font-bold uppercase leading-none text-white">
+                        Mới
+                      </span>
+                    )}
                     {a.is_pinned && <Pin className="h-3.5 w-3.5 text-accent" aria-label="Ghim" />}
                     {p !== 'normal' && <Badge tone={PRIORITY_TONES[p]}>{PRIORITY_LABELS[p]}</Badge>}
                   </span>
-                  <span className="mt-0.5 block text-sm font-semibold leading-snug group-hover:text-primary">
+                  <span
+                    className={cn(
+                      'mt-0.5 block text-sm font-semibold leading-snug group-hover:text-primary',
+                      newest && 'font-bold text-primary',
+                    )}
+                  >
                     {a.title}
                   </span>
                   <span className="text-xs text-muted">{formatDate(a.published_at)}</span>
@@ -266,7 +306,44 @@ export function AnnouncementsBox({ section }: { section: HomepageSection }) {
   )
 }
 
-export function DocumentsBox({ section }: { section: HomepageSection }) {
+function DocumentRows({ items, hidden }: { items: LatestDocument[]; hidden?: boolean }) {
+  return (
+    <ul className="space-y-3 pb-3" aria-hidden={hidden || undefined}>
+      {items.map((d) => (
+        <li key={d.id}>
+          <Link to={`/van-ban/${d.id}`} tabIndex={hidden ? -1 : undefined} className="group flex gap-2.5">
+            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+            <span className="min-w-0">
+              <span className="line-clamp-2 text-sm font-medium leading-snug group-hover:text-primary">
+                {d.title}
+              </span>
+              <span className="text-xs text-muted">
+                {documentTypeLabel(d.document_type)}
+                {d.issue_date && ` · ${formatDate(d.issue_date)}`}
+              </span>
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** Dừng khi rê chuột hoặc đặt focus; giảm chuyển động thì đứng yên và cuộn được (index.css). */
+function DocumentTicker({ items }: { items: LatestDocument[] }) {
+  // Ít văn bản thì không đủ cao để chạy
+  if (items.length < 4) return <DocumentRows items={items} />
+  return (
+    <div className="ticker h-72">
+      <div className="ticker-track" style={{ animationDuration: `${items.length * 4}s` }}>
+        <DocumentRows items={items} />
+        <DocumentRows items={items} hidden />
+      </div>
+    </div>
+  )
+}
+
+export function DocumentsBox({ section, ticker = false }: { section: HomepageSection; ticker?: boolean }) {
   const { data = [] } = useQuery({
     queryKey: [...DOCUMENTS_KEY, 'home', section.limit],
     queryFn: () => fetchLatestDocuments(section.limit),
@@ -275,25 +352,10 @@ export function DocumentsBox({ section }: { section: HomepageSection }) {
     <SidebarBox title={sectionTitle(section)} icon={boxIcon(section)}>
       {data.length === 0 ? (
         <p className="text-sm text-muted">Chưa có văn bản.</p>
+      ) : ticker ? (
+        <DocumentTicker items={data} />
       ) : (
-        <ul className="space-y-3">
-          {data.map((d) => (
-            <li key={d.id}>
-              <Link to={`/van-ban/${d.id}`} className="group flex gap-2.5">
-                <FileText className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
-                <span className="min-w-0">
-                  <span className="line-clamp-2 text-sm font-medium leading-snug group-hover:text-primary">
-                    {d.title}
-                  </span>
-                  <span className="text-xs text-muted">
-                    {documentTypeLabel(d.document_type)}
-                    {d.issue_date && ` · ${formatDate(d.issue_date)}`}
-                  </span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <DocumentRows items={data} />
       )}
       <SideMore to="/van-ban" />
     </SidebarBox>

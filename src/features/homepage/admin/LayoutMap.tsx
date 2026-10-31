@@ -109,11 +109,11 @@ export function LayoutMap({
         {settings.show_slides && (
           <div className="flex gap-1">
             <span className="flex-[2] rounded bg-primary px-2 py-2 text-center text-xs text-white">
-              Slide
+              {settings.hero === 'portal' ? 'Slide + dải tin' : 'Slide'}
             </span>
-            {settings.hero === 'split' && (
+            {settings.hero !== 'full' && (
               <span className="flex-1 rounded bg-primary/60 px-2 py-2 text-center text-xs text-white">
-                Tiêu điểm
+                {settings.hero === 'portal' ? 'Tiêu điểm / Xem nhiều' : 'Tiêu điểm'}
               </span>
             )}
           </div>

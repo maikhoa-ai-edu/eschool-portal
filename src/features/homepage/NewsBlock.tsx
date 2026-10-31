@@ -1,6 +1,7 @@
-import { useContext, type ReactNode } from 'react'
+import { useContext, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { Link } from 'react-router'
-import { CalendarDays, ChevronRight, Newspaper } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
+import { CalendarDays, ChevronLeft, ChevronRight, Newspaper } from 'lucide-react'
 import { SidebarBox } from '@/components/content/PublicPage'
 import { responsiveImage, resolveMediaUrl } from '@/features/media/api'
 import {
@@ -13,8 +14,8 @@ import {
 import { MenuIcon } from '@/features/site/menu-icons'
 import { cn } from '@/lib/cn'
 import { formatDate } from '@/lib/format'
-import type { HomeNews } from './api'
-import { GRID_CLASSES, HeadingStyleContext, newsImageSizes } from './layout'
+import { fetchMostViewedNews, HOMEPAGE_KEY, type HomeNews } from './api'
+import { GRID_CLASSES, HeadingStyleContext, newsImageSizes, PORTAL_RAIL_COUNT } from './layout'
 
 /**
  * Khung một khối ở vùng rộng. Gạch chân: tiêu đề gạch màu nhấn. Thanh màu: tiêu đề trên nền màu chính, thân có viền.
@@ -380,6 +381,151 @@ export function HeroRail({ items, isPending }: { items: HomeNews[]; isPending: b
           ))}
         </ul>
       )}
+    </section>
+  )
+}
+
+const RAIL_TABS = ['Tiêu điểm', 'Xem nhiều'] as const
+
+/**
+ * Cột phải của kiểu đầu trang đầy đủ: hai tab Tiêu điểm / Xem nhiều. Tab Xem nhiều chỉ tải khi được mở.
+ * Từ lg trở lên cao đúng bằng slide + dải tin, phần thừa bị cắt thay vì kéo giãn hàng.
+ */
+export function HeroTabsRail({ items, isPending }: { items: HomeNews[]; isPending: boolean }) {
+  const [tab, setTab] = useState(0)
+  const mostViewed = useQuery({
+    queryKey: [...HOMEPAGE_KEY, 'most-viewed', PORTAL_RAIL_COUNT],
+    queryFn: () => fetchMostViewedNews(PORTAL_RAIL_COUNT),
+    enabled: tab === 1,
+  })
+  const onKeyDown = (event: KeyboardEvent) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
+    event.preventDefault()
+    const next = 1 - tab
+    setTab(next)
+    document.getElementById(`hero-tab-${next}`)?.focus()
+  }
+  const list = tab === 0 ? items : (mostViewed.data ?? [])
+  const pending = tab === 0 ? isPending : mostViewed.isPending
+  return (
+    <section
+      aria-label="Tin tiêu điểm và xem nhiều"
+      className="flex min-h-[29rem] flex-col overflow-hidden rounded-2xl bg-surface p-4 shadow-sm lg:h-0 lg:min-h-full"
+    >
+      <div
+        role="tablist"
+        aria-label="Chọn danh sách tin"
+        className="mb-3 flex gap-4 border-b-2 border-border"
+      >
+        {RAIL_TABS.map((label, i) => (
+          <button
+            key={label}
+            id={`hero-tab-${i}`}
+            type="button"
+            role="tab"
+            aria-selected={tab === i}
+            aria-controls="hero-tab-panel"
+            tabIndex={tab === i ? 0 : -1}
+            onClick={() => setTab(i)}
+            onKeyDown={onKeyDown}
+            className={cn(
+              '-mb-0.5 border-b-2 pb-2 text-base font-bold uppercase',
+              tab === i ? 'border-accent text-primary' : 'border-transparent text-muted hover:text-primary',
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <div id="hero-tab-panel" role="tabpanel" aria-labelledby={`hero-tab-${tab}`} className="min-h-0 flex-1">
+        {!pending &&
+          (list.length === 0 ? (
+            <p className="text-sm text-muted">Chưa có bài đăng gần đây.</p>
+          ) : (
+            <ul className="flex h-full flex-col justify-between gap-4">
+              {list.map((n) => (
+                <li key={n.id}>
+                  <SmallNews news={n} />
+                </li>
+              ))}
+            </ul>
+          ))}
+      </div>
+    </section>
+  )
+}
+
+/**
+ * Dải tin có ảnh dưới slide. Tự trượt một thẻ mỗi vài giây; dừng khi rê chuột, đặt focus,
+ * hoặc khi người dùng bật giảm chuyển động. Luôn kéo ngang và bấm nút được.
+ */
+export function HeroStrip({ items, isPending }: { items: HomeNews[]; isPending: boolean }) {
+  const list = useRef<HTMLUListElement>(null)
+  const [hold, setHold] = useState(false)
+  const scroll = (direction: 1 | -1) => {
+    const el = list.current
+    if (!el) return
+    const step = el.firstElementChild?.getBoundingClientRect().width ?? el.clientWidth
+    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2
+    const behavior = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+    if (direction === 1 && atEnd) el.scrollTo({ left: 0, behavior })
+    else el.scrollBy({ left: direction * (step + 12), behavior })
+  }
+  useEffect(() => {
+    if (hold || items.length < 2 || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return
+    const id = window.setInterval(() => scroll(1), 5000)
+    return () => window.clearInterval(id)
+  }, [hold, items.length])
+
+  // Giữ chỗ khi đang tải để nội dung bên dưới không bị đẩy
+  if (isPending) return <div className="mt-4 h-40 rounded-xl bg-primary/5" aria-hidden />
+  if (items.length === 0) return null
+  const control =
+    'absolute top-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/45 text-white hover:bg-black/65'
+  return (
+    <section
+      aria-label="Tin mới có ảnh"
+      className="relative mt-4"
+      onMouseEnter={() => setHold(true)}
+      onMouseLeave={() => setHold(false)}
+      onFocus={() => setHold(true)}
+      onBlur={() => setHold(false)}
+    >
+      <ul ref={list} className="flex snap-x gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
+        {items.map((n) => (
+          <li
+            key={n.id}
+            className="w-[calc((100%-0.75rem)/2)] shrink-0 snap-start sm:w-[calc((100%-2.25rem)/4)]"
+          >
+            <Link
+              to={`/tin-tuc/${n.slug}`}
+              className="group block h-full overflow-hidden rounded-xl border border-border bg-surface"
+            >
+              <Thumb
+                src={n.thumbnail_url}
+                sizes="(min-width: 1024px) 200px, (min-width: 640px) 25vw, 50vw"
+                className="aspect-video w-full"
+              />
+              <span className="block p-2">
+                <span className="line-clamp-2 text-sm font-semibold leading-snug group-hover:text-primary">
+                  {n.title}
+                </span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <button
+        type="button"
+        aria-label="Tin trước"
+        className={cn(control, 'left-1')}
+        onClick={() => scroll(-1)}
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </button>
+      <button type="button" aria-label="Tin sau" className={cn(control, 'right-1')} onClick={() => scroll(1)}>
+        <ChevronRight className="h-4 w-4" />
+      </button>
     </section>
   )
 }

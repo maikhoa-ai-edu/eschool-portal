@@ -4,6 +4,7 @@ import { LogIn, LayoutDashboard } from 'lucide-react'
 import { SchoolLogo } from '@/components/SchoolLogo'
 import { useAuth } from '@/features/auth/auth-context'
 import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
+import { SocialLinks } from '@/features/site/SocialLinks'
 import { useSite } from '@/features/site/site-context'
 
 const dateFormat = new Intl.DateTimeFormat('vi-VN', {
@@ -31,25 +32,32 @@ function useNow(intervalMs = 30_000): Date {
 function UtilityBar() {
   const now = useNow()
   const { status, role } = useAuth()
+  const { chrome } = useSite()
   const date = dateFormat.format(now)
 
   return (
     <div className="bg-primary text-xs text-white/90">
       <div className="mx-auto flex h-9 max-w-7xl items-center justify-between gap-4 px-4">
-        <p>
+        <p className="truncate">
           <time dateTime={now.toISOString()}>
             {timeFormat.format(now)} · {date.charAt(0).toUpperCase() + date.slice(1)}
           </time>
         </p>
-        {status === 'signed_in' && role ? (
-          <Link to="/admin" className="inline-flex items-center gap-1.5 hover:text-white">
-            <LayoutDashboard className="h-3.5 w-3.5" aria-hidden /> Trang quản trị
-          </Link>
-        ) : (
-          <Link to="/dang-nhap" className="inline-flex items-center gap-1.5 hover:text-white">
-            <LogIn className="h-3.5 w-3.5" aria-hidden /> Đăng nhập
-          </Link>
-        )}
+        <div className="flex items-center gap-3">
+          {chrome.header_social && <SocialLinks size="sm" />}
+          {status === 'signed_in' && role ? (
+            <Link to="/admin" className="inline-flex items-center gap-1.5 whitespace-nowrap hover:text-white">
+              <LayoutDashboard className="h-3.5 w-3.5" aria-hidden /> Trang quản trị
+            </Link>
+          ) : (
+            <Link
+              to="/dang-nhap"
+              className="inline-flex items-center gap-1.5 whitespace-nowrap hover:text-white"
+            >
+              <LogIn className="h-3.5 w-3.5" aria-hidden /> Đăng nhập
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   )

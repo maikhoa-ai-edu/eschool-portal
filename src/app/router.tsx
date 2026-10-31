@@ -228,6 +228,10 @@ export function createAppRouter(configState: ConfigState) {
                 },
                 ...publicModuleRoutes,
                 {
+                  path: 'tim-kiem',
+                  lazy: page(() => import('@/features/search/SearchPage'), 'SearchPage'),
+                },
+                {
                   path: '*',
                   lazy: () => import('@/components/NotFound').then((m) => ({ Component: m.NotFound })),
                 },
