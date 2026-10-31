@@ -57,7 +57,7 @@ async function main() {
       const path = relative(join(SEED_DIR, bucket), file).split('\\').join('/')
       const contentType = CONTENT_TYPES[extname(file).toLowerCase()]
       if (!contentType) continue
-      const res = await fetch(`${url}/storage/v1/object/${bucket}/${path}`, {
+      const res = await uploadWithRetry(`${url}/storage/v1/object/${bucket}/${path}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${serviceKey}`,
@@ -72,6 +72,19 @@ async function main() {
     }
   }
   console.log(`Đã tải ${count} file mẫu lên Storage cục bộ`)
+}
+
+/** Ngay sau db reset, dịch vụ Storage còn đang khởi động lại: chờ tới khi sẵn sàng. */
+async function uploadWithRetry(target: string, init: RequestInit): Promise<Response> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const res = await fetch(target, init)
+      if (res.status < 500 || attempt === 20) return res
+    } catch (err) {
+      if (attempt === 20) throw err
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+  }
 }
 
 await main()

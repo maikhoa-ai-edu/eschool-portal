@@ -11,8 +11,10 @@ import {
   Contact,
   Download,
   ExternalLink,
+  Eye,
   FileText,
   Flag,
+  Flame,
   FlaskConical,
   Globe,
   GraduationCap,
@@ -85,6 +87,8 @@ export const MENU_ICONS: Record<string, { label: string; icon: LucideIcon }> = {
   globe: { label: 'Website', icon: Globe },
   'link-2': { label: 'Liên kết', icon: Link2 },
   'external-link': { label: 'Mở ngoài', icon: ExternalLink },
+  flame: { label: 'Ngọn lửa', icon: Flame },
+  eye: { label: 'Lượt xem', icon: Eye },
 }
 
 /** Chưa chọn hoặc khóa không còn trong danh sách thì dùng icon mặc định. */

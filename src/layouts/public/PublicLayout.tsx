@@ -37,8 +37,11 @@ export function PublicLayout() {
       >
         Bỏ qua menu, đến nội dung
       </a>
-      <SiteHeader />
-      <MainNav />
+      {/* Từ lg trở lên lớp này biến mất: đầu trang cuộn đi, chỉ menu dính như cũ */}
+      <div className="sticky top-0 z-20 lg:contents [@media(max-height:599px)]:static">
+        <SiteHeader />
+        <MainNav />
+      </div>
       <MarqueeBar />
       {/* Cao ít nhất một màn hình: chân trang không lọt vào khung nhìn rồi bị đẩy xuống khi nội dung tải xong */}
       <main id="noi-dung" className="mx-auto min-h-screen w-full max-w-7xl flex-1 px-4 py-6">

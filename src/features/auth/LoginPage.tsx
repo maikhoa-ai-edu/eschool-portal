@@ -94,80 +94,89 @@ export function LoginPage() {
   ].filter((c) => c.text)
 
   return (
-    <main className="grid min-h-screen bg-surface lg:grid-cols-2">
-      <section className="flex flex-col justify-center bg-gradient-to-br from-primary to-primary-light p-6 text-white sm:p-10 lg:p-16">
-        <SchoolLogo className="h-16 w-16 lg:h-24 lg:w-24" />
-        {identity.governing_body && (
-          <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-white/80 sm:text-sm">
-            {identity.governing_body}
-          </p>
-        )}
-        <p className="mt-1 text-xl font-bold uppercase leading-tight lg:text-3xl">{identity.school_name}</p>
-        {identity.slogan && <p className="mt-2 font-medium text-accent lg:text-lg">{identity.slogan}</p>}
-        {contact.length > 0 && (
-          <ul className="mt-6 hidden space-y-2 text-sm text-white/85 lg:block">
-            {contact.map(({ icon: Icon, text }) => (
-              <li key={text} className="flex gap-2">
-                <Icon className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden /> {text}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-      <section className="flex items-center justify-center p-6 sm:p-10">
-        <div className="w-full max-w-sm">
-          <h1 className="text-2xl font-bold text-primary">Đăng nhập</h1>
-          <p className="mb-6 mt-1 text-sm text-muted">Dành cho cán bộ, giáo viên và thành viên của trường.</p>
-          {googleReady && (
-            <div className="mb-5 space-y-5">
-              <Button variant="outline" className="w-full" loading={googleBusy} onClick={() => void google()}>
-                <GoogleMark /> Tiếp tục với Google
-              </Button>
-              <p className="flex items-center gap-3 text-xs text-muted before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
-                hoặc
-              </p>
-            </div>
-          )}
-          <form onSubmit={onSubmit} noValidate className="space-y-4">
-            {error && <Alert tone="danger" title={error} />}
-            <Field
-              label="Email"
-              type="email"
-              autoComplete="username"
-              autoFocus
-              error={form.formState.errors.email?.message}
-              {...form.register('email')}
-            />
-            <Field
-              label="Mật khẩu"
-              type="password"
-              autoComplete="current-password"
-              error={form.formState.errors.password?.message}
-              {...form.register('password')}
-            />
-            <Button type="submit" className="w-full" loading={form.formState.isSubmitting}>
-              Đăng nhập
-            </Button>
-          </form>
-          <p className="mt-6 text-center text-sm">
-            <Link to="/quen-mat-khau" className="text-primary hover:underline">
-              Quên mật khẩu?
-            </Link>
-          </p>
-          {authOptions.allow_self_signup && (
-            <p className="mt-2 text-center text-sm">
-              <Link to="/dang-ky" className="text-primary hover:underline">
-                Chưa có tài khoản? Đăng ký thành viên
-              </Link>
+    <main className="flex min-h-screen items-center justify-center bg-bg p-4 sm:p-6">
+      <div className="grid w-full max-w-sm overflow-hidden rounded-2xl bg-surface shadow-xl lg:max-w-4xl lg:grid-cols-2">
+        <section className="flex flex-col items-center justify-center bg-gradient-to-br from-primary to-primary-light p-6 text-center text-white lg:p-10">
+          <SchoolLogo className="h-16 w-16 lg:h-24 lg:w-24" />
+          {identity.governing_body && (
+            <p className="mt-4 text-xs font-semibold uppercase tracking-wide text-white/80 sm:text-sm">
+              {identity.governing_body}
             </p>
           )}
-          <p className="mt-2 text-center text-sm">
-            <Link to="/" className="text-primary hover:underline">
-              ← Về trang chủ
-            </Link>
-          </p>
-        </div>
-      </section>
+          <p className="mt-1 text-xl font-bold uppercase leading-tight lg:text-3xl">{identity.school_name}</p>
+          {identity.slogan && <p className="mt-2 font-medium text-accent lg:text-lg">{identity.slogan}</p>}
+          {contact.length > 0 && (
+            <ul className="mt-6 hidden space-y-2 text-left text-sm text-white/85 lg:block">
+              {contact.map(({ icon: Icon, text }) => (
+                <li key={text} className="flex gap-2">
+                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden /> {text}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+        <section className="flex items-center justify-center p-6 lg:p-10">
+          <div className="w-full">
+            <h1 className="text-2xl font-bold text-primary">Đăng nhập</h1>
+            <p className="mb-6 mt-1 text-sm text-muted">
+              Dành cho cán bộ, giáo viên và thành viên của trường.
+            </p>
+            {googleReady && (
+              <div className="mb-5 space-y-5">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  loading={googleBusy}
+                  onClick={() => void google()}
+                >
+                  <GoogleMark /> Tiếp tục với Google
+                </Button>
+                <p className="flex items-center gap-3 text-xs text-muted before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border">
+                  hoặc
+                </p>
+              </div>
+            )}
+            <form onSubmit={onSubmit} noValidate className="space-y-4">
+              {error && <Alert tone="danger" title={error} />}
+              <Field
+                label="Email"
+                type="email"
+                autoComplete="username"
+                autoFocus
+                error={form.formState.errors.email?.message}
+                {...form.register('email')}
+              />
+              <Field
+                label="Mật khẩu"
+                type="password"
+                autoComplete="current-password"
+                error={form.formState.errors.password?.message}
+                {...form.register('password')}
+              />
+              <Button type="submit" className="w-full" loading={form.formState.isSubmitting}>
+                Đăng nhập
+              </Button>
+            </form>
+            <p className="mt-6 text-center text-sm">
+              <Link to="/quen-mat-khau" className="text-primary hover:underline">
+                Quên mật khẩu?
+              </Link>
+            </p>
+            {authOptions.allow_self_signup && (
+              <p className="mt-2 text-center text-sm">
+                <Link to="/dang-ky" className="text-primary hover:underline">
+                  Chưa có tài khoản? Đăng ký thành viên
+                </Link>
+              </p>
+            )}
+            <p className="mt-2 text-center text-sm">
+              <Link to="/" className="text-primary hover:underline">
+                ← Về trang chủ
+              </Link>
+            </p>
+          </div>
+        </section>
+      </div>
     </main>
   )
 }

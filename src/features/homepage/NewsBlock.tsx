@@ -385,13 +385,23 @@ export function HeroRail({ items, isPending }: { items: HomeNews[]; isPending: b
   )
 }
 
-const RAIL_TABS = ['Tiêu điểm', 'Xem nhiều'] as const
-
 /**
  * Cột phải của kiểu đầu trang đầy đủ: hai tab Tiêu điểm / Xem nhiều. Tab Xem nhiều chỉ tải khi được mở.
  * Từ lg trở lên cao đúng bằng slide + dải tin, phần thừa bị cắt thay vì kéo giãn hàng.
  */
-export function HeroTabsRail({ items, isPending }: { items: HomeNews[]; isPending: boolean }) {
+export function HeroTabsRail({
+  items,
+  isPending,
+  tabs,
+}: {
+  items: HomeNews[]
+  isPending: boolean
+  tabs: HomepageSettings['hero_tabs']
+}) {
+  const railTabs = [
+    { label: tabs.focus_label, icon: tabs.focus_icon },
+    { label: tabs.viewed_label, icon: tabs.viewed_icon },
+  ]
   const [tab, setTab] = useState(0)
   const mostViewed = useQuery({
     queryKey: [...HOMEPAGE_KEY, 'most-viewed', PORTAL_RAIL_COUNT],
@@ -415,11 +425,11 @@ export function HeroTabsRail({ items, isPending }: { items: HomeNews[]; isPendin
       <div
         role="tablist"
         aria-label="Chọn danh sách tin"
-        className="mb-3 flex gap-4 border-b-2 border-border"
+        className="mb-3 grid grid-cols-2 gap-1 rounded-xl bg-primary/10 p-1"
       >
-        {RAIL_TABS.map((label, i) => (
+        {railTabs.map(({ label, icon }, i) => (
           <button
-            key={label}
+            key={i}
             id={`hero-tab-${i}`}
             type="button"
             role="tab"
@@ -429,11 +439,12 @@ export function HeroTabsRail({ items, isPending }: { items: HomeNews[]; isPendin
             onClick={() => setTab(i)}
             onKeyDown={onKeyDown}
             className={cn(
-              '-mb-0.5 border-b-2 pb-2 text-base font-bold uppercase',
-              tab === i ? 'border-accent text-primary' : 'border-transparent text-muted hover:text-primary',
+              'flex min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-sm font-bold uppercase transition',
+              tab === i ? 'bg-primary text-white shadow-sm' : 'text-primary hover:bg-primary/10',
             )}
           >
-            {label}
+            <MenuIcon name={icon} className={cn('h-4 w-4 shrink-0', tab === i && 'text-accent')} />
+            <span className="truncate">{label}</span>
           </button>
         ))}
       </div>

@@ -655,6 +655,48 @@ export function LayoutTab() {
             />
           </div>
         </Panel>
+        {draft.hero === 'portal' && (
+          <Panel title="Hai tab cạnh slide">
+            {(
+              [
+                ['focus_label', 'focus_icon', 'Tab 1', 'Bài nổi bật'],
+                ['viewed_label', 'viewed_icon', 'Tab 2', 'Bài xem nhiều'],
+              ] as const
+            ).map(([labelKey, iconKey, name, hint]) => (
+              <div key={labelKey} className="flex flex-wrap items-end gap-3">
+                <div className="min-w-40 flex-1">
+                  <Field
+                    label={`Tên ${name.toLowerCase()} (${hint.toLowerCase()})`}
+                    maxLength={30}
+                    value={draft.hero_tabs[labelKey]}
+                    onChange={(e) =>
+                      setDraft((d) => ({ ...d, hero_tabs: { ...d.hero_tabs, [labelKey]: e.target.value } }))
+                    }
+                  />
+                </div>
+                <label className="flex items-center gap-1.5 pb-1.5 text-sm text-muted">
+                  Icon
+                  <select
+                    aria-label={`Icon ${name.toLowerCase()}`}
+                    value={draft.hero_tabs[iconKey]}
+                    onChange={(e) =>
+                      setDraft((d) => ({ ...d, hero_tabs: { ...d.hero_tabs, [iconKey]: e.target.value } }))
+                    }
+                    className={cn(SMALL_SELECT, 'max-w-36')}
+                  >
+                    {Object.entries(MENU_ICONS)
+                      .filter(([key]) => key !== 'circle-dot')
+                      .map(([key, { label: iconLabel }]) => (
+                        <option key={key} value={key}>
+                          {iconLabel}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+              </div>
+            ))}
+          </Panel>
+        )}
         <Panel title="Sơ đồ bố cục (bản nháp)">
           <LayoutMap settings={draft} categoryName={categoryName} />
           <Button variant="ghost" onClick={preview}>

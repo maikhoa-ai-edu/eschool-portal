@@ -34,6 +34,16 @@ test('khối Thư viện có tab Video và Tài nguyên, trang riêng nhúng đ�
   await page.screenshot({ path: screenshotPath('videos', info), fullPage: true })
 })
 
+test('menu chính có Kế hoạch công tác và mở được trang', async ({ page }, info) => {
+  await page.goto('/')
+  if (info.project.name !== 'desktop') await page.getByRole('button', { name: 'Mở menu' }).click()
+  await page
+    .getByRole('navigation', { name: 'Menu chính' })
+    .getByRole('link', { name: 'Kế hoạch công tác' })
+    .click()
+  await expect(page.getByRole('heading', { name: 'Kế hoạch công tác', level: 1 })).toBeVisible()
+})
+
 test('xóa hết video, tài nguyên ẩn: khối Thư viện trở lại như cũ, không có tab', async ({ page }) => {
   await sql(
     `update public.module_settings set is_enabled = false where module_key in ('videos', 'resources')`,

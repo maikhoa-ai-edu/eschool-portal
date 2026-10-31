@@ -204,7 +204,7 @@ export function MainNav() {
       {open && (
         <div
           id="mobile-menu"
-          className="max-h-[70vh] overflow-y-auto border-t border-white/10 bg-primary lg:hidden"
+          className="max-h-[calc(100dvh-14rem)] overflow-y-auto border-t border-white/10 bg-primary lg:hidden"
         >
           <MobileItems nodes={nodes} depth={0} onNavigate={() => setOpenPath(null)} />
         </div>

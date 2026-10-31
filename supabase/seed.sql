@@ -376,7 +376,7 @@ insert into public.topics (title, slug, badge, summary, hero_image, hero_color, 
    ));
 
 insert into public.menu_items (menu_id, title, url, icon, sort_order)
-select m.id, 'Chuyên đề', '/chuyen-de/hoc-tap-va-lam-theo-bac', 'star', 7
+select m.id, 'Chuyên đề', '/chuyen-de/hoc-tap-va-lam-theo-bac', 'star', 8
 from public.menus m where m.code = 'main';
 update public.menu_items set icon = 'users'
 where title = 'Cơ cấu tổ chức';

@@ -181,7 +181,7 @@ export function HomePage() {
             )}
           </div>
           {portal ? (
-            <HeroTabsRail items={railItems} isPending={featured.isPending} />
+            <HeroTabsRail items={railItems} isPending={featured.isPending} tabs={homepage.hero_tabs} />
           ) : (
             <HeroRail items={railItems} isPending={featured.isPending} />
           )}

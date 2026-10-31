@@ -31,6 +31,10 @@ test('trang đăng nhập 2 cột; Google tắt hoặc Supabase chưa bật thì
   await page.goto('/dang-nhap')
   await expect(page.getByRole('heading', { name: 'Đăng nhập' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Tiếp tục với Google' })).toHaveCount(0)
+  // Thẻ co gọn giữa màn hình, không phủ hết trang
+  const card = await page.getByRole('main').locator('> div').boundingBox()
+  expect(card!.width).toBeLessThan(page.viewportSize()!.width + 1)
+  if (info.project.name === 'desktop') expect(card!.x).toBeGreaterThan(100)
   await page.screenshot({ path: screenshotPath('login', info), fullPage: true })
 
   await setAuth({ google_enabled: true })

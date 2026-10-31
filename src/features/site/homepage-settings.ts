@@ -363,6 +363,43 @@ const bannerSchema = z
   })
   .catch({ ...DEFAULT_BANNER })
 
+export const DEFAULT_HERO_TABS = {
+  focus_label: 'Tiêu điểm',
+  focus_icon: 'star',
+  viewed_label: 'Xem nhiều',
+  viewed_icon: 'flame',
+} as const
+
+/** Hai tab ở cột phải của kiểu đầu trang đầy đủ. Bỏ trống thì dùng mặc định. */
+const heroTabsSchema = z
+  .object({
+    focus_label: z
+      .string()
+      .trim()
+      .max(30)
+      .catch('')
+      .transform((v) => v || DEFAULT_HERO_TABS.focus_label),
+    focus_icon: z
+      .string()
+      .trim()
+      .max(40)
+      .catch('')
+      .transform((v) => v || DEFAULT_HERO_TABS.focus_icon),
+    viewed_label: z
+      .string()
+      .trim()
+      .max(30)
+      .catch('')
+      .transform((v) => v || DEFAULT_HERO_TABS.viewed_label),
+    viewed_icon: z
+      .string()
+      .trim()
+      .max(40)
+      .catch('')
+      .transform((v) => v || DEFAULT_HERO_TABS.viewed_icon),
+  })
+  .catch({ ...DEFAULT_HERO_TABS })
+
 export type HomepageBanner = z.infer<typeof bannerSchema>
 
 export const homepageSchema = z
@@ -375,6 +412,7 @@ export const homepageSchema = z
      * portal: như split, thêm dải tin trượt dưới slide và tab Xem nhiều ở cột phải
      */
     hero: z.enum(['full', 'split', 'portal']).catch('full'),
+    hero_tabs: heroTabsSchema,
     /** Làm nổi thông báo đăng gần nhất ở khối Thông báo */
     highlight_latest_announcement: z.boolean().catch(false),
     /** Khối Văn bản chạy lên thay vì đứng yên */

@@ -92,3 +92,33 @@ test('chân trang thêm dòng thông tin từ quản trị', async ({ page }, in
   await page.goto('/')
   await expect(page.getByRole('contentinfo').getByText('E2E Hotline tuyển sinh')).toBeVisible()
 })
+
+test('điện thoại: cuộn xuống vẫn thấy logo, tên trường, menu; máy tính chỉ còn menu', async ({
+  page,
+}, info) => {
+  await page.goto('/')
+  await expect(page.getByRole('contentinfo')).toBeAttached()
+  await expect(page.getByRole('tab', { name: 'Xem nhiều' })).toBeVisible()
+  await expect
+    .poll(async () => {
+      await page.evaluate(() => window.scrollTo(0, 1500))
+      return page.evaluate(() => window.scrollY)
+    })
+    .toBeGreaterThan(1000)
+  const school = page.getByRole('banner').getByText('Dạy tốt - Học tốt')
+  const nav = page.getByRole('navigation', { name: 'Menu chính' })
+  await expect(nav).toBeInViewport()
+  if (info.project.name === 'desktop') await expect(school).not.toBeInViewport()
+  else await expect(school).toBeInViewport()
+})
+
+test('tab cạnh slide đổi được tên và icon từ cấu hình', async ({ page }) => {
+  await sql(`update public.site_settings set value = value || $1 where key = 'homepage'`, [
+    JSON.stringify({
+      hero_tabs: { focus_label: 'Nổi bật', focus_icon: 'bell', viewed_label: '', viewed_icon: '' },
+    }),
+  ])
+  await page.goto('/')
+  await expect(page.getByRole('tab', { name: 'Nổi bật' })).toHaveAttribute('aria-selected', 'true')
+  await expect(page.getByRole('tab', { name: 'Xem nhiều' })).toHaveAttribute('aria-selected', 'false')
+})
