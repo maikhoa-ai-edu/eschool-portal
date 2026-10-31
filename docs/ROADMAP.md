@@ -68,7 +68,7 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
       CSDL hiện tại. Schema 0.7.0, 142 pgTAP, 98 unit test. Đã nghiệm thu trên project Supabase cục bộ thứ hai: nâng cấp 0.5.0 → 0.7.0
       bằng SQL của trang Cập nhật, sao lưu trường A, khôi phục sang project mới; CI chạy bản giả lập trong `e2e/backup.spec.ts`
 
-- [ ] Giai đoạn 8 (đang làm):
+- [x] Giai đoạn 8:
   - [x] Phần giao diện, schema 0.8.0: menu ngang in hoa có icon chọn được trong quản trị (`menu_items.icon`, danh sách ở
         `src/features/site/menu-icons.ts`), thanh menu đáy trên điện thoại (menu `mobile`, tối đa 5 mục, có safe-area),
         module Chuyên đề (bảng `topics`, các khối nội dung lưu jsonb; tin lấy theo thẻ, tài liệu từ Văn bản, ảnh từ Thư viện
@@ -77,7 +77,11 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
         `public/seo.php` cho cPanel. Hosting thuần tĩnh không có thẻ riêng từng bài và không có sitemap
   - [x] Tối ưu ảnh: bản nhỏ 480/960/1600 tạo lúc tải lên; font tự lưu; gộp mã dùng chung; giữ chỗ để không dịch bố cục
   - [x] PWA: `public/sw.js`, manifest dựng lúc chạy theo tên trường, `offline.html`
-  - [ ] Lighthouse ≥ 90: đạt trên máy tính, CHƯA đạt trên điện thoại (số đo ở mục Ghi chú kỹ thuật)
+  - [x] Lighthouse: máy tính đạt ≥ 90; điện thoại 73-80 **được chủ dự án chấp nhận** (2026-10-31), không làm prerender. Số đo ở mục Ghi chú kỹ thuật
+- [x] Giai đoạn 8.5: bố cục trang chủ. Bốn vùng (đầu trang, cột chính, cột phải, cuối trang), khối rộng nửa trang xếp song song,
+      5 kiểu hiển thị tin (Tiêu điểm, Tạp chí, Lưới, Danh sách ảnh, Danh sách gọn), mỗi chuyên mục một khối, slide 2/3 + cột Tiêu điểm,
+      khối Lối tắt (menu `shortcuts`, tắt sẵn), tiêu đề gạch chân hoặc thanh màu, 3 mẫu bố cục + bố cục mặc định, sơ đồ bản nháp và
+      xem trước chưa lưu, kiểu trang danh sách tin (danh sách ảnh hoặc lưới). Schema 0.9.0. Cấu hình cũ đọc được và không đổi giao diện
 
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
 
@@ -141,6 +145,13 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
 - **Khối chuyên đề**: `parseTopicSections` bỏ qua khối sai hoặc loại chưa biết thay vì làm hỏng cả trang. Thêm loại khối mới:
   sửa `src/features/topics/sections.ts`, `SectionsEditor`, `TopicPages`. Khối video chỉ tải YouTube khi người xem bấm phát.
 - **Khối trang chủ mới** bật sẵn khi vắng trong cấu hình cũ, trừ khối có `defaultOff` trong `SECTION_INFO`.
+- **Bố cục trang chủ**: `normalizeSections` là nơi duy nhất đọc cấu hình; khối chưa ghi `zone` là cấu hình cũ, `category_news` chung + `category_ids`
+  được tách thành từng khối tại vị trí cũ, `banner.placement` chỉ còn để đọc cấu hình cũ. `variant: null` ở cột chính + tiêu đề gạch chân dùng `OriginalBody`
+  (giữ đúng lớp CSS cũ, đã so từng điểm ảnh ở 1366/820/390 px); đừng sửa kiểu dáng ở đó. Kiểu mới co theo khối bằng container query,
+  nhưng `sizes` ảnh tính theo vùng trong `features/homepage/layout.ts`, đổi điểm chia thì sửa cả hai nơi. Dùng `z.guid()`, không `z.uuid()`, cho id:
+  Zod 4 từ chối UUID không theo RFC như id trong seed (lỗi này từng làm khối chuyên mục không hiện trên dữ liệu mẫu).
+- **Ghi đè cấu hình trang chủ**: mọi nơi lưu đều ghi cả JSON `homepage`, nên `LayoutTab` lấy `visit_counter_offset` và `news_list` từ giá trị đang lưu.
+  Kiểu trang danh sách tin nằm trong `homepage` nên chỉ người có `homepage.manage` đổi được.
 - **SEO**: sửa `seo-core.mjs` thì sửa cả `seo.php`; `npm run test:seo` chạy cùng một bộ kiểm tra cho cả hai. Trên Vercel, `/` là file
   tĩnh nên trang chủ không có thẻ theo tên trường (các trang chi tiết thì có). Supabase trả tối đa 1000 dòng mỗi bảng cho sitemap.
 - **Ảnh**: gói miễn phí của Supabase không đổi kích thước ảnh nên `uploadImage` tải kèm bản nhỏ; đuôi tên `-rsw`/`-rsj` báo có bản nhỏ,
@@ -148,6 +159,9 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
 - **Lighthouse** (2026-10-31, Lighthouse 12, bản build chạy bằng `server.mjs`, Supabase cục bộ, dữ liệu mẫu). Hiệu năng trên máy tính
   94-99, trên điện thoại giả lập 4G chậm 73-80 (LCP 4,4-6,4 giây); Trợ năng 93-96, Thực hành tốt 100, SEO 100. Chưa đạt 90 trên điện thoại vì
   ứng dụng render phía trình duyệt, gần 200 KB gzip JS phải tải xong mới có nội dung; muốn đạt cần prerender hoặc tách bớt Supabase/Zod.
+  Sau Giai đoạn 8.5 (cùng cách đo, trang chủ, 6 lượt máy tính + 3 lượt điện thoại): mẫu Báo điện tử trên máy tính 94-96, điện thoại 71-73; cấu hình cũ máy tính
+  95-97, điện thoại 71-72; mốc đo ngay trước khi sửa là 95-96 và 72. CLS thường 0,001-0,002; thỉnh thoảng 0,03 do cả thẻ `main` bị đẩy (gặp ở cả cấu hình cũ
+  lẫn mới, chưa xác định phần tử phía trên nào gây ra).
 - **Nâng cấp**: mỗi lần tăng `schema_version` là một bước; `buildUpgrades` sinh `/upgrades/<phiên-bản>.sql` và `index.json`
   từ migrations, mỗi file kiểm tra phiên bản trước khi chạy và nằm trong giao dịch.
 - Tài khoản demo khi chạy trên máy (mật khẩu `demo1234`): `superadmin@demo.local`, `admin@demo.local`,

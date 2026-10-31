@@ -7,7 +7,7 @@ import { useSite } from '@/features/site/site-context'
 import { isDarkColor } from '@/features/topics/sections'
 
 /** Banner trang chủ; chưa có nội dung hoặc trỏ tới module đang tắt thì không hiện. */
-export function TopicBanner({ banner }: { banner: HomepageBanner }) {
+export function TopicBanner({ banner, imageSizes }: { banner: HomepageBanner; imageSizes: string }) {
   const { isModuleEnabled } = useSite()
   const image = resolveMediaUrl(banner.image_path)
   const title = banner.title.trim()
@@ -19,19 +19,19 @@ export function TopicBanner({ banner }: { banner: HomepageBanner }) {
   const light = banner.color ? !isDarkColor(banner.color) : false
   const body = title ? (
     <div
-      className={`relative overflow-hidden rounded-xl border-b-4 border-accent ${light ? 'text-text' : 'text-white'}`}
+      className={`@container relative overflow-hidden rounded-xl border-b-4 border-accent ${light ? 'text-text' : 'text-white'}`}
       style={{ backgroundColor: banner.color || 'var(--brand-primary)' }}
     >
       {image && (
         <img
           src={image}
-          {...responsiveImage(banner.image_path, '(min-width: 1280px) 1248px, 100vw')}
+          {...responsiveImage(banner.image_path, imageSizes)}
           alt=""
           loading="lazy"
           className="absolute inset-0 h-full w-full object-cover opacity-15"
         />
       )}
-      <div className="relative flex flex-col gap-4 p-5 sm:p-6 md:flex-row md:items-center md:justify-between">
+      <div className="relative flex flex-col gap-4 p-5 sm:p-6 @2xl:flex-row @2xl:items-center @2xl:justify-between">
         <div className="min-w-0 space-y-2">
           {banner.badge && (
             <p className="inline-flex items-center gap-1.5 rounded-full bg-amber-300 px-3 py-0.5 text-xs font-bold uppercase text-black">
@@ -42,7 +42,7 @@ export function TopicBanner({ banner }: { banner: HomepageBanner }) {
           {banner.subtitle && <p className="text-sm">{banner.subtitle}</p>}
         </div>
         {url && (
-          <span className="inline-flex shrink-0 items-center gap-1 self-start rounded-lg bg-amber-300 px-4 py-2 text-sm font-bold text-black md:self-center">
+          <span className="inline-flex shrink-0 items-center gap-1 self-start rounded-lg bg-amber-300 px-4 py-2 text-sm font-bold text-black @2xl:self-center">
             {banner.cta_label || 'Xem chi tiết'} <ChevronRight className="h-4 w-4" aria-hidden />
           </span>
         )}
@@ -51,7 +51,7 @@ export function TopicBanner({ banner }: { banner: HomepageBanner }) {
   ) : (
     <img
       src={image!}
-      {...responsiveImage(banner.image_path, '(min-width: 1280px) 1248px, 100vw')}
+      {...responsiveImage(banner.image_path, imageSizes)}
       alt={banner.alt}
       loading="lazy"
       className="w-full rounded-xl"

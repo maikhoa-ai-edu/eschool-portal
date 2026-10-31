@@ -83,8 +83,8 @@ test.describe('Quản trị trang chủ & cấu hình', () => {
 
     // Bố cục: tắt Thư viện ảnh, đổi tên khối Thông báo
     await page.getByRole('tab', { name: 'Bố cục' }).click()
-    await page.getByRole('checkbox', { name: 'Thư viện ảnh' }).uncheck()
-    await page.getByLabel('Tiêu đề khối Thông báo').fill('Bảng tin nhà trường')
+    await page.getByRole('checkbox', { name: 'Thư viện ảnh', exact: true }).uncheck()
+    await page.getByLabel('Tiêu đề khối Thông báo', { exact: true }).fill('Bảng tin nhà trường')
     await page.getByRole('button', { name: 'Chuyển khối Tin mới nhất lên' }).click()
     await page.screenshot({ path: screenshotPath('admin-homepage-layout', info) })
     await page.getByRole('button', { name: 'Lưu bố cục' }).click()

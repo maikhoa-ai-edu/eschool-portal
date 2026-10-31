@@ -140,6 +140,45 @@ insert into public.news (title, slug, excerpt, content, thumbnail_url, category_
    '<p>Thời gian nhận hồ sơ dự kiến từ tháng 6/2027. Hồ sơ gồm: đơn đăng ký, bản sao giấy khai sinh, học bạ tiểu học.</p>',
    'seed/slide-chao-mung-rsw.jpg', '00000000-0000-0000-0000-0000000000c3', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '20 days', '00000000-0000-0000-0000-0000000000a2');
 
+-- Đủ bài để thấy rõ từng kiểu hiển thị ở mỗi chuyên mục
+insert into public.news (title, slug, excerpt, content, thumbnail_url, category_id, author_id, status, is_featured, published_at, published_by) values
+  ('Đội tuyển bóng đá học sinh giành giải Ba cấp huyện', 'doi-tuyen-bong-da-hoc-sinh-gianh-giai-ba-cap-huyen',
+   'Sau bốn trận đấu, đội tuyển của trường giành giải Ba tại giải học sinh cấp huyện.',
+   '<p>Sau bốn trận đấu, đội tuyển của trường giành giải Ba tại giải học sinh cấp huyện.</p>',
+   'seed/album/san-truong-rsw.jpg', '00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '9 days', '00000000-0000-0000-0000-0000000000a2'),
+  ('Tuổi trẻ nhà trường hiến máu tình nguyện', 'tuoi-tre-nha-truong-hien-mau-tinh-nguyen',
+   'Đoàn viên giáo viên và học sinh đủ tuổi tham gia ngày hội hiến máu.',
+   '<p>Đoàn viên giáo viên và học sinh đủ tuổi tham gia ngày hội hiến máu.</p>',
+   'seed/slide-hoc-tap-rsw.jpg', '00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '18 days', '00000000-0000-0000-0000-0000000000a2'),
+  ('Lịch tiếp nhận hồ sơ vào lớp 10', 'lich-tiep-nhan-ho-so-tuyen-sinh-lop-10',
+   'Phụ huynh theo dõi các mốc nhận hồ sơ, thi và công bố kết quả.',
+   '<p>Phụ huynh theo dõi các mốc nhận hồ sơ, thi và công bố kết quả.</p>',
+   'seed/album/khuon-vien-rsw.jpg', '00000000-0000-0000-0000-0000000000c3', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '6 days', '00000000-0000-0000-0000-0000000000a2'),
+  ('Giới thiệu các tổ hợp môn lớp 10 năm học mới', 'gioi-thieu-cac-to-hop-mon-lop-10-nam-hoc-moi',
+   'Nhà trường công bố các tổ hợp môn lựa chọn theo Chương trình GDPT 2018.',
+   '<p>Nhà trường công bố các tổ hợp môn lựa chọn theo Chương trình GDPT 2018.</p>',
+   'seed/album/hoc-tap-1-rsw.jpg', '00000000-0000-0000-0000-0000000000c3', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '12 days', '00000000-0000-0000-0000-0000000000a2'),
+  ('Ngày hội tư vấn chọn trường cho học sinh lớp 9', 'ngay-hoi-tu-van-chon-truong-cho-hoc-sinh-lop-9',
+   'Học sinh lớp 9 được tham quan phòng học bộ môn và trò chuyện cùng thầy cô.',
+   '<p>Học sinh lớp 9 được tham quan phòng học bộ môn và trò chuyện cùng thầy cô.</p>',
+   'seed/album/thu-vien-rsw.jpg', '00000000-0000-0000-0000-0000000000c3', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '16 days', '00000000-0000-0000-0000-0000000000a2'),
+  ('Hướng dẫn hồ sơ học sinh chuyển trường', 'huong-dan-ho-so-hoc-sinh-chuyen-truong',
+   'Các giấy tờ cần chuẩn bị khi xin chuyển trường trong năm học.',
+   '<p>Các giấy tờ cần chuẩn bị khi xin chuyển trường trong năm học.</p>',
+   'seed/album/san-truong-rsw.jpg', '00000000-0000-0000-0000-0000000000c3', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '27 days', '00000000-0000-0000-0000-0000000000a2'),
+  ('Chuyên đề dạy học phát triển năng lực môn Toán', 'chuyen-de-day-hoc-phat-trien-nang-luc-mon-toan',
+   'Tổ Toán - Tin tổ chức chuyên đề với tiết dạy minh họa ở lớp 8.',
+   '<p>Tổ Toán - Tin tổ chức chuyên đề với tiết dạy minh họa ở lớp 8.</p>',
+   'seed/album/hoc-tap-2-rsw.jpg', '00000000-0000-0000-0000-0000000000c4', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '8 days', '00000000-0000-0000-0000-0000000000a2'),
+  ('Học sinh thực hành thí nghiệm Khoa học tự nhiên', 'hoc-sinh-thuc-hanh-thi-nghiem-khoa-hoc-tu-nhien',
+   'Tiết học tại phòng thí nghiệm giúp học sinh tự kiểm chứng kiến thức.',
+   '<p>Tiết học tại phòng thí nghiệm giúp học sinh tự kiểm chứng kiến thức.</p>',
+   'seed/album/stem-2-rsw.jpg', '00000000-0000-0000-0000-0000000000c4', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '15 days', '00000000-0000-0000-0000-0000000000a2'),
+  ('Thăm và tặng quà gia đình chính sách', 'tham-va-tang-qua-gia-dinh-chinh-sach',
+   'Đại diện nhà trường thăm hỏi các gia đình chính sách trên địa bàn xã.',
+   '<p>Đại diện nhà trường thăm hỏi các gia đình chính sách trên địa bàn xã.</p>',
+   'seed/album/khuon-vien-rsw.jpg', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '22 days', '00000000-0000-0000-0000-0000000000a2');
+
 insert into public.news_tags (name, slug) values
   ('STEM', 'stem'), ('Đoàn - Đội', 'doan-doi'), ('Nhà giáo Việt Nam', 'nha-giao-viet-nam');
 insert into public.news_tag_map (news_id, tag_id)
@@ -202,6 +241,20 @@ insert into public.album_items (album_id, media_id, sort_order, caption) values
   ('00000000-0000-0000-0000-0000000000b2', '00000000-0000-0000-0000-0000000000e6', 1, 'Thư viện thân thiện'),
   ('00000000-0000-0000-0000-0000000000b2', '00000000-0000-0000-0000-0000000000e7', 2, 'Sân trường giờ ra chơi');
 
+-- Đủ 4 album để lưới 4 cột của Thư viện ảnh không trống
+insert into public.albums (id, title, slug, description, event_date, cover_media_id, status, created_by) values
+  ('00000000-0000-0000-0000-0000000000b3', 'Tiết dạy tốt chào mừng 20/11', 'tiet-day-tot-chao-mung-20-11',
+   'Những giờ học đổi mới phương pháp của các tổ chuyên môn.', '2026-10-29',
+   '00000000-0000-0000-0000-0000000000e2', 'published', '00000000-0000-0000-0000-0000000000a2'),
+  ('00000000-0000-0000-0000-0000000000b4', 'Góc đọc sách của học sinh', 'goc-doc-sach-cua-hoc-sinh',
+   'Thư viện thân thiện và các hoạt động đọc sách.', '2026-10-13',
+   '00000000-0000-0000-0000-0000000000e6', 'published', '00000000-0000-0000-0000-0000000000a2');
+insert into public.album_items (album_id, media_id, sort_order, caption) values
+  ('00000000-0000-0000-0000-0000000000b3', '00000000-0000-0000-0000-0000000000e2', 0, 'Cô và trò trong tiết dạy tốt'),
+  ('00000000-0000-0000-0000-0000000000b3', '00000000-0000-0000-0000-0000000000e1', 1, 'Giờ học nhóm'),
+  ('00000000-0000-0000-0000-0000000000b4', '00000000-0000-0000-0000-0000000000e6', 0, 'Thư viện thân thiện'),
+  ('00000000-0000-0000-0000-0000000000b4', '00000000-0000-0000-0000-0000000000e5', 1, 'Khuôn viên nhà trường');
+
 insert into public.homepage_slides (title, subtitle, image_path, link_url, sort_order, created_by) values
   ('Chào mừng năm học mới 2026 - 2027', 'Dạy tốt - Học tốt', 'seed/slide-chao-mung-rsw.jpg', '/trang/gioi-thieu', 0,
    '00000000-0000-0000-0000-0000000000a2'),
@@ -211,10 +264,6 @@ insert into public.homepage_slides (title, subtitle, image_path, link_url, sort_
    'seed/slide-stem-rsw.jpg', '/tin-tuc/clb-stem-ra-mat-mo-hinh-tuoi-nuoc-thong-minh', 2, '00000000-0000-0000-0000-0000000000a2'),
   ('Học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh', null, 'seed/slide-bac-ho-rsw.jpg', null, 3,
    '00000000-0000-0000-0000-0000000000a2');
-
-update public.site_settings set value = value || jsonb_build_object(
-  'category_ids', jsonb_build_array('00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000c4')
-) where key = 'homepage';
 
 update public.pages set content = '<h2>Lịch sử hình thành</h2><p>Trường được thành lập năm 1978, từ một trường cấp II nhỏ nay đã trở thành trường THCS &amp; THPT với hơn 1.200 học sinh và 80 cán bộ, giáo viên, nhân viên.</p><h2>Sứ mệnh</h2><p>Xây dựng môi trường học tập thân thiện, an toàn; giúp mỗi học sinh phát triển toàn diện phẩm chất và năng lực.</p><h2>Thành tích</h2><ul><li>Nhiều năm liền đạt danh hiệu Tập thể lao động xuất sắc.</li><li>Đạt chuẩn quốc gia mức độ 1.</li></ul>'
 where slug = 'gioi-thieu';
@@ -321,16 +370,19 @@ from public.menus m where m.code = 'main';
 update public.menu_items set icon = 'users'
 where title = 'Cơ cấu tổ chức';
 
+-- Mẫu "Báo điện tử" (xem src/features/homepage/admin/presets.ts)
 update public.site_settings set value = jsonb_set(value, '{sections}', jsonb_build_array(
-    jsonb_build_object('key', 'topic_banner', 'enabled', true, 'title', '', 'limit', 0),
-    jsonb_build_object('key', 'featured_news', 'enabled', true, 'title', 'Tin nổi bật', 'limit', 5),
-    jsonb_build_object('key', 'latest_news', 'enabled', true, 'title', 'Tin mới nhất', 'limit', 6),
-    jsonb_build_object('key', 'category_news', 'enabled', true, 'title', '', 'limit', 4),
-    jsonb_build_object('key', 'albums', 'enabled', true, 'title', 'Thư viện ảnh', 'limit', 4),
-    jsonb_build_object('key', 'announcements', 'enabled', true, 'title', 'Thông báo', 'limit', 5),
-    jsonb_build_object('key', 'documents', 'enabled', true, 'title', 'Văn bản mới', 'limit', 5),
-    jsonb_build_object('key', 'visit_counter', 'enabled', true, 'title', 'Thống kê truy cập', 'limit', 0)
-  )) || jsonb_build_object('banner', jsonb_build_object(
+    jsonb_build_object('key', 'topic_banner', 'zone', 'top'),
+    jsonb_build_object('key', 'shortcuts', 'zone', 'top'),
+    jsonb_build_object('key', 'featured_news', 'zone', 'main', 'variant', 'magazine', 'limit', 5),
+    jsonb_build_object('key', 'latest_news', 'zone', 'main', 'variant', 'grid', 'columns', 3, 'limit', 6, 'icon', 'newspaper'),
+    jsonb_build_object('key', 'category_news', 'zone', 'main', 'half', true, 'variant', 'spotlight', 'limit', 4, 'category_id', '00000000-0000-0000-0000-0000000000c2'),
+    jsonb_build_object('key', 'category_news', 'zone', 'main', 'half', true, 'variant', 'spotlight', 'limit', 4, 'category_id', '00000000-0000-0000-0000-0000000000c4'),
+    jsonb_build_object('key', 'announcements', 'zone', 'sidebar', 'limit', 5, 'icon', 'bell'),
+    jsonb_build_object('key', 'documents', 'zone', 'sidebar', 'limit', 5, 'icon', 'file-text'),
+    jsonb_build_object('key', 'visit_counter', 'zone', 'sidebar'),
+    jsonb_build_object('key', 'albums', 'zone', 'bottom', 'columns', 4, 'limit', 4, 'icon', 'images')
+  )) || jsonb_build_object('hero', 'split', 'heading_style', 'bar') || jsonb_build_object('banner', jsonb_build_object(
     'image_path', 'seed/slide-bac-ho-rsw.jpg', 'alt', '', 'badge', 'Chuyên đề đặc biệt',
     'title', 'Học tập và làm theo Bác',
     'subtitle', 'Thầy và trò rèn đức, luyện tài, làm theo Bác bằng những việc làm cụ thể mỗi ngày.',

@@ -1,7 +1,6 @@
-import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
-import { CalendarDays, ChevronRight, Eye, FileText, Images, Newspaper, Pin } from 'lucide-react'
+import { ChevronRight, Eye, FileText, Images, Pin } from 'lucide-react'
 import { SidebarBox } from '@/components/content/PublicPage'
 import { Badge } from '@/components/ui/Badge'
 import { ALBUMS_KEY, fetchPublicAlbums } from '@/features/albums/api'
@@ -13,179 +12,136 @@ import {
   PRIORITY_TONES,
 } from '@/features/announcements/api'
 import { DOCUMENTS_KEY, documentTypeLabel } from '@/features/documents/api'
-import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
+import { responsiveImage } from '@/features/media/api'
 import { fetchCategories, NEWS_KEY } from '@/features/news/api'
-import { sectionTitle, type HomepageSection } from '@/features/site/homepage-settings'
+import { categoryTitle, sectionTitle, type HomepageSection } from '@/features/site/homepage-settings'
+import { fetchMenu, hideDisabledModules, isExternalUrl } from '@/features/site/menu'
+import { MenuIcon } from '@/features/site/menu-icons'
+import { useSite } from '@/features/site/site-context'
 import { fetchVisitStats, VISIT_STATS_KEY } from '@/features/site/visits'
+import { cn } from '@/lib/cn'
 import { formatDate, formatNumber } from '@/lib/format'
 import { fetchCategoryNews, fetchLatestDocuments, fetchLatestNews, type HomeNews } from './api'
-import { useFeaturedNews } from './hooks'
+import { blockWidth, GRID_CLASSES } from './layout'
+import { BlockSkeleton, MainBlock, NewsBlock } from './NewsBlock'
+import { SHORTCUTS_MAX_ITEMS } from './shortcuts'
 
-/** Tiêu đề khối ở cột chính: gạch màu nhấn + liên kết "Xem tất cả". */
-function MainBlock({ title, more, children }: { title: string; more?: string; children: ReactNode }) {
+export function FeaturedNews({
+  section,
+  items,
+  isPending,
+}: {
+  section: HomepageSection
+  items: HomeNews[]
+  isPending: boolean
+}) {
   return (
-    <section className="space-y-4">
-      <div className="flex items-end justify-between gap-3 border-b-2 border-primary/15">
-        <h2 className="-mb-0.5 border-b-2 border-accent pb-2 text-lg font-bold uppercase text-primary">
-          {title}
-        </h2>
-        {more && (
-          <Link
-            to={more}
-            className="mb-2 inline-flex items-center gap-0.5 text-sm text-muted hover:text-primary"
-          >
-            Xem tất cả <ChevronRight className="h-4 w-4" aria-hidden />
-          </Link>
-        )}
-      </div>
-      {children}
-    </section>
-  )
-}
-
-function Thumb({ src, className, sizes }: { src: string | null; className: string; sizes: string }) {
-  const url = resolveMediaUrl(src)
-  return url ? (
-    <img
-      src={url}
-      {...responsiveImage(src, sizes)}
-      alt=""
-      loading="lazy"
-      className={`${className} object-cover`}
+    <NewsBlock
+      section={section}
+      title={sectionTitle(section)}
+      more="/tin-tuc"
+      items={items}
+      isPending={isPending}
     />
-  ) : (
-    <span className={`${className} flex items-center justify-center bg-bg text-muted`}>
-      <Newspaper className="h-8 w-8" aria-hidden />
-    </span>
   )
 }
 
-function SmallNews({ news }: { news: HomeNews }) {
-  return (
-    <Link to={`/tin-tuc/${news.slug}`} className="group flex gap-3">
-      <Thumb
-        src={news.thumbnail_url}
-        sizes="112px"
-        className="h-16 w-24 shrink-0 rounded-md sm:h-[72px] sm:w-28"
-      />
-      <span className="min-w-0">
-        <span className="line-clamp-2 text-sm font-semibold leading-snug group-hover:text-primary">
-          {news.title}
-        </span>
-        <span className="mt-1 flex items-center gap-1 text-xs text-muted">
-          <CalendarDays className="h-3 w-3" aria-hidden /> {formatDate(news.published_at)}
-        </span>
-      </span>
-    </Link>
-  )
-}
-
-function BigNews({ news }: { news: HomeNews }) {
-  return (
-    <Link to={`/tin-tuc/${news.slug}`} className="group block">
-      <Thumb
-        src={news.thumbnail_url}
-        sizes="(min-width: 768px) 480px, 100vw"
-        className="aspect-video w-full rounded-xl"
-      />
-      {news.category && (
-        <p className="mt-3 text-xs font-semibold uppercase text-accent">{news.category.name}</p>
-      )}
-      <h3 className="mt-1 text-xl font-bold leading-snug group-hover:text-primary">{news.title}</h3>
-      {news.excerpt && <p className="mt-2 line-clamp-3 text-sm text-muted">{news.excerpt}</p>}
-      <p className="mt-2 flex items-center gap-1 text-xs text-muted">
-        <CalendarDays className="h-3.5 w-3.5" aria-hidden /> {formatDate(news.published_at)}
-      </p>
-    </Link>
-  )
-}
-
-export function FeaturedNews({ section }: { section: HomepageSection }) {
-  const { data = [] } = useFeaturedNews(section.limit, true)
-  if (data.length === 0) return null
-  const [first, ...rest] = data
-  return (
-    <MainBlock title={sectionTitle(section)} more="/tin-tuc">
-      <div className="grid gap-5 rounded-xl bg-surface p-4 shadow-sm md:grid-cols-[3fr_2fr]">
-        <BigNews news={first!} />
-        {rest.length > 0 && (
-          <ul className="space-y-4">
-            {rest.map((n) => (
-              <li key={n.id}>
-                <SmallNews news={n} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </MainBlock>
-  )
-}
-
-/** Tin mới nhất, bỏ các bài đã hiện ở khối "Tin nổi bật" (nếu khối đó đang bật). */
-export function LatestNews({ section, excludeIds }: { section: HomepageSection; excludeIds: string[] }) {
-  const { data = [] } = useQuery({
-    queryKey: [...NEWS_KEY, 'home', 'latest', section.limit + excludeIds.length],
-    queryFn: () => fetchLatestNews(section.limit + excludeIds.length),
+/** Tin mới nhất, bỏ các bài đã hiện ở cột Tiêu điểm và khối "Tin nổi bật" (nếu đang bật). */
+export function LatestNews({
+  section,
+  excludeIds,
+  excludeCount,
+  excludePending,
+}: {
+  section: HomepageSection
+  excludeIds: string[]
+  /** Số bài có thể bị bỏ, biết trước khi tải xong nên khóa truy vấn không đổi */
+  excludeCount: number
+  excludePending: boolean
+}) {
+  const { data = [], isPending } = useQuery({
+    queryKey: [...NEWS_KEY, 'home', 'latest', section.limit + excludeCount],
+    queryFn: () => fetchLatestNews(section.limit + excludeCount),
   })
   const items = data.filter((n) => !excludeIds.includes(n.id)).slice(0, section.limit)
-  if (items.length === 0) return null
   return (
-    <MainBlock title={sectionTitle(section)} more="/tin-tuc">
-      <ul className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
-        {items.map((n) => (
-          <li key={n.id}>
-            <Link
-              to={`/tin-tuc/${n.slug}`}
-              className="group block h-full overflow-hidden rounded-xl border border-border bg-surface transition hover:shadow-md"
-            >
-              <Thumb
-                src={n.thumbnail_url}
-                sizes="(min-width: 1280px) 300px, 50vw"
-                className="aspect-video w-full"
-              />
-              <div className="space-y-1 p-2.5 sm:space-y-1.5 sm:p-3">
-                {n.category && (
-                  <p className="text-xs font-semibold uppercase text-accent">{n.category.name}</p>
-                )}
-                <h3 className="line-clamp-3 text-sm font-semibold leading-snug group-hover:text-primary sm:text-base">
-                  {n.title}
-                </h3>
-                <p className="text-xs text-muted">{formatDate(n.published_at)}</p>
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </MainBlock>
+    <NewsBlock
+      section={section}
+      title={sectionTitle(section)}
+      more="/tin-tuc"
+      items={items}
+      isPending={isPending || excludePending}
+    />
   )
 }
 
-function CategoryBlock({
-  categoryId,
-  name,
-  slug,
-  limit,
-}: {
-  categoryId: string
-  name: string
-  slug: string
-  limit: number
-}) {
-  const { data = [] } = useQuery({
-    queryKey: [...NEWS_KEY, 'home', 'category', categoryId, limit],
-    queryFn: () => fetchCategoryNews(categoryId, limit),
+/** Khối một chuyên mục. Chuyên mục đã xóa hoặc đang ẩn thì không hiện. */
+export function CategoryNews({ section }: { section: HomepageSection }) {
+  const categories = useQuery({
+    queryKey: [...NEWS_KEY, 'categories'],
+    queryFn: fetchCategories,
   })
-  if (data.length === 0) return null
-  const [first, ...rest] = data
+  const category = categories.data?.find((c) => c.id === section.category_id && c.is_active)
+  const news = useQuery({
+    queryKey: [...NEWS_KEY, 'home', 'category', section.category_id, section.limit],
+    queryFn: () => fetchCategoryNews(section.category_id!, section.limit),
+    enabled: Boolean(category),
+  })
+  if (categories.data && !category) return null
   return (
-    <MainBlock title={name} more={`/tin-tuc/chuyen-muc/${slug}`}>
-      <div className="grid gap-5 md:grid-cols-2">
-        <BigNews news={first!} />
-        <ul className="space-y-4">
-          {rest.map((n) => (
-            <li key={n.id}>
-              <SmallNews news={n} />
+    <NewsBlock
+      section={section}
+      title={category ? categoryTitle(section, category.name) : ''}
+      more={category ? `/tin-tuc/chuyen-muc/${category.slug}` : '/tin-tuc'}
+      items={news.data ?? []}
+      isPending={categories.isPending || news.isPending}
+    />
+  )
+}
+
+export function AlbumsBlock({ section }: { section: HomepageSection }) {
+  const { data, isPending } = useQuery({
+    queryKey: [...ALBUMS_KEY, 'public', 1],
+    queryFn: () => fetchPublicAlbums(1),
+  })
+  const items = (data?.items ?? []).slice(0, section.limit)
+  if (isPending) return <BlockSkeleton className="h-48" />
+  if (items.length === 0) return null
+  // Chưa chọn số cột: giữ lưới gốc, trừ khi khối chỉ rộng nửa trang
+  const columns = section.columns ?? (section.half ? 2 : null)
+  const sizes = columns
+    ? `(min-width: 1024px) ${Math.round(blockWidth(section.zone, section.half) / columns)}px, 50vw`
+    : '(min-width: 1024px) 240px, 50vw'
+  return (
+    <MainBlock title={sectionTitle(section)} more="/thu-vien-anh" icon={section.icon}>
+      <div className="@container">
+        <ul className={cn('grid gap-3', columns ? GRID_CLASSES[columns] : 'grid-cols-2 lg:grid-cols-4')}>
+          {items.map((album) => (
+            <li key={album.id}>
+              <Link
+                to={`/thu-vien-anh/${album.slug}`}
+                className="group relative block overflow-hidden rounded-xl"
+              >
+                <div className="aspect-[4/3] bg-bg">
+                  {album.coverUrl ? (
+                    <img
+                      src={album.coverUrl}
+                      {...responsiveImage(album.coverUrl, sizes)}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-full object-cover transition group-hover:scale-105"
+                    />
+                  ) : (
+                    <span className="flex h-full items-center justify-center text-muted">
+                      <Images className="h-8 w-8" aria-hidden />
+                    </span>
+                  )}
+                </div>
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 text-white">
+                  <p className="line-clamp-2 text-sm font-semibold leading-snug">{album.title}</p>
+                  <p className="text-xs text-white/80">{album.imageCount} ảnh</p>
+                </div>
+              </Link>
             </li>
           ))}
         </ul>
@@ -194,67 +150,73 @@ function CategoryBlock({
   )
 }
 
-export function CategoryNews({ section, categoryIds }: { section: HomepageSection; categoryIds: string[] }) {
-  const { data: categories = [] } = useQuery({
-    queryKey: [...NEWS_KEY, 'categories'],
-    queryFn: fetchCategories,
+/** Tên lớp phải viết đủ để Tailwind quét được. */
+const SHORTCUT_COLUMNS: Record<number, string> = {
+  1: '@2xl:grid-cols-1',
+  2: '@2xl:grid-cols-2',
+  3: '@2xl:grid-cols-3',
+  4: '@2xl:grid-cols-4',
+  5: '@2xl:grid-cols-3 @5xl:grid-cols-5',
+  6: '@2xl:grid-cols-3 @5xl:grid-cols-6',
+}
+
+/** Lưới ô icon + tên, dữ liệu từ menu "shortcuts". Mục trỏ tới module đang tắt tự ẩn. */
+export function ShortcutsBlock({ section }: { section: HomepageSection }) {
+  const { isModuleEnabled } = useSite()
+  const { data, isPending } = useQuery({
+    queryKey: ['menu', 'shortcuts'],
+    queryFn: () => fetchMenu('shortcuts'),
   })
-  const chosen = categoryIds
-    .map((id) => categories.find((c) => c.id === id && c.is_active))
-    .filter((c) => c !== undefined)
-  return (
-    <>
-      {chosen.map((c) => (
-        <CategoryBlock
-          key={c.id}
-          categoryId={c.id}
-          name={section.title ? `${section.title}: ${c.name}` : c.name}
-          slug={c.slug}
-          limit={section.limit}
-        />
-      ))}
-    </>
+  const items = hideDisabledModules(data ?? [], isModuleEnabled).slice(0, SHORTCUTS_MAX_ITEMS)
+  if (isPending) return <BlockSkeleton className="h-44 @2xl:h-20" />
+  if (items.length === 0) return null
+  const tile =
+    'group flex h-full items-center gap-3 rounded-xl border border-border bg-surface p-3 transition hover:border-primary hover:shadow-md sm:p-4'
+  const grid = (
+    <div className="@container">
+      <ul className={cn('grid grid-cols-2 gap-3 sm:gap-4', SHORTCUT_COLUMNS[items.length])}>
+        {items.map((item) => {
+          const body = (
+            <>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-white">
+                <MenuIcon name={item.icon} className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 text-sm font-semibold leading-snug">{item.title}</span>
+            </>
+          )
+          return (
+            <li key={item.id}>
+              {isExternalUrl(item.url) ? (
+                <a
+                  href={item.url}
+                  target={item.open_in_new_tab ? '_blank' : undefined}
+                  rel={item.open_in_new_tab ? 'noopener noreferrer' : undefined}
+                  className={tile}
+                >
+                  {body}
+                </a>
+              ) : (
+                <Link to={item.url} className={tile}>
+                  {body}
+                </Link>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+  return section.title ? (
+    <MainBlock title={section.title} icon={section.icon}>
+      {grid}
+    </MainBlock>
+  ) : (
+    <nav aria-label="Lối tắt">{grid}</nav>
   )
 }
 
-export function AlbumsBlock({ section }: { section: HomepageSection }) {
-  const { data } = useQuery({ queryKey: [...ALBUMS_KEY, 'public', 1], queryFn: () => fetchPublicAlbums(1) })
-  const items = (data?.items ?? []).slice(0, section.limit)
-  if (items.length === 0) return null
-  return (
-    <MainBlock title={sectionTitle(section)} more="/thu-vien-anh">
-      <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {items.map((album) => (
-          <li key={album.id}>
-            <Link
-              to={`/thu-vien-anh/${album.slug}`}
-              className="group relative block overflow-hidden rounded-xl"
-            >
-              <div className="aspect-[4/3] bg-bg">
-                {album.coverUrl ? (
-                  <img
-                    src={album.coverUrl}
-                    {...responsiveImage(album.coverUrl, '(min-width: 1024px) 240px, 50vw')}
-                    alt=""
-                    loading="lazy"
-                    className="h-full w-full object-cover transition group-hover:scale-105"
-                  />
-                ) : (
-                  <span className="flex h-full items-center justify-center text-muted">
-                    <Images className="h-8 w-8" aria-hidden />
-                  </span>
-                )}
-              </div>
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-8 text-white">
-                <p className="line-clamp-2 text-sm font-semibold leading-snug">{album.title}</p>
-                <p className="text-xs text-white/80">{album.imageCount} ảnh</p>
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </MainBlock>
-  )
+function boxIcon(section: HomepageSection) {
+  return section.icon && <MenuIcon name={section.icon} className="h-4 w-4 shrink-0" />
 }
 
 function SideMore({ to }: { to: string }) {
@@ -275,7 +237,7 @@ export function AnnouncementsBox({ section }: { section: HomepageSection }) {
   })
   const items = data?.items ?? []
   return (
-    <SidebarBox title={sectionTitle(section)}>
+    <SidebarBox title={sectionTitle(section)} icon={boxIcon(section)}>
       {items.length === 0 ? (
         <p className="text-sm text-muted">Chưa có thông báo.</p>
       ) : (
@@ -310,7 +272,7 @@ export function DocumentsBox({ section }: { section: HomepageSection }) {
     queryFn: () => fetchLatestDocuments(section.limit),
   })
   return (
-    <SidebarBox title={sectionTitle(section)}>
+    <SidebarBox title={sectionTitle(section)} icon={boxIcon(section)}>
       {data.length === 0 ? (
         <p className="text-sm text-muted">Chưa có văn bản.</p>
       ) : (
@@ -346,7 +308,7 @@ export function VisitCounterBox({ section }: { section: HomepageSection }) {
     ['Tháng này', data?.month],
   ]
   return (
-    <SidebarBox title={sectionTitle(section)}>
+    <SidebarBox title={sectionTitle(section)} icon={boxIcon(section)}>
       <dl className="space-y-2 text-sm">
         {rows.map(([label, value]) => (
           <div key={label} className="flex justify-between border-b border-dashed border-border pb-2">

@@ -12,6 +12,7 @@ import { useAuth } from '@/features/auth/auth-context'
 import { formatDateTime } from '@/lib/format'
 import { cn } from '@/lib/cn'
 import { ADMIN_PAGE_SIZE, fetchAdminNews, NEWS_KEY } from '../api'
+import { NewsListStylePanel } from './NewsListStylePanel'
 import {
   isNewsStatus,
   NEWS_STATUS_LABELS,
@@ -60,6 +61,7 @@ export function NewsListPage() {
 
   return (
     <div>
+      <NewsListStylePanel />
       <AdminPageHeader
         title="Tin tức"
         description={

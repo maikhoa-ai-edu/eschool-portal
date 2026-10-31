@@ -13,6 +13,7 @@ import { Field } from '@/components/ui/Field'
 import { CheckboxField, SelectField } from '@/components/ui/FormControls'
 import { buildMenuTree, type TreeNode as Tree } from '@/features/site/menu'
 import { DEFAULT_MENU_ICON, MENU_ICONS, MenuIcon } from '@/features/site/menu-icons'
+import { SHORTCUTS_MAX_ITEMS } from '@/features/homepage/shortcuts'
 import { MOBILE_BAR_MAX_ITEMS } from '@/layouts/public/MobileBottomBar'
 import { useSite } from '@/features/site/site-context'
 import { cn } from '@/lib/cn'
@@ -100,7 +101,7 @@ function ItemForm({
   })
   const { item } = editing
   const hasChildren = item ? items.some((i) => i.parent_id === item.id) : false
-  const isMobileBar = location === 'mobile_bar'
+  const isFlat = location === 'mobile_bar' || location === 'shortcuts'
   // Chỉ hai cấp: mục cha phải là mục gốc; mục đang có con thì không đưa vào làm con
   const parentOptions = hasChildren
     ? []
@@ -193,7 +194,7 @@ function ItemForm({
           render={({ field }) => <IconPicker value={field.value} onChange={field.onChange} />}
         />
       )}
-      {!isMobileBar && (
+      {!isFlat && (
         <SelectField
           label="Thuộc mục"
           options={parentOptions}
@@ -400,6 +401,12 @@ function MenuEditor({ menuId, location }: { menuId: string; location: string }) 
             xóa hết mục thì thanh không hiện.
           </p>
         )}
+        {location === 'shortcuts' && (
+          <p className="text-sm text-muted">
+            Các ô icon + tên trên trang chủ. Chỉ hiện {SHORTCUTS_MAX_ITEMS} mục đầu tiên đang bật. Bật khối
+            Lối tắt ở Trang chủ → Bố cục.
+          </p>
+        )}
         {tree.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border bg-surface p-6 text-center text-sm text-muted">
             Menu chưa có mục nào.
@@ -414,7 +421,7 @@ function MenuEditor({ menuId, location }: { menuId: string; location: string }) 
                 siblings={tree}
                 depth={0}
                 busy={busy}
-                canNest={location !== 'mobile_bar'}
+                canNest={location !== 'mobile_bar' && location !== 'shortcuts'}
                 onEdit={(n) => setEditing({ item: byId.get(n.id)!, parentId: n.parent_id })}
                 onAddChild={(n) => setEditing({ item: null, parentId: n.id })}
                 onMove={move}
@@ -468,7 +475,7 @@ export function MenuPage() {
     <div>
       <AdminPageHeader
         title="Menu"
-        description="Menu chính ở đầu trang, thanh đáy trên điện thoại và liên kết nhanh ở chân trang."
+        description="Menu chính ở đầu trang, thanh đáy trên điện thoại, lối tắt trang chủ và liên kết nhanh ở chân trang."
       />
       <QueryState isPending={isPending} error={error} />
       {menus && (

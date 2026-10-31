@@ -1,6 +1,6 @@
 -- Chuyên đề, icon menu, thanh menu đáy
 begin;
-select plan(16);
+select plan(18);
 
 -- ===================== QUYỀN CHUYÊN ĐỀ =====================
 select tests.as_postgres();
@@ -30,6 +30,8 @@ select ok(exists (select 1 from public.audit_logs where table_name = 'topics' an
 select tests.as_anon();
 select ok(exists (select 1 from public.menu_items i join public.menus m on m.id = i.menu_id where m.code = 'mobile'),
   'Khách đọc được thanh menu đáy');
+select is((select count(*)::int from public.menu_items i join public.menus m on m.id = i.menu_id where m.code = 'shortcuts'), 4,
+  'Khách đọc được menu Lối tắt mặc định');
 
 select tests.as_user('admin@demo.local');
 select throws_ok($$update public.menu_items set icon = 'Sai Icon' where url = '/'$$, '23514', null, 'Icon phải là khóa hợp lệ');
@@ -45,11 +47,12 @@ select lives_ok($$select public.restore_backup(
   jsonb_set(
     jsonb_set(current_setting('tests.backup')::jsonb, '{data,topics}', '[]'),
     '{data,menus}',
-    (select jsonb_agg(m) from jsonb_array_elements(current_setting('tests.backup')::jsonb -> 'data' -> 'menus') m where m ->> 'code' <> 'mobile')
+    (select jsonb_agg(m) from jsonb_array_elements(current_setting('tests.backup')::jsonb -> 'data' -> 'menus') m where m ->> 'code' not in ('mobile', 'shortcuts'))
   ) #- '{data,menu_items}'
 )$$, 'Khôi phục được bản sao lưu cũ');
 select tests.as_anon();
 select ok(exists (select 1 from public.menus where code = 'mobile'), 'Bản sao lưu cũ vẫn có menu đáy mặc định');
+select ok(exists (select 1 from public.menus where code = 'shortcuts'), 'Bản sao lưu cũ vẫn có menu Lối tắt mặc định');
 
 select * from finish();
 rollback;

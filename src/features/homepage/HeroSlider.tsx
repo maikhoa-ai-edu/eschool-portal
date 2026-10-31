@@ -6,6 +6,10 @@ import { isExternalUrl } from '@/features/site/menu'
 import { cn } from '@/lib/cn'
 import { slideImageUrl, type Slide } from './api'
 
+/** Tỉ lệ khung slide; dùng chung với khung giữ chỗ khi đang tải để không dịch bố cục. */
+export const FULL_SLIDE_ASPECT = 'aspect-[16/10] sm:aspect-[16/7] lg:aspect-[21/8]'
+export const SPLIT_SLIDE_ASPECT = 'aspect-[16/10] sm:aspect-[16/7] lg:aspect-[16/9]'
+
 function prefersReducedMotion(): boolean {
   return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 }
@@ -29,7 +33,16 @@ function SlideLink({ slide }: { slide: Slide }) {
  * Trình chiếu ảnh đầu trang chủ. Tự chuyển sau `interval` giây; dừng khi rê chuột/đặt focus vào,
  * khi người dùng bấm tạm dừng hoặc bật chế độ giảm chuyển động của hệ điều hành.
  */
-export function HeroSlider({ slides, interval }: { slides: Slide[]; interval: number }) {
+export function HeroSlider({
+  slides,
+  interval,
+  split = false,
+}: {
+  slides: Slide[]
+  interval: number
+  /** Slide chiếm 2/3 chiều rộng, nằm cạnh cột Tiêu điểm */
+  split?: boolean
+}) {
   const [index, setIndex] = useState(0)
   const [hovering, setHovering] = useState(false)
   const [paused, setPaused] = useState(prefersReducedMotion)
@@ -50,13 +63,13 @@ export function HeroSlider({ slides, interval }: { slides: Slide[]; interval: nu
     <section
       aria-roledescription="carousel"
       aria-label="Ảnh nổi bật"
-      className="relative mb-6 overflow-hidden rounded-2xl bg-primary shadow-sm"
+      className={cn('relative overflow-hidden rounded-2xl bg-primary shadow-sm', !split && 'mb-6')}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onFocus={() => setHovering(true)}
       onBlur={() => setHovering(false)}
     >
-      <div className="relative aspect-[16/10] sm:aspect-[16/7] lg:aspect-[21/8]">
+      <div className={cn('relative', split ? SPLIT_SLIDE_ASPECT : FULL_SLIDE_ASPECT)}>
         {slides.map((slide, i) => (
           <div
             key={slide.id}
@@ -72,7 +85,12 @@ export function HeroSlider({ slides, interval }: { slides: Slide[]; interval: nu
           >
             <img
               src={slideImageUrl(slide)}
-              {...responsiveImage(slide.image_path, '(min-width: 1280px) 1248px, calc(100vw - 32px)')}
+              {...responsiveImage(
+                slide.image_path,
+                split
+                  ? '(min-width: 1280px) 824px, (min-width: 1024px) 66vw, calc(100vw - 32px)'
+                  : '(min-width: 1280px) 1248px, calc(100vw - 32px)',
+              )}
               fetchPriority={i === 0 ? 'high' : undefined}
               alt=""
               loading={i === 0 ? 'eager' : 'lazy'}

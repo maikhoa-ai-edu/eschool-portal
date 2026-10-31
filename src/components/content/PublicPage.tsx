@@ -86,10 +86,19 @@ export function WithSidebar({ children, sidebar }: { children: ReactNode; sideba
   )
 }
 
-export function SidebarBox({ title, children }: { title: string; children: ReactNode }) {
+export function SidebarBox({
+  title,
+  icon,
+  children,
+}: {
+  title: string
+  icon?: ReactNode
+  children: ReactNode
+}) {
   return (
     <section className="overflow-hidden rounded-xl border border-border bg-surface">
-      <h2 className="border-b-2 border-accent bg-primary px-4 py-2.5 text-sm font-bold uppercase text-white">
+      <h2 className="flex items-center gap-2 border-b-2 border-accent bg-primary px-4 py-2.5 text-sm font-bold uppercase text-white">
+        {icon}
         {title}
       </h2>
       <div className="p-4">{children}</div>

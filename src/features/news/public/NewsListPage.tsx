@@ -14,6 +14,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Pagination } from '@/components/ui/Pagination'
 import { readPage } from '@/components/ui/page-utils'
 import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
+import { useSite } from '@/features/site/site-context'
 import { formatDate } from '@/lib/format'
 import { cn } from '@/lib/cn'
 import { usePageTitle } from '@/lib/use-page-title'
@@ -68,6 +69,53 @@ export function NewsCard({ news, priority = false }: { news: PublicNewsCard; pri
         <p className="mt-auto flex items-center gap-1.5 text-xs text-muted">
           <CalendarDays className="h-3.5 w-3.5" aria-hidden /> {formatDate(news.published_at)}
         </p>
+      </div>
+    </article>
+  )
+}
+
+/** Thẻ dọc của kiểu lưới: điện thoại 2 cột nên chữ gọn hơn. */
+export function NewsGridCard({ news, priority = false }: { news: PublicNewsCard; priority?: boolean }) {
+  return (
+    <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface transition hover:shadow-md">
+      <Link
+        to={`/tin-tuc/${news.slug}`}
+        className="block aspect-video overflow-hidden bg-bg"
+        tabIndex={-1}
+        aria-hidden
+      >
+        {news.thumbnail_url ? (
+          <img
+            src={resolveMediaUrl(news.thumbnail_url)!}
+            {...responsiveImage(
+              news.thumbnail_url,
+              '(min-width: 1280px) 300px, (min-width: 1024px) 33vw, 50vw',
+            )}
+            alt=""
+            loading={priority ? 'eager' : 'lazy'}
+            className="h-full w-full object-cover transition group-hover:scale-105"
+          />
+        ) : (
+          <span className="flex h-full items-center justify-center text-muted">
+            <Newspaper className="h-8 w-8" />
+          </span>
+        )}
+      </Link>
+      <div className="flex flex-1 flex-col gap-1 p-2.5 sm:gap-1.5 sm:p-3">
+        {news.category && (
+          <Link
+            to={`/tin-tuc/chuyen-muc/${news.category.slug}`}
+            className="text-xs font-semibold uppercase text-accent hover:underline"
+          >
+            {news.category.name}
+          </Link>
+        )}
+        <h2 className="line-clamp-3 text-sm font-semibold leading-snug sm:text-base">
+          <Link to={`/tin-tuc/${news.slug}`} className="hover:text-primary">
+            {news.title}
+          </Link>
+        </h2>
+        <p className="mt-auto text-xs text-muted">{formatDate(news.published_at)}</p>
       </div>
     </article>
   )
@@ -137,6 +185,7 @@ function SearchBox({ initial }: { initial: string }) {
 
 /** /tin-tuc, /tin-tuc/chuyen-muc/:slug, /tin-tuc/the/:slug và tìm kiếm ?q= */
 export function NewsListPage({ mode = 'all' }: { mode?: 'all' | 'category' | 'tag' }) {
+  const { homepage } = useSite()
   const { slug } = useParams()
   const [params] = useSearchParams()
   const page = readPage(params)
@@ -195,9 +244,15 @@ export function NewsListPage({ mode = 'all' }: { mode?: 'all' | 'category' | 'ta
       {list.data && list.data.items.length > 0 && (
         <div className="space-y-4">
           {q && <p className="text-sm text-muted">Tìm thấy {list.data.total} bài viết.</p>}
-          {list.data.items.map((n, i) => (
-            <NewsCard key={n.id} news={n} priority={i === 0} />
-          ))}
+          {homepage.news_list === 'grid' ? (
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
+              {list.data.items.map((n, i) => (
+                <NewsGridCard key={n.id} news={n} priority={i === 0} />
+              ))}
+            </div>
+          ) : (
+            list.data.items.map((n, i) => <NewsCard key={n.id} news={n} priority={i === 0} />)
+          )}
           {!q && <Pagination page={page} totalPages={Math.ceil(list.data.total / NEWS_PAGE_SIZE)} />}
         </div>
       )}
