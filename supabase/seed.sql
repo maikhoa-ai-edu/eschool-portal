@@ -57,7 +57,7 @@ update public.site_settings set value = value || jsonb_build_object(
 -- Ảnh lấy từ supabase/seed-storage (npm run db:reset tự tải lên Storage cục bộ); lưu đường dẫn trong bucket media
 update public.site_settings set value = value || jsonb_build_object(
   'logo_url', 'seed/logo.jpg',
-  'banner_url', 'seed/slide-hoc-tap.jpg'
+  'banner_url', 'seed/slide-hoc-tap-rsw.jpg'
 ) where key = 'branding';
 
 update public.site_settings set value = jsonb_build_object(
@@ -107,38 +107,38 @@ insert into public.pages (title, slug, content, status, created_by) values
 -- File thật nằm ở supabase/seed-storage/<bucket>/seed/... (scripts/seed-storage.ts tải lên)
 -- ---------------------------------------------------------------------------
 
-update public.news set thumbnail_url = 'seed/album/khuon-vien.jpg' where slug = 'khai-giang-nam-hoc-2026-2027';
-update public.news set thumbnail_url = 'seed/album/hoc-tap-2.jpg' where slug = 'hoi-thi-hoc-sinh-gioi-cap-truong';
+update public.news set thumbnail_url = 'seed/album/khuon-vien-rsw.jpg' where slug = 'khai-giang-nam-hoc-2026-2027';
+update public.news set thumbnail_url = 'seed/album/hoc-tap-2-rsw.jpg' where slug = 'hoi-thi-hoc-sinh-gioi-cap-truong';
 
 insert into public.news (title, slug, excerpt, content, thumbnail_url, category_id, author_id, status, is_featured, published_at, published_by) values
   ('Câu lạc bộ STEM ra mắt mô hình tưới nước thông minh', 'clb-stem-ra-mat-mo-hinh-tuoi-nuoc-thong-minh',
    'Nhóm học sinh lớp 9 và lớp 11 tự thiết kế hệ thống tưới cây tự động dùng cảm biến độ ẩm đất.',
    '<p>Sau hai tháng nghiên cứu, nhóm học sinh Câu lạc bộ STEM đã hoàn thiện mô hình <strong>hệ thống tưới nước thông minh</strong> cho vườn trường.</p><h2>Cách hoạt động</h2><ul><li>Cảm biến đo độ ẩm đất mỗi 10 phút.</li><li>Khi đất khô, bộ điều khiển tự bật máy bơm.</li><li>Số liệu hiển thị trên máy tính bảng để cả lớp theo dõi.</li></ul><blockquote>Chúng em muốn vườn rau của trường luôn xanh tốt cả khi nghỉ hè.</blockquote><p>Mô hình sẽ được giới thiệu tại ngày hội khoa học kỹ thuật cấp huyện.</p>',
-   'seed/slide-stem.jpg', '00000000-0000-0000-0000-0000000000c4', '00000000-0000-0000-0000-0000000000a3', 'published', true, now() - interval '3 days', '00000000-0000-0000-0000-0000000000a2'),
+   'seed/slide-stem-rsw.jpg', '00000000-0000-0000-0000-0000000000c4', '00000000-0000-0000-0000-0000000000a3', 'published', true, now() - interval '3 days', '00000000-0000-0000-0000-0000000000a2'),
   ('Hội giảng chào mừng ngày Nhà giáo Việt Nam 20/11', 'hoi-giang-chao-mung-ngay-nha-giao-viet-nam',
    'Hơn 30 tiết dạy được đăng ký tham gia hội giảng, tập trung đổi mới phương pháp và ứng dụng công nghệ.',
    '<p>Hưởng ứng phong trào thi đua chào mừng ngày Nhà giáo Việt Nam, các tổ chuyên môn đã đăng ký hơn 30 tiết dạy tốt.</p><p>Nhiều tiết học sử dụng máy tính bảng, bảng tương tác và phiếu học tập điện tử, giúp học sinh chủ động hơn.</p>',
-   'seed/album/hoc-tap-1.jpg', '00000000-0000-0000-0000-0000000000c4', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '2 days', '00000000-0000-0000-0000-0000000000a2'),
+   'seed/album/hoc-tap-1-rsw.jpg', '00000000-0000-0000-0000-0000000000c4', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '2 days', '00000000-0000-0000-0000-0000000000a2'),
   ('Đoàn trường sinh hoạt chủ điểm "Học tập và làm theo lời Bác"', 'doan-truong-sinh-hoat-chu-diem-hoc-tap-va-lam-theo-loi-bac',
    'Buổi sinh hoạt dưới cờ đặc biệt với phần kể chuyện về Bác Hồ của các chi đoàn.',
    '<p>Sáng thứ Hai, Đoàn trường tổ chức buổi sinh hoạt chủ điểm với chủ đề <em>Học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh</em>.</p><p>Các chi đoàn kể những câu chuyện về Bác và liên hệ với việc rèn luyện hằng ngày của đoàn viên.</p>',
-   'seed/slide-bac-ho.jpg', '00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000a2', 'published', true, now() - interval '10 days', '00000000-0000-0000-0000-0000000000a2'),
+   'seed/slide-bac-ho-rsw.jpg', '00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000a2', 'published', true, now() - interval '10 days', '00000000-0000-0000-0000-0000000000a2'),
   ('Học sinh hào hứng với tiết học tại thư viện mới', 'hoc-sinh-hao-hung-voi-tiet-hoc-tai-thu-vien-moi',
    'Thư viện được sắp xếp lại theo mô hình thư viện thân thiện, có góc đọc và khu tự học.',
    '<p>Thư viện nhà trường vừa được cải tạo với hơn 3.000 đầu sách, góc đọc thân thiện và khu tự học nhóm.</p><p>Mỗi lớp có một tiết đọc sách tại thư viện mỗi tháng.</p>',
-   'seed/album/thu-vien.jpg', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '5 days', '00000000-0000-0000-0000-0000000000a2'),
+   'seed/album/thu-vien-rsw.jpg', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '5 days', '00000000-0000-0000-0000-0000000000a2'),
   ('Liên đội ra quân "Trường học xanh - sạch - đẹp"', 'lien-doi-ra-quan-truong-hoc-xanh-sach-dep',
    'Toàn thể đội viên tham gia dọn vệ sinh, trồng cây và chăm sóc bồn hoa trong sân trường.',
    '<p>Hơn 600 đội viên đã tham gia buổi ra quân, trồng mới 50 cây xanh và chăm sóc các bồn hoa quanh sân trường.</p>',
-   'seed/album/san-truong.jpg', '00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000a3', 'published', false, now() - interval '14 days', '00000000-0000-0000-0000-0000000000a2'),
+   'seed/album/san-truong-rsw.jpg', '00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000a3', 'published', false, now() - interval '14 days', '00000000-0000-0000-0000-0000000000a2'),
   ('Họp cha mẹ học sinh đầu năm học 2026 - 2027', 'hop-cha-me-hoc-sinh-dau-nam-hoc-2026-2027',
    'Nhà trường thông tin kế hoạch năm học và thống nhất các khoản thu theo quy định.',
    '<p>Các lớp đã tổ chức họp cha mẹ học sinh, thông tin kế hoạch năm học và bầu Ban đại diện cha mẹ học sinh.</p>',
-   'seed/slide-hoc-tap.jpg', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '25 days', '00000000-0000-0000-0000-0000000000a2'),
+   'seed/slide-hoc-tap-rsw.jpg', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '25 days', '00000000-0000-0000-0000-0000000000a2'),
   ('Thông tin tuyển sinh lớp 6 năm học 2027 - 2028', 'thong-tin-tuyen-sinh-lop-6-nam-hoc-2027-2028',
    'Phụ huynh xem trước thời gian nhận hồ sơ và hồ sơ cần chuẩn bị.',
    '<p>Thời gian nhận hồ sơ dự kiến từ tháng 6/2027. Hồ sơ gồm: đơn đăng ký, bản sao giấy khai sinh, học bạ tiểu học.</p>',
-   'seed/slide-chao-mung.jpg', '00000000-0000-0000-0000-0000000000c3', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '20 days', '00000000-0000-0000-0000-0000000000a2');
+   'seed/slide-chao-mung-rsw.jpg', '00000000-0000-0000-0000-0000000000c3', '00000000-0000-0000-0000-0000000000a2', 'published', false, now() - interval '20 days', '00000000-0000-0000-0000-0000000000a2');
 
 insert into public.news_tags (name, slug) values
   ('STEM', 'stem'), ('Đoàn - Đội', 'doan-doi'), ('Nhà giáo Việt Nam', 'nha-giao-viet-nam');
@@ -177,13 +177,13 @@ insert into public.documents (title, document_number, document_type, issuing_aut
    '00000000-0000-0000-0000-0000000000a2');
 
 insert into public.media (id, title, file_path, file_size, mime_type, width, height, created_by) values
-  ('00000000-0000-0000-0000-0000000000e1', 'Giờ học nhóm', 'seed/album/hoc-tap-1.jpg', 108221, 'image/jpeg', 960, 720, '00000000-0000-0000-0000-0000000000a2'),
-  ('00000000-0000-0000-0000-0000000000e2', 'Cô và trò', 'seed/album/hoc-tap-2.jpg', 114181, 'image/jpeg', 960, 720, '00000000-0000-0000-0000-0000000000a2'),
-  ('00000000-0000-0000-0000-0000000000e3', 'Câu lạc bộ STEM', 'seed/album/stem-1.jpg', 114574, 'image/jpeg', 960, 720, '00000000-0000-0000-0000-0000000000a2'),
-  ('00000000-0000-0000-0000-0000000000e4', 'Mô hình tưới nước', 'seed/album/stem-2.jpg', 120709, 'image/jpeg', 960, 720, '00000000-0000-0000-0000-0000000000a2'),
-  ('00000000-0000-0000-0000-0000000000e5', 'Khuôn viên', 'seed/album/khuon-vien.jpg', 162767, 'image/jpeg', 1280, 714, '00000000-0000-0000-0000-0000000000a2'),
-  ('00000000-0000-0000-0000-0000000000e6', 'Thư viện', 'seed/album/thu-vien.jpg', 145922, 'image/jpeg', 1280, 714, '00000000-0000-0000-0000-0000000000a2'),
-  ('00000000-0000-0000-0000-0000000000e7', 'Sân trường', 'seed/album/san-truong.jpg', 197074, 'image/jpeg', 1280, 714, '00000000-0000-0000-0000-0000000000a2');
+  ('00000000-0000-0000-0000-0000000000e1', 'Giờ học nhóm', 'seed/album/hoc-tap-1-rsw.jpg', 108221, 'image/jpeg', 960, 720, '00000000-0000-0000-0000-0000000000a2'),
+  ('00000000-0000-0000-0000-0000000000e2', 'Cô và trò', 'seed/album/hoc-tap-2-rsw.jpg', 114181, 'image/jpeg', 960, 720, '00000000-0000-0000-0000-0000000000a2'),
+  ('00000000-0000-0000-0000-0000000000e3', 'Câu lạc bộ STEM', 'seed/album/stem-1-rsw.jpg', 114574, 'image/jpeg', 960, 720, '00000000-0000-0000-0000-0000000000a2'),
+  ('00000000-0000-0000-0000-0000000000e4', 'Mô hình tưới nước', 'seed/album/stem-2-rsw.jpg', 120709, 'image/jpeg', 960, 720, '00000000-0000-0000-0000-0000000000a2'),
+  ('00000000-0000-0000-0000-0000000000e5', 'Khuôn viên', 'seed/album/khuon-vien-rsw.jpg', 162767, 'image/jpeg', 1280, 714, '00000000-0000-0000-0000-0000000000a2'),
+  ('00000000-0000-0000-0000-0000000000e6', 'Thư viện', 'seed/album/thu-vien-rsw.jpg', 145922, 'image/jpeg', 1280, 714, '00000000-0000-0000-0000-0000000000a2'),
+  ('00000000-0000-0000-0000-0000000000e7', 'Sân trường', 'seed/album/san-truong-rsw.jpg', 197074, 'image/jpeg', 1280, 714, '00000000-0000-0000-0000-0000000000a2');
 
 insert into public.albums (id, title, slug, description, event_date, cover_media_id, status, created_by) values
   ('00000000-0000-0000-0000-0000000000b1', 'Học tập và trải nghiệm sáng tạo', 'hoc-tap-va-trai-nghiem-sang-tao',
@@ -203,13 +203,13 @@ insert into public.album_items (album_id, media_id, sort_order, caption) values
   ('00000000-0000-0000-0000-0000000000b2', '00000000-0000-0000-0000-0000000000e7', 2, 'Sân trường giờ ra chơi');
 
 insert into public.homepage_slides (title, subtitle, image_path, link_url, sort_order, created_by) values
-  ('Chào mừng năm học mới 2026 - 2027', 'Dạy tốt - Học tốt', 'seed/slide-chao-mung.jpg', '/trang/gioi-thieu', 0,
+  ('Chào mừng năm học mới 2026 - 2027', 'Dạy tốt - Học tốt', 'seed/slide-chao-mung-rsw.jpg', '/trang/gioi-thieu', 0,
    '00000000-0000-0000-0000-0000000000a2'),
   ('Lớp học thân thiện, học sinh tích cực', 'Đổi mới phương pháp dạy học theo Chương trình GDPT 2018',
-   'seed/slide-hoc-tap.jpg', '/tin-tuc/chuyen-muc/chuyen-mon', 1, '00000000-0000-0000-0000-0000000000a2'),
+   'seed/slide-hoc-tap-rsw.jpg', '/tin-tuc/chuyen-muc/chuyen-mon', 1, '00000000-0000-0000-0000-0000000000a2'),
   ('Câu lạc bộ STEM: khám phá và sáng tạo', 'Mô hình tưới nước thông minh của học sinh',
-   'seed/slide-stem.jpg', '/tin-tuc/clb-stem-ra-mat-mo-hinh-tuoi-nuoc-thong-minh', 2, '00000000-0000-0000-0000-0000000000a2'),
-  ('Học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh', null, 'seed/slide-bac-ho.jpg', null, 3,
+   'seed/slide-stem-rsw.jpg', '/tin-tuc/clb-stem-ra-mat-mo-hinh-tuoi-nuoc-thong-minh', 2, '00000000-0000-0000-0000-0000000000a2'),
+  ('Học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh', null, 'seed/slide-bac-ho-rsw.jpg', null, 3,
    '00000000-0000-0000-0000-0000000000a2');
 
 update public.site_settings set value = value || jsonb_build_object(
@@ -253,15 +253,15 @@ insert into public.news (title, slug, excerpt, content, thumbnail_url, category_
   ('Chi bộ triển khai kế hoạch học tập và làm theo Bác năm học 2026 - 2027', 'chi-bo-trien-khai-ke-hoach-hoc-tap-va-lam-theo-bac',
    'Kế hoạch gắn việc tu dưỡng, rèn luyện của mỗi cán bộ, giáo viên với nhiệm vụ chuyên môn cụ thể.',
    '<p>Chi bộ nhà trường đã quán triệt kế hoạch năm học, gắn việc học tập và làm theo Bác với nhiệm vụ chuyên môn của từng tổ.</p><ul><li>Mỗi giáo viên đăng ký một việc làm cụ thể ngay từ đầu năm.</li><li>Kết quả được rà soát trong sinh hoạt tổ chuyên môn hằng tháng.</li></ul>',
-   'seed/album/hoc-tap-2.jpg', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a2', 'published', now() - interval '12 days', '00000000-0000-0000-0000-0000000000a2'),
+   'seed/album/hoc-tap-2-rsw.jpg', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a2', 'published', now() - interval '12 days', '00000000-0000-0000-0000-0000000000a2'),
   ('Hội thi kể chuyện về Bác cấp trường', 'hoi-thi-ke-chuyen-ve-bac-cap-truong',
    'Các chi đoàn, chi đội tham gia với nhiều phần thi kể chuyện và liên hệ bản thân.',
    '<p>Hội thi là dịp để học sinh tìm hiểu về cuộc đời của Bác và rút ra bài học cho việc rèn luyện hằng ngày.</p><p>Nhiều phần thi được sân khấu hóa, thu hút đông đảo học sinh cổ vũ.</p>',
-   'seed/album/stem-1.jpg', '00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000a2', 'published', now() - interval '16 days', '00000000-0000-0000-0000-0000000000a2'),
+   'seed/album/stem-1-rsw.jpg', '00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000a2', 'published', now() - interval '16 days', '00000000-0000-0000-0000-0000000000a2'),
   ('Ra mắt góc đọc "Tủ sách về Bác" tại thư viện', 'ra-mat-goc-doc-tu-sach-ve-bac-tai-thu-vien',
    'Không gian đọc và tìm hiểu tư liệu về cuộc đời, sự nghiệp của Chủ tịch Hồ Chí Minh dành cho thầy và trò.',
    '<p>Góc đọc được bố trí ngay trong thư viện, gồm sách tiểu sử, hồi ký và các tác phẩm viết về Bác.</p><p>Học sinh có thể mượn sách về nhà hoặc đọc tại chỗ trong giờ ra chơi.</p>',
-   'seed/album/thu-vien.jpg', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a2', 'published', now() - interval '18 days', '00000000-0000-0000-0000-0000000000a2');
+   'seed/album/thu-vien-rsw.jpg', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a2', 'published', now() - interval '18 days', '00000000-0000-0000-0000-0000000000a2');
 
 insert into public.news_tag_map (news_id, tag_id)
 select n.id, t.id from public.news n cross join public.news_tags t
@@ -287,7 +287,7 @@ insert into public.documents (id, title, document_number, document_type, issuing
 insert into public.topics (title, slug, badge, summary, hero_image, hero_color, quote_text, quote_author, status, meta_description, created_by, sections) values
   ('Học tập và làm theo Bác', 'hoc-tap-va-lam-theo-bac', 'Chuyên đề năm học 2026 - 2027',
    'Thầy và trò Trường THCS & THPT Vĩnh Phong thi đua dạy tốt, học tốt, rèn đức luyện tài; học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh bằng những việc làm cụ thể mỗi ngày.',
-   'seed/slide-bac-ho.jpg', '#A80000',
+   'seed/slide-bac-ho-rsw.jpg', '#A80000',
    'Non sông Việt Nam có trở nên tươi đẹp hay không, dân tộc Việt Nam có bước tới đài vinh quang để sánh vai với các cường quốc năm châu được hay không, chính là nhờ một phần lớn ở công học tập của các em.',
    'Chủ tịch Hồ Chí Minh, Thư gửi các học sinh (1945)', 'published',
    'Chuyên đề học tập và làm theo tư tưởng, đạo đức, phong cách Hồ Chí Minh của Trường THCS & THPT Vĩnh Phong.',
@@ -299,9 +299,9 @@ insert into public.topics (title, slug, badge, summary, hero_image, hero_color, 
        'tag_slug', 'hoc-tap-va-lam-theo-bac', 'limit', 6),
      jsonb_build_object('id', 'viec-lam', 'type', 'cards', 'area', 'main', 'enabled', true, 'title', 'Việc làm theo Bác',
        'items', jsonb_build_array(
-         jsonb_build_object('image_path', 'seed/album/hoc-tap-1.jpg', 'title', 'Giờ học nhóm hiệu quả', 'text', 'Học sinh giúp nhau cùng tiến bộ trong từng tiết học.', 'url', null),
-         jsonb_build_object('image_path', 'seed/album/san-truong.jpg', 'title', 'Trường học xanh - sạch - đẹp', 'text', 'Mỗi lớp chăm sóc một bồn hoa trong sân trường.', 'url', '/tin-tuc/lien-doi-ra-quan-truong-hoc-xanh-sach-dep'),
-         jsonb_build_object('image_path', 'seed/album/stem-2.jpg', 'title', 'Sáng tạo vì cộng đồng', 'text', 'Câu lạc bộ STEM làm mô hình tưới nước cho vườn trường.', 'url', '/tin-tuc/clb-stem-ra-mat-mo-hinh-tuoi-nuoc-thong-minh')
+         jsonb_build_object('image_path', 'seed/album/hoc-tap-1-rsw.jpg', 'title', 'Giờ học nhóm hiệu quả', 'text', 'Học sinh giúp nhau cùng tiến bộ trong từng tiết học.', 'url', null),
+         jsonb_build_object('image_path', 'seed/album/san-truong-rsw.jpg', 'title', 'Trường học xanh - sạch - đẹp', 'text', 'Mỗi lớp chăm sóc một bồn hoa trong sân trường.', 'url', '/tin-tuc/lien-doi-ra-quan-truong-hoc-xanh-sach-dep'),
+         jsonb_build_object('image_path', 'seed/album/stem-2-rsw.jpg', 'title', 'Sáng tạo vì cộng đồng', 'text', 'Câu lạc bộ STEM làm mô hình tưới nước cho vườn trường.', 'url', '/tin-tuc/clb-stem-ra-mat-mo-hinh-tuoi-nuoc-thong-minh')
        )),
      jsonb_build_object('id', 'hinh-anh', 'type', 'album', 'area', 'main', 'enabled', true, 'title', 'Hình ảnh hoạt động',
        'album_slug', 'hoc-tap-va-trai-nghiem-sang-tao', 'limit', 4),
@@ -331,7 +331,7 @@ update public.site_settings set value = jsonb_set(value, '{sections}', jsonb_bui
     jsonb_build_object('key', 'documents', 'enabled', true, 'title', 'Văn bản mới', 'limit', 5),
     jsonb_build_object('key', 'visit_counter', 'enabled', true, 'title', 'Thống kê truy cập', 'limit', 0)
   )) || jsonb_build_object('banner', jsonb_build_object(
-    'image_path', 'seed/slide-bac-ho.jpg', 'alt', '', 'badge', 'Chuyên đề đặc biệt',
+    'image_path', 'seed/slide-bac-ho-rsw.jpg', 'alt', '', 'badge', 'Chuyên đề đặc biệt',
     'title', 'Học tập và làm theo Bác',
     'subtitle', 'Thầy và trò rèn đức, luyện tài, làm theo Bác bằng những việc làm cụ thể mỗi ngày.',
     'link_url', '/chuyen-de/hoc-tap-va-lam-theo-bac', 'cta_label', 'Khám phá chuyên đề', 'color', '#A80000', 'placement', 'top'

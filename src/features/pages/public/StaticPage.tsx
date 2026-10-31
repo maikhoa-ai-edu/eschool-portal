@@ -9,7 +9,7 @@ import {
   SidebarBox,
 } from '@/components/content/PublicPage'
 import { RichContent } from '@/components/content/RichContent'
-import { resolveMediaUrl } from '@/features/media/api'
+import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
 import { useSite } from '@/features/site/site-context'
 import { cn } from '@/lib/cn'
 import { usePageTitle } from '@/lib/use-page-title'
@@ -77,6 +77,7 @@ export function StaticPage() {
       {page.featured_image_url && (
         <img
           src={resolveMediaUrl(page.featured_image_url)!}
+          {...responsiveImage(page.featured_image_url, '(min-width: 1024px) 900px, 100vw')}
           alt=""
           className="mb-5 max-h-96 w-full rounded-lg object-cover"
         />

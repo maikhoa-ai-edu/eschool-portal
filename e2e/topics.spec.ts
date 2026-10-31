@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { sql } from './db.ts'
-import { login, otherMachine, screenshotPath } from './helpers.ts'
+import { login, makePng, otherMachine, screenshotPath } from './helpers.ts'
 
 const TOPIC_PATH = '/chuyen-de/hoc-tap-va-lam-theo-bac'
 
@@ -142,6 +142,17 @@ test.describe('Chuyên đề', () => {
       await expect(page.getByRole('heading', { name: 'Thêm chuyên đề' })).toBeVisible()
       await page.getByLabel('Tiêu đề', { exact: true }).fill('E2E An toàn giao thông')
       await page.getByLabel('Màu nền đầu trang').fill('#0F766E')
+      await page.getByLabel('Ảnh nền đầu trang').setInputFiles({
+        name: 'nen.png',
+        mimeType: 'image/png',
+        buffer: makePng(1200, 600, [15, 118, 110]),
+      })
+      await expect(
+        page
+          .getByRole('img', { name: /Ảnh nền đầu trang|Xem trước/ })
+          .or(page.locator('img[src*="topics/"]'))
+          .first(),
+      ).toBeVisible()
       await page.getByLabel('Loại khối mới').selectOption('quote')
       await page.getByRole('button', { name: 'Thêm khối' }).click()
       await page.getByLabel('Lời trích', { exact: true }).fill('E2E Đi đường an toàn')
@@ -166,6 +177,15 @@ test.describe('Chuyên đề', () => {
       await guest.reload()
       await expect(guest.getByRole('heading', { name: 'E2E An toàn giao thông' })).toBeVisible()
       await expect(guest.getByText('E2E Đi đường an toàn')).toBeVisible()
+      // Ảnh tải lên có đủ bản nhỏ trên Storage, trang công khai dùng srcset và các địa chỉ đều mở được
+      const rows = await sql<{ hero_image: string }>(
+        `select hero_image from public.topics where title = 'E2E An toàn giao thông'`,
+      )
+      expect(rows[0]!.hero_image).toMatch(/^topics\/.+-rsw\.png$/)
+      const srcset = await guest.locator('section img[srcset*="topics/"]').first().getAttribute('srcset')
+      const urls = srcset!.split(',').map((part) => part.trim().split(' ')[0]!)
+      expect(urls).toHaveLength(3)
+      for (const url of urls) expect((await guest.request.get(url)).status()).toBe(200)
       // Có từ hai chuyên đề thì /chuyen-de là danh sách
       await guest.goto('/chuyen-de')
       await expect(guest.getByRole('heading', { name: 'Chuyên đề', level: 1 })).toBeVisible()

@@ -1,4 +1,17 @@
+import { existsSync, readFileSync } from 'node:fs'
 import { defineConfig, devices } from '@playwright/test'
+
+/** Biến VITE_* của .env.local cho máy chủ bản build (đọc giống cách Vite đọc khi build). */
+function localEnv(): Record<string, string> {
+  if (!existsSync('.env.local')) return {}
+  return Object.fromEntries(
+    readFileSync('.env.local', 'utf8')
+      .split(/\r?\n/)
+      .map((line) => /^\s*(VITE_[A-Z_]+)\s*=\s*(.*?)\s*$/.exec(line))
+      .filter((m): m is RegExpExecArray => m !== null)
+      .map((m) => [m[1]!, m[2]!.replace(/^['"]|['"]$/g, '')]),
+  )
+}
 
 /**
  * Kiểm thử đầu-cuối chạy trên Supabase cục bộ đã seed (npm run db:reset).
@@ -6,6 +19,7 @@ import { defineConfig, devices } from '@playwright/test'
  *
  * - Cổng 3000: website đã cấu hình qua .env.local (các trang công khai, quản trị).
  * - Cổng 3001: cùng mã nguồn nhưng cố ý không có cấu hình, để chạy trình cài đặt từ bước 1.
+ * - Cổng 3002: bản build thật qua public/server.mjs (OG, sitemap, PWA).
  * Kiểm thử cài đặt tạm đưa CSDL về trạng thái "chưa cài" nên mọi test chạy tuần tự (workers: 1).
  */
 export default defineConfig({
@@ -21,8 +35,9 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] }, testIgnore: /(install|backup)\.spec/ },
-    { name: 'mobile', use: { ...devices['Pixel 7'] }, testIgnore: /(install|backup)\.spec/ },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'] }, testIgnore: /(install|backup|pwa)\.spec/ },
+    { name: 'mobile', use: { ...devices['Pixel 7'] }, testIgnore: /(install|backup|pwa)\.spec/ },
+    { name: 'pwa', use: { ...devices['Desktop Chrome'] }, testMatch: /pwa\.spec/ },
     { name: 'install', use: { ...devices['Desktop Chrome'] }, testMatch: /install\.spec/ },
     // Xóa rồi khôi phục dữ liệu, nên chạy riêng sau cùng
     { name: 'backup', use: { ...devices['Desktop Chrome'] }, testMatch: /backup\.spec/ },
@@ -41,6 +56,13 @@ export default defineConfig({
       timeout: 60_000,
       // Biến tiến trình được ưu tiên hơn .env.local; giá trị không hợp lệ = chưa cấu hình
       env: { VITE_SUPABASE_URL: 'none', VITE_SUPABASE_ANON_KEY: 'none' },
+    },
+    {
+      command: 'npm run build && node dist/server.mjs',
+      url: 'http://localhost:3002/robots.txt',
+      reuseExistingServer: true,
+      timeout: 120_000,
+      env: { ...localEnv(), PORT: '3002' },
     },
   ],
 })

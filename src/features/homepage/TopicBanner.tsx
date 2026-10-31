@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import { ChevronRight, Sparkles } from 'lucide-react'
-import { resolveMediaUrl } from '@/features/media/api'
+import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
 import type { HomepageBanner } from '@/features/site/homepage-settings'
 import { isExternalUrl, moduleOfUrl } from '@/features/site/menu'
 import { useSite } from '@/features/site/site-context'
@@ -25,6 +25,7 @@ export function TopicBanner({ banner }: { banner: HomepageBanner }) {
       {image && (
         <img
           src={image}
+          {...responsiveImage(banner.image_path, '(min-width: 1280px) 1248px, 100vw')}
           alt=""
           loading="lazy"
           className="absolute inset-0 h-full w-full object-cover opacity-15"
@@ -48,7 +49,13 @@ export function TopicBanner({ banner }: { banner: HomepageBanner }) {
       </div>
     </div>
   ) : (
-    <img src={image!} alt={banner.alt} loading="lazy" className="w-full rounded-xl" />
+    <img
+      src={image!}
+      {...responsiveImage(banner.image_path, '(min-width: 1280px) 1248px, 100vw')}
+      alt={banner.alt}
+      loading="lazy"
+      className="w-full rounded-xl"
+    />
   )
 
   if (!url) return <section>{body}</section>

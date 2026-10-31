@@ -12,7 +12,7 @@ import {
 import { RichContent } from '@/components/content/RichContent'
 import { fetchPublicAlbum } from '@/features/albums/api'
 import { documentTypeLabel } from '@/features/documents/api'
-import { resolveMediaUrl } from '@/features/media/api'
+import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
 import { isExternalUrl } from '@/features/site/menu'
 import { useSite } from '@/features/site/site-context'
 import { formatDate } from '@/lib/format'
@@ -123,7 +123,13 @@ function CardsBlock({ section }: { section: SectionOf<'cards'> }) {
           const body = (
             <>
               {image && (
-                <img src={image} alt="" loading="lazy" className="aspect-video w-full object-cover" />
+                <img
+                  src={image}
+                  {...responsiveImage(image, '(min-width: 640px) 400px, 100vw')}
+                  alt=""
+                  loading="lazy"
+                  className="aspect-video w-full object-cover"
+                />
               )}
               <div className="space-y-1.5 p-4">
                 <h3 className="font-semibold leading-snug group-hover:text-primary">{card.title}</h3>
@@ -169,7 +175,13 @@ function NewsBlock({ section }: { section: SectionOf<'news'> }) {
                 className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface transition hover:shadow-md"
               >
                 {image ? (
-                  <img src={image} alt="" loading="lazy" className="aspect-video w-full object-cover" />
+                  <img
+                    src={image}
+                    {...responsiveImage(image, '(min-width: 640px) 400px, 100vw')}
+                    alt=""
+                    loading="lazy"
+                    className="aspect-video w-full object-cover"
+                  />
                 ) : (
                   <span className="flex aspect-video items-center justify-center bg-bg text-muted">
                     <Newspaper className="h-8 w-8" aria-hidden />
@@ -248,6 +260,7 @@ function AlbumBlock({ section }: { section: SectionOf<'album'> }) {
             <Link to={`/thu-vien-anh/${data.slug}`} className="block overflow-hidden rounded-lg">
               <img
                 src={image.url}
+                {...responsiveImage(image.url, '(min-width: 1024px) 240px, 50vw')}
                 alt={image.caption ?? ''}
                 loading="lazy"
                 className="aspect-[4/3] w-full object-cover transition hover:scale-105"
@@ -342,6 +355,7 @@ function TopicHero({ topic }: { topic: NonNullable<Awaited<ReturnType<typeof fet
       {image && (
         <img
           src={image}
+          {...responsiveImage(image, '(min-width: 1280px) 1248px, 100vw')}
           alt=""
           fetchPriority="high"
           className="absolute inset-0 h-full w-full object-cover opacity-10"
@@ -452,7 +466,13 @@ export function TopicIndexPage() {
                   className="group block h-full overflow-hidden rounded-xl border border-border bg-surface transition hover:shadow-md"
                 >
                   {image && (
-                    <img src={image} alt="" loading="lazy" className="aspect-video w-full object-cover" />
+                    <img
+                      src={image}
+                      {...responsiveImage(image, '(min-width: 640px) 400px, 100vw')}
+                      alt=""
+                      loading="lazy"
+                      className="aspect-video w-full object-cover"
+                    />
                   )}
                   <div className="space-y-1.5 p-4">
                     <h2 className="font-semibold leading-snug group-hover:text-primary">{t.title}</h2>

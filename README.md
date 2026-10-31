@@ -2,7 +2,7 @@
 
 Cổng thông tin điện tử dành cho trường phổ thông Việt Nam: tin tức, thông báo, văn bản, thư viện ảnh, trang giới thiệu và trang quản trị. Mỗi trường tự cài một bản riêng, dùng cơ sở dữ liệu riêng, tự chọn tên trường, logo, màu sắc và các module cần dùng.
 
-> Trạng thái: **đang phát triển (xong Giai đoạn 7: sao lưu & cập nhật)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
+> Trạng thái: **đang phát triển (đang làm Giai đoạn 8: SEO & hiệu năng)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Quy trình đăng tin
 
@@ -72,6 +72,15 @@ Cách lưu cấu hình kết nối theo từng loại hosting:
 | cPanel (có PHP)        | Trình cài đặt tự ghi qua `install.php`; ghi xong file này tự khóa và tự xóa    |
 | Vercel                 | Đặt biến môi trường `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` rồi Redeploy |
 | VibeHost, hosting khác | Tải `config.json` từ trình cài đặt rồi tải lên cùng thư mục với `index.html`   |
+
+Xem trước bài viết khi chia sẻ lên Facebook, Zalo (thẻ OG) và sitemap cần máy chủ có chạy mã:
+
+| Hosting                  | Thẻ OG từng bài, `/sitemap.xml`                                                     |
+| ------------------------ | ----------------------------------------------------------------------------------- |
+| cPanel (có PHP)          | Tự hoạt động qua `seo.php` và `.htaccess`                                           |
+| Vercel                   | Tự hoạt động qua `api/seo.mjs`                                                      |
+| Hosting có Node.js       | Lệnh khởi động `node server.mjs` trong thư mục website (cổng đọc từ biến `PORT`)    |
+| Hosting chỉ có file tĩnh | Website vẫn chạy đầy đủ nhưng link chia sẻ chỉ có tiêu đề chung và không có sitemap |
 
 Muốn cài lại trên cPanel: xóa `config.json` và `.eschool-install.lock` bằng File Manager.
 

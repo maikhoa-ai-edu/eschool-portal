@@ -10,8 +10,18 @@
   --brand-accent: #d97706;
 }
 
+/* Font dự phòng chỉnh gần bằng Be Vietnam Pro để chữ không nhảy dòng khi font thật tải xong */
+@font-face {
+  font-family: 'Be Vietnam Pro Fallback';
+  src: local('Arial'), local('Roboto'), local('Helvetica');
+  size-adjust: 104%;
+  ascent-override: 96%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+}
+
 @theme inline {
-  --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Be Vietnam Pro', 'Be Vietnam Pro Fallback', ui-sans-serif, system-ui, sans-serif;
   --color-primary: var(--brand-primary);
   --color-primary-light: var(--brand-primary-light);
   --color-accent: var(--brand-accent);

@@ -13,7 +13,7 @@ import {
   PRIORITY_TONES,
 } from '@/features/announcements/api'
 import { DOCUMENTS_KEY, documentTypeLabel } from '@/features/documents/api'
-import { resolveMediaUrl } from '@/features/media/api'
+import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
 import { fetchCategories, NEWS_KEY } from '@/features/news/api'
 import { sectionTitle, type HomepageSection } from '@/features/site/homepage-settings'
 import { fetchVisitStats, VISIT_STATS_KEY } from '@/features/site/visits'
@@ -43,10 +43,16 @@ function MainBlock({ title, more, children }: { title: string; more?: string; ch
   )
 }
 
-function Thumb({ src, className }: { src: string | null; className: string }) {
+function Thumb({ src, className, sizes }: { src: string | null; className: string; sizes: string }) {
   const url = resolveMediaUrl(src)
   return url ? (
-    <img src={url} alt="" loading="lazy" className={`${className} object-cover`} />
+    <img
+      src={url}
+      {...responsiveImage(src, sizes)}
+      alt=""
+      loading="lazy"
+      className={`${className} object-cover`}
+    />
   ) : (
     <span className={`${className} flex items-center justify-center bg-bg text-muted`}>
       <Newspaper className="h-8 w-8" aria-hidden />
@@ -57,7 +63,11 @@ function Thumb({ src, className }: { src: string | null; className: string }) {
 function SmallNews({ news }: { news: HomeNews }) {
   return (
     <Link to={`/tin-tuc/${news.slug}`} className="group flex gap-3">
-      <Thumb src={news.thumbnail_url} className="h-16 w-24 shrink-0 rounded-md sm:h-[72px] sm:w-28" />
+      <Thumb
+        src={news.thumbnail_url}
+        sizes="112px"
+        className="h-16 w-24 shrink-0 rounded-md sm:h-[72px] sm:w-28"
+      />
       <span className="min-w-0">
         <span className="line-clamp-2 text-sm font-semibold leading-snug group-hover:text-primary">
           {news.title}
@@ -73,7 +83,11 @@ function SmallNews({ news }: { news: HomeNews }) {
 function BigNews({ news }: { news: HomeNews }) {
   return (
     <Link to={`/tin-tuc/${news.slug}`} className="group block">
-      <Thumb src={news.thumbnail_url} className="aspect-video w-full rounded-xl" />
+      <Thumb
+        src={news.thumbnail_url}
+        sizes="(min-width: 768px) 480px, 100vw"
+        className="aspect-video w-full rounded-xl"
+      />
       {news.category && (
         <p className="mt-3 text-xs font-semibold uppercase text-accent">{news.category.name}</p>
       )}
@@ -125,7 +139,11 @@ export function LatestNews({ section, excludeIds }: { section: HomepageSection; 
               to={`/tin-tuc/${n.slug}`}
               className="group block h-full overflow-hidden rounded-xl border border-border bg-surface transition hover:shadow-md"
             >
-              <Thumb src={n.thumbnail_url} className="aspect-video w-full" />
+              <Thumb
+                src={n.thumbnail_url}
+                sizes="(min-width: 1280px) 300px, 50vw"
+                className="aspect-video w-full"
+              />
               <div className="space-y-1 p-2.5 sm:space-y-1.5 sm:p-3">
                 {n.category && (
                   <p className="text-xs font-semibold uppercase text-accent">{n.category.name}</p>
@@ -216,6 +234,7 @@ export function AlbumsBlock({ section }: { section: HomepageSection }) {
                 {album.coverUrl ? (
                   <img
                     src={album.coverUrl}
+                    {...responsiveImage(album.coverUrl, '(min-width: 1024px) 240px, 50vw')}
                     alt=""
                     loading="lazy"
                     className="h-full w-full object-cover transition group-hover:scale-105"

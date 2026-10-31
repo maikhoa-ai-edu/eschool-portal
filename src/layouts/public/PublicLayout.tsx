@@ -40,7 +40,8 @@ export function PublicLayout() {
       <SiteHeader />
       <MainNav />
       <MarqueeBar />
-      <main id="noi-dung" className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
+      {/* Cao ít nhất một màn hình: chân trang không lọt vào khung nhìn rồi bị đẩy xuống khi nội dung tải xong */}
+      <main id="noi-dung" className="mx-auto min-h-screen w-full max-w-7xl flex-1 px-4 py-6">
         <Outlet />
       </main>
       <SiteFooter />

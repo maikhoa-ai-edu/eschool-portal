@@ -48,6 +48,24 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  build: {
+    rolldownOptions: {
+      output: {
+        // Gộp thư viện mọi trang đều cần và icon: tránh hàng chục file nhỏ phải chờ nhau trên hosting chỉ có HTTP/1.1.
+        // Liệt kê tường minh để thư viện của trang quản trị (TipTap, biểu mẫu...) không lọt vào gói chung.
+        codeSplitting: {
+          groups: [
+            {
+              name: 'vendor',
+              test: /node_modules[\\/](react|react-dom|react-router|scheduler|cookie|set-cookie-parser|@tanstack|@supabase|zod|clsx|tailwind-merge)[\\/]/,
+            },
+            { name: 'icons', test: /node_modules[\\/]lucide-react/ },
+            { name: 'shared', test: /src[\\/](lib|components[\\/]ui|features[\\/](site|media|auth))[\\/]/ },
+          ],
+        },
+      },
+    },
+  },
   // Cổng 3000 khớp với auth.site_url trong supabase/config.toml
   server: { port: 3000, strictPort: true },
   preview: { port: 3000 },

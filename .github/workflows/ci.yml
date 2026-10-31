@@ -20,6 +20,8 @@ jobs:
       - run: npm test
       - name: Kiểm thử install.php (PHP có sẵn trên Ubuntu runner)
         run: php -v && npm run test:php
+      - name: Kiểm thử OG, sitemap trên Node và PHP
+        run: npm run test:seo
       - run: npm run build
 
   database:

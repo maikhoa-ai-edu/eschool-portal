@@ -73,7 +73,11 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
         `src/features/site/menu-icons.ts`), thanh menu đáy trên điện thoại (menu `mobile`, tối đa 5 mục, có safe-area),
         module Chuyên đề (bảng `topics`, các khối nội dung lưu jsonb; tin lấy theo thẻ, tài liệu từ Văn bản, ảnh từ Thư viện
         ảnh), banner trang chủ (khối `topic_banner`, nội dung ở `site_settings.homepage.banner`, tắt sẵn khi nâng cấp)
-  - [ ] OG từng bài, sitemap, tối ưu ảnh, PWA, Lighthouse
+  - [x] OG từng bài, sitemap, robots: `public/seo-core.mjs` dùng chung cho Vercel (`api/seo.mjs`) và Node (`public/server.mjs`),
+        `public/seo.php` cho cPanel. Hosting thuần tĩnh không có thẻ riêng từng bài và không có sitemap
+  - [x] Tối ưu ảnh: bản nhỏ 480/960/1600 tạo lúc tải lên; font tự lưu; gộp mã dùng chung; giữ chỗ để không dịch bố cục
+  - [x] PWA: `public/sw.js`, manifest dựng lúc chạy theo tên trường, `offline.html`
+  - [ ] Lighthouse ≥ 90: đạt trên máy tính, CHƯA đạt trên điện thoại (số đo ở mục Ghi chú kỹ thuật)
 
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
 
@@ -137,6 +141,13 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
 - **Khối chuyên đề**: `parseTopicSections` bỏ qua khối sai hoặc loại chưa biết thay vì làm hỏng cả trang. Thêm loại khối mới:
   sửa `src/features/topics/sections.ts`, `SectionsEditor`, `TopicPages`. Khối video chỉ tải YouTube khi người xem bấm phát.
 - **Khối trang chủ mới** bật sẵn khi vắng trong cấu hình cũ, trừ khối có `defaultOff` trong `SECTION_INFO`.
+- **SEO**: sửa `seo-core.mjs` thì sửa cả `seo.php`; `npm run test:seo` chạy cùng một bộ kiểm tra cho cả hai. Trên Vercel, `/` là file
+  tĩnh nên trang chủ không có thẻ theo tên trường (các trang chi tiết thì có). Supabase trả tối đa 1000 dòng mỗi bảng cho sitemap.
+- **Ảnh**: gói miễn phí của Supabase không đổi kích thước ảnh nên `uploadImage` tải kèm bản nhỏ; đuôi tên `-rsw`/`-rsj` báo có bản nhỏ,
+  ảnh cũ không có đuôi này vẫn chạy bằng ảnh gốc. Ảnh chèn trong thân bài viết chưa dùng bản nhỏ.
+- **Lighthouse** (2026-10-31, Lighthouse 12, bản build chạy bằng `server.mjs`, Supabase cục bộ, dữ liệu mẫu). Hiệu năng trên máy tính
+  94-99, trên điện thoại giả lập 4G chậm 73-80 (LCP 4,4-6,4 giây); Trợ năng 93-96, Thực hành tốt 100, SEO 100. Chưa đạt 90 trên điện thoại vì
+  ứng dụng render phía trình duyệt, gần 200 KB gzip JS phải tải xong mới có nội dung; muốn đạt cần prerender hoặc tách bớt Supabase/Zod.
 - **Nâng cấp**: mỗi lần tăng `schema_version` là một bước; `buildUpgrades` sinh `/upgrades/<phiên-bản>.sql` và `index.json`
   từ migrations, mỗi file kiểm tra phiên bản trước khi chạy và nằm trong giao dịch.
 - Tài khoản demo khi chạy trên máy (mật khẩu `demo1234`): `superadmin@demo.local`, `admin@demo.local`,

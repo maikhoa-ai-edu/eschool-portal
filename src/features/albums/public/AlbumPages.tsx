@@ -7,6 +7,7 @@ import { DraftPreviewNotice, PublicPageHeader, PublicQueryState } from '@/compon
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Pagination } from '@/components/ui/Pagination'
 import { readPage } from '@/components/ui/page-utils'
+import { responsiveImage } from '@/features/media/api'
 import { formatDate } from '@/lib/format'
 import { usePageTitle } from '@/lib/use-page-title'
 import { ALBUM_PAGE_SIZE, ALBUMS_KEY, fetchPublicAlbum, fetchPublicAlbums, type AlbumImage } from '../api'
@@ -38,6 +39,7 @@ export function AlbumListPage() {
                     {album.coverUrl ? (
                       <img
                         src={album.coverUrl}
+                        {...responsiveImage(album.coverUrl, '(min-width: 1024px) 400px, 50vw')}
                         alt=""
                         loading="lazy"
                         className="h-full w-full object-cover transition group-hover:scale-105"
@@ -196,6 +198,7 @@ export function AlbumDetailPage() {
               >
                 <img
                   src={image.url}
+                  {...responsiveImage(image.url, '(min-width: 1024px) 300px, 50vw')}
                   alt={image.caption ?? ''}
                   loading="lazy"
                   className="h-full w-full object-cover transition group-hover:scale-105"

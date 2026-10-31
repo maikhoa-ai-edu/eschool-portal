@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { LogIn, LayoutDashboard } from 'lucide-react'
 import { SchoolLogo } from '@/components/SchoolLogo'
 import { useAuth } from '@/features/auth/auth-context'
-import { resolveMediaUrl } from '@/features/media/api'
+import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
 import { useSite } from '@/features/site/site-context'
 
 const dateFormat = new Intl.DateTimeFormat('vi-VN', {
@@ -59,10 +59,15 @@ function BrandBanner() {
   const { identity, branding } = useSite()
   const banner = resolveMediaUrl(branding.banner_url)
   return (
-    <div
-      className="relative bg-primary-light bg-cover bg-center text-white"
-      style={banner ? { backgroundImage: `url("${encodeURI(banner)}")` } : undefined}
-    >
+    <div className="relative overflow-hidden bg-primary-light text-white">
+      {banner && (
+        <img
+          src={banner}
+          {...responsiveImage(branding.banner_url, '(min-width: 1024px) 100vw, 50vw')}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
       <div
         className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-primary/40"
         aria-hidden

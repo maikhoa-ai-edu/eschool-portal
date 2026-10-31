@@ -11,7 +11,7 @@ import {
   WithSidebar,
 } from '@/components/content/PublicPage'
 import { RichContent } from '@/components/content/RichContent'
-import { resolveMediaUrl } from '@/features/media/api'
+import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
 import { formatDate, formatNumber } from '@/lib/format'
 import { usePageTitle } from '@/lib/use-page-title'
 import { fetchPublicNewsBySlug, fetchRelatedNews, NEWS_KEY, recordNewsView } from '../api'
@@ -32,6 +32,7 @@ function RelatedNews({ categoryId, excludeId }: { categoryId: string; excludeId:
               {n.thumbnail_url && (
                 <img
                   src={resolveMediaUrl(n.thumbnail_url)!}
+                  {...responsiveImage(n.thumbnail_url, '96px')}
                   alt=""
                   loading="lazy"
                   className="h-14 w-20 shrink-0 rounded object-cover"

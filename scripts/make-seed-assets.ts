@@ -27,43 +27,43 @@ interface ImageJob {
 
 const IMAGES: ImageJob[] = [
   { source: 'logo.jpg', out: 'seed/logo.jpg', width: 400, height: 400 },
-  { source: 'school_header_pattern.jpg', out: 'seed/slide-chao-mung.jpg', width: 1376, height: 768 },
-  { source: 'education_slide_study.jpg', out: 'seed/slide-hoc-tap.jpg', width: 1376, height: 768 },
-  { source: 'education_slide_growth.jpg', out: 'seed/slide-stem.jpg', width: 1376, height: 768 },
-  { source: 'banner_ho_chi_minh.jpg', out: 'seed/slide-bac-ho.jpg', width: 1376, height: 768 },
+  { source: 'school_header_pattern.jpg', out: 'seed/slide-chao-mung-rsw.jpg', width: 1376, height: 768 },
+  { source: 'education_slide_study.jpg', out: 'seed/slide-hoc-tap-rsw.jpg', width: 1376, height: 768 },
+  { source: 'education_slide_growth.jpg', out: 'seed/slide-stem-rsw.jpg', width: 1376, height: 768 },
+  { source: 'banner_ho_chi_minh.jpg', out: 'seed/slide-bac-ho-rsw.jpg', width: 1376, height: 768 },
   // Album "Học tập & trải nghiệm": cắt nhiều khung hình từ ảnh lớp học và CLB STEM
   {
     source: 'education_slide_study.jpg',
-    out: 'seed/album/hoc-tap-1.jpg',
+    out: 'seed/album/hoc-tap-1-rsw.jpg',
     width: 960,
     height: 720,
     crop: [0, 0.2, 0.5, 0.8],
   },
   {
     source: 'education_slide_study.jpg',
-    out: 'seed/album/hoc-tap-2.jpg',
+    out: 'seed/album/hoc-tap-2-rsw.jpg',
     width: 960,
     height: 720,
     crop: [0.5, 0.2, 0.5, 0.8],
   },
   {
     source: 'education_slide_growth.jpg',
-    out: 'seed/album/stem-1.jpg',
+    out: 'seed/album/stem-1-rsw.jpg',
     width: 960,
     height: 720,
     crop: [0.1, 0.25, 0.5, 0.75],
   },
   {
     source: 'education_slide_growth.jpg',
-    out: 'seed/album/stem-2.jpg',
+    out: 'seed/album/stem-2-rsw.jpg',
     width: 960,
     height: 720,
     crop: [0.45, 0.2, 0.55, 0.8],
   },
   // Album "Khuôn viên & thư viện"
-  { source: 'campus_facade.jpg', out: 'seed/album/khuon-vien.jpg', width: 1280, height: 714 },
-  { source: 'slogan_banner.jpg', out: 'seed/album/thu-vien.jpg', width: 1280, height: 714 },
-  { source: 'education_slide_growth.jpg', out: 'seed/album/san-truong.jpg', width: 1280, height: 714 },
+  { source: 'campus_facade.jpg', out: 'seed/album/khuon-vien-rsw.jpg', width: 1280, height: 714 },
+  { source: 'slogan_banner.jpg', out: 'seed/album/thu-vien-rsw.jpg', width: 1280, height: 714 },
+  { source: 'education_slide_growth.jpg', out: 'seed/album/san-truong-rsw.jpg', width: 1280, height: 714 },
 ]
 
 const HEADER = (left: string, number: string) => `

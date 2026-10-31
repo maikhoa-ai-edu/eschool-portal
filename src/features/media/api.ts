@@ -9,6 +9,32 @@ export const IMAGE_MAX_BYTES = 10 * 1024 * 1024
 /** Ảnh lớn hơn cạnh này được thu nhỏ trước khi tải lên (ảnh chụp điện thoại thường 4000px) */
 const MAX_IMAGE_DIMENSION = 1920
 
+/**
+ * Gói miễn phí của Supabase không đổi kích thước ảnh, nên bản nhỏ được tạo sẵn lúc tải lên, nằm cạnh ảnh gốc:
+ *   slides/abc-rsw.jpg -> slides/abc-rsw.w480.webp, .w960.webp, .w1600.webp
+ * Đuôi tên -rsw (webp) hoặc -rsj (jpeg, trình duyệt không mã hóa được webp) nghĩa là có đủ bản nhỏ; ảnh cũ không có
+ * đuôi này chỉ dùng ảnh gốc, nên không phát sinh yêu cầu lỗi 404.
+ */
+export const IMAGE_WIDTHS = [480, 960, 1600] as const
+const VARIANT_MARK = /-rs([wj])\.[a-z]+$/i
+
+function variantUrl(url: string, width: number): string | null {
+  const mark = VARIANT_MARK.exec(url)
+  if (!mark) return null
+  const extension = mark[1]!.toLowerCase() === 'w' ? 'webp' : 'jpg'
+  return url.replace(/\.[a-z]+$/i, `.w${width}.${extension}`)
+}
+
+/** Thuộc tính srcSet + sizes cho thẻ img. Ảnh không có bản nhỏ thì không thêm gì. */
+export function responsiveImage(
+  value: string | null | undefined,
+  sizes: string,
+): { srcSet?: string; sizes?: string } {
+  const url = resolveMediaUrl(value)
+  if (!url || !VARIANT_MARK.test(url)) return {}
+  return { srcSet: IMAGE_WIDTHS.map((w) => `${variantUrl(url, w)} ${w}w`).join(', '), sizes }
+}
+
 export function publicFileUrl(bucket: string, path: string, download?: string): string {
   return getSupabase()
     .storage.from(bucket)
@@ -81,6 +107,50 @@ async function prepareImage(file: File): Promise<PreparedImage> {
   return { blob, type: outType, ...target }
 }
 
+function encodeVariant(bitmap: ImageBitmap, width: number, type: string): Promise<Blob | null> {
+  const size = fitWithin(bitmap.width, bitmap.height, width)
+  // Chỉ giới hạn theo chiều ngang: ảnh dọc vẫn đủ nét khi hiện theo chiều rộng khung
+  const scale = Math.min(1, width / bitmap.width)
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.round(bitmap.width * scale) || size.width
+  canvas.height = Math.round(bitmap.height * scale) || size.height
+  canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+  return new Promise((resolve) => canvas.toBlob(resolve, type, 0.75))
+}
+
+/**
+ * Tải các bản nhỏ của ảnh. Không tạo được (GIF, trình duyệt không đọc được ảnh, lỗi mạng) thì trả về null:
+ * ảnh vẫn tải lên bình thường, chỉ dùng bản gốc.
+ */
+async function uploadVariants(file: File, base: string): Promise<{ mark: string; paths: string[] } | null> {
+  if (file.type === 'image/gif') return null
+  const storage = getSupabase().storage.from(MEDIA_BUCKET)
+  const paths: string[] = []
+  let bitmap: ImageBitmap | null = null
+  try {
+    bitmap = await createImageBitmap(file)
+    // Trình duyệt không hỗ trợ mã hóa webp sẽ trả về png: khi đó dùng jpeg
+    const probe = await encodeVariant(bitmap, IMAGE_WIDTHS[0], 'image/webp')
+    const useWebp = probe?.type === 'image/webp'
+    const type = useWebp ? 'image/webp' : 'image/jpeg'
+    const mark = useWebp ? '-rsw' : '-rsj'
+    for (const width of IMAGE_WIDTHS) {
+      const blob = await encodeVariant(bitmap, width, type)
+      if (!blob) throw new Error('Không tạo được ảnh thu nhỏ')
+      const path = `${base}${mark}.w${width}.${useWebp ? 'webp' : 'jpg'}`
+      const { error } = await storage.upload(path, blob, { contentType: type, upsert: false })
+      if (error) throw error
+      paths.push(path)
+    }
+    return { mark, paths }
+  } catch {
+    if (paths.length > 0) await storage.remove(paths)
+    return null
+  } finally {
+    bitmap?.close()
+  }
+}
+
 export interface UploadedImage {
   id: string
   url: string
@@ -97,11 +167,17 @@ export async function uploadImage(file: File, folder: string): Promise<UploadedI
   const supabase = getSupabase()
   const userId = await requireUserId()
   const image = await prepareImage(file)
-  const path = `${folder}/${crypto.randomUUID()}.${fileExtension(image.type)}`
-
   const storage = supabase.storage.from(MEDIA_BUCKET)
+  const id = crypto.randomUUID()
+  const uploadedVariants = await uploadVariants(file, `${folder}/${id}`)
+  const mark = uploadedVariants ? uploadedVariants.mark : ''
+  const path = `${folder}/${id}${mark}.${fileExtension(image.type)}`
+
   const upload = await storage.upload(path, image.blob, { contentType: image.type, upsert: false })
-  if (upload.error) throw upload.error
+  if (upload.error) {
+    if (uploadedVariants) await storage.remove(uploadedVariants.paths)
+    throw upload.error
+  }
 
   const { data, error } = await supabase
     .from('media')
@@ -117,7 +193,7 @@ export async function uploadImage(file: File, folder: string): Promise<UploadedI
     .select('id')
     .single()
   if (error) {
-    await storage.remove([path])
+    await storage.remove([path, ...(uploadedVariants?.paths ?? [])])
     throw error
   }
   return { id: data.id, url: publicFileUrl(MEDIA_BUCKET, path), path }
@@ -128,5 +204,6 @@ export async function deleteMedia(media: { id: string; file_path: string }): Pro
   const supabase = getSupabase()
   const { error } = await supabase.from('media').delete().eq('id', media.id)
   if (error) throw error
-  await supabase.storage.from(MEDIA_BUCKET).remove([media.file_path])
+  const variants = IMAGE_WIDTHS.map((w) => variantUrl(media.file_path, w)).filter((p) => p !== null)
+  await supabase.storage.from(MEDIA_BUCKET).remove([media.file_path, ...variants])
 }

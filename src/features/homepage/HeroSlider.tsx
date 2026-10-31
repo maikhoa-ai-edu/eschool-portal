@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
+import { responsiveImage } from '@/features/media/api'
 import { isExternalUrl } from '@/features/site/menu'
 import { cn } from '@/lib/cn'
 import { slideImageUrl, type Slide } from './api'
@@ -71,6 +72,8 @@ export function HeroSlider({ slides, interval }: { slides: Slide[]; interval: nu
           >
             <img
               src={slideImageUrl(slide)}
+              {...responsiveImage(slide.image_path, '(min-width: 1280px) 1248px, calc(100vw - 32px)')}
+              fetchPriority={i === 0 ? 'high' : undefined}
               alt=""
               loading={i === 0 ? 'eager' : 'lazy'}
               className="h-full w-full object-cover"

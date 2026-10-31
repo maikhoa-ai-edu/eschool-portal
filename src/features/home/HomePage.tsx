@@ -69,6 +69,13 @@ export function HomePage() {
       {homepage.show_slides && slides.data && slides.data.length > 0 && (
         <HeroSlider slides={slides.data} interval={homepage.slide_interval} />
       )}
+      {homepage.show_slides && slides.isPending && (
+        // Giữ chỗ đúng kích thước slide để nội dung bên dưới không bị đẩy khi ảnh hiện ra
+        <div
+          className="mb-6 aspect-[16/10] rounded-2xl bg-primary/10 sm:aspect-[16/7] lg:aspect-[21/8]"
+          aria-hidden
+        />
+      )}
       {showTopBanner && (
         <div className="mb-8">
           <TopicBanner banner={homepage.banner} />

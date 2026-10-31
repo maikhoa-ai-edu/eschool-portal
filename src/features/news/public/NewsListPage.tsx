@@ -13,7 +13,7 @@ import { buttonClasses } from '@/components/ui/button-classes'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Pagination } from '@/components/ui/Pagination'
 import { readPage } from '@/components/ui/page-utils'
-import { resolveMediaUrl } from '@/features/media/api'
+import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
 import { formatDate } from '@/lib/format'
 import { cn } from '@/lib/cn'
 import { usePageTitle } from '@/lib/use-page-title'
@@ -27,7 +27,7 @@ import {
   type PublicNewsCard,
 } from '../api'
 
-export function NewsCard({ news }: { news: PublicNewsCard }) {
+export function NewsCard({ news, priority = false }: { news: PublicNewsCard; priority?: boolean }) {
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl border border-border bg-surface transition hover:shadow-md sm:flex-row">
       <Link
@@ -39,8 +39,9 @@ export function NewsCard({ news }: { news: PublicNewsCard }) {
         {news.thumbnail_url ? (
           <img
             src={resolveMediaUrl(news.thumbnail_url)!}
+            {...responsiveImage(news.thumbnail_url, '(min-width: 640px) 240px, 100vw')}
             alt=""
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
             className="h-full w-full object-cover transition group-hover:scale-105"
           />
         ) : (
@@ -194,8 +195,8 @@ export function NewsListPage({ mode = 'all' }: { mode?: 'all' | 'category' | 'ta
       {list.data && list.data.items.length > 0 && (
         <div className="space-y-4">
           {q && <p className="text-sm text-muted">Tìm thấy {list.data.total} bài viết.</p>}
-          {list.data.items.map((n) => (
-            <NewsCard key={n.id} news={n} />
+          {list.data.items.map((n, i) => (
+            <NewsCard key={n.id} news={n} priority={i === 0} />
           ))}
           {!q && <Pagination page={page} totalPages={Math.ceil(list.data.total / NEWS_PAGE_SIZE)} />}
         </div>
