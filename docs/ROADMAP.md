@@ -85,7 +85,8 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
 - [x] Giai đoạn 8.6: tinh chỉnh theo góp ý, schema 0.10.0. Icon mạng xã hội, tìm kiếm chung `/tim-kiem`, chữ chạy chỉnh được, kiểu đầu trang `portal`
       (dải tin + tab Tiêu điểm/Xem nhiều), lối tắt một hàng có logo, thông báo mới nhất nổi bật, văn bản chạy lên, chân trang tùy chỉnh; ảnh sau sapo, mục lục,
       tác giả và nguồn, tin liên quan; phân loại thông báo, cây thư mục và lượt xem văn bản; Video, Tài nguyên, Kế hoạch công tác (nhập từ bảng Word, PDF chỉ đính kèm);
-      đăng nhập 2 cột, Google khai trong Thông tin trường, vai trò Thành viên, bình luận có duyệt. Lighthouse sau đợt này: điện thoại 69-74, máy tính 94-95
+      đăng nhập 2 cột, Google khai trong Thông tin trường, vai trò Thành viên, bình luận có duyệt. Nhóm tài khoản (Ban giám hiệu, Tổ trưởng, Đoàn thể, Giáo viên, Nhân viên) tạo với mật khẩu ngẫu nhiên, buộc đổi lần đầu, Nhân bản, Cấp lại mật khẩu; Turnstile tùy chọn; khối cột phải Kế hoạch tháng, Video mới, Liên kết website; đầu trang dính trên điện thoại.
+      Lighthouse cuối đợt: điện thoại 67-70 (LCP 7,9-8,0 s), **thấp hơn mức 71-80 đã chấp nhận, cần xem lại**; máy tính 93-95
 
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
 
@@ -157,6 +158,8 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
 - **Phiên bản nhiều migration**: `buildUpgrades` gộp mọi file tới dòng đặt `schema_version`, nên dòng này phải nằm ở file cuối của phiên bản (xem `20261110000000_version_0_10_0.sql`).
 - **Bản cài mới và trường đang chạy**: migration phân biệt bằng việc đã có SUPER_ADMIN chưa; tùy chọn giao diện mới bật cho bản cài mới, tắt cho trường đang chạy.
 - **Thành viên** là hồ sơ có `role` null. Khách không đọc được hồ sơ này (có thể là học sinh); bình luận lưu sẵn `author_name` do trigger đặt. Trigger `handle_new_user` là nơi quyết định ai được tạo tài khoản, giao diện chỉ phản ánh lại.
+- **Tài khoản nhóm**: không có mật khẩu mặc định chung. `create_staff_account` sinh mật khẩu ngẫu nhiên, trả về một lần; trigger trên `auth.users` xóa `must_change_password` khi đổi mật khẩu.
+- **Captcha**: trình duyệt không chặn nút gửi vì Supabase mới là nơi kiểm tra; `checkCaptchaSetup` thử đăng nhập tài khoản không tồn tại, dựa vào `captcha_failed` / `invalid_credentials`. Đã thử thật với khóa thử của Cloudflare trên Supabase cục bộ.
 - **Google**: Client Secret chỉ nằm trong Supabase; nút đăng nhập hiện khi trường bật và `/auth/v1/settings` báo đã bật. Chưa thử với Client ID thật.
 - **Ghi đè cấu hình trang chủ**: mọi nơi lưu đều ghi cả JSON `homepage`, nên `LayoutTab` lấy `visit_counter_offset` và `news_list` từ giá trị đang lưu.
   Kiểu trang danh sách tin nằm trong `homepage` nên chỉ người có `homepage.manage` đổi được.
