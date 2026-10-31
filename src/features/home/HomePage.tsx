@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Alert } from '@/components/ui/Alert'
 import { HOMEPAGE_KEY, fetchLatestNewsWithImage, fetchSlides } from '@/features/homepage/api'
 import { FULL_SLIDE_ASPECT, HeroSlider, SPLIT_SLIDE_ASPECT } from '@/features/homepage/HeroSlider'
+import { DeferredBlock } from '@/features/homepage/DeferredBlock'
 import { TopicBanner } from '@/features/homepage/TopicBanner'
 import {
   AlbumsBlock,
@@ -82,7 +83,11 @@ export function HomePage() {
   const shownIds = [...railItems, ...(featuredSection ? featuredItems : []), ...stripItems].map((n) => n.id)
   const split = wantsRail && (featured.isPending || featuredData.length > 0)
 
-  const renderBlock = (section: HomepageSection) => {
+  const renderBlock = (section: HomepageSection) => (
+    <DeferredBlock key={section.id}>{renderBlockContent(section)}</DeferredBlock>
+  )
+
+  const renderBlockContent = (section: HomepageSection) => {
     switch (section.key) {
       case 'featured_news':
         return (

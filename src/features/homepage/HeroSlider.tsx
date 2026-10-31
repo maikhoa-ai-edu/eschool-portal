@@ -48,6 +48,10 @@ export function HeroSlider({
   const [paused, setPaused] = useState(prefersReducedMotion)
   const count = slides.length
   const current = index % count
+  // Slide ẩn vẫn nằm trong màn hình nên loading="lazy" không giúp được: chỉ tải ảnh đang hiện, xong thì tải trước ảnh kế tiếp
+  const [wanted, setWanted] = useState<ReadonlySet<number>>(() => new Set([0]))
+
+  if (!wanted.has(current)) setWanted(new Set(wanted).add(current))
 
   useEffect(() => {
     if (count < 2 || paused || hovering) return
@@ -83,19 +87,21 @@ export function HeroSlider({
               i === current ? 'opacity-100' : 'pointer-events-none opacity-0',
             )}
           >
-            <img
-              src={slideImageUrl(slide)}
-              {...responsiveImage(
-                slide.image_path,
-                split
-                  ? '(min-width: 1280px) 824px, (min-width: 1024px) 66vw, calc(100vw - 32px)'
-                  : '(min-width: 1280px) 1248px, calc(100vw - 32px)',
-              )}
-              fetchPriority={i === 0 ? 'high' : undefined}
-              alt=""
-              loading={i === 0 ? 'eager' : 'lazy'}
-              className="h-full w-full object-cover"
-            />
+            {wanted.has(i) && (
+              <img
+                src={slideImageUrl(slide)}
+                {...responsiveImage(
+                  slide.image_path,
+                  split
+                    ? '(min-width: 1280px) 824px, (min-width: 1024px) 66vw, calc(100vw - 32px)'
+                    : '(min-width: 1280px) 1248px, calc(100vw - 32px)',
+                )}
+                fetchPriority={i === 0 ? 'high' : undefined}
+                alt=""
+                onLoad={() => i === current && setWanted((set) => new Set(set).add((i + 1) % count))}
+                className="h-full w-full object-cover"
+              />
+            )}
             <div
               className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"
               aria-hidden

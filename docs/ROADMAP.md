@@ -86,7 +86,7 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
       (dải tin + tab Tiêu điểm/Xem nhiều), lối tắt một hàng có logo, thông báo mới nhất nổi bật, văn bản chạy lên, chân trang tùy chỉnh; ảnh sau sapo, mục lục,
       tác giả và nguồn, tin liên quan; phân loại thông báo, cây thư mục và lượt xem văn bản; Video, Tài nguyên, Kế hoạch công tác (nhập từ bảng Word, PDF chỉ đính kèm);
       đăng nhập 2 cột, Google khai trong Thông tin trường, vai trò Thành viên, bình luận có duyệt. Nhóm tài khoản (Ban giám hiệu, Tổ trưởng, Đoàn thể, Giáo viên, Nhân viên) tạo với mật khẩu ngẫu nhiên, buộc đổi lần đầu, Nhân bản, Cấp lại mật khẩu; Turnstile tùy chọn; khối cột phải Kế hoạch tháng, Video mới, Liên kết website; đầu trang dính trên điện thoại.
-      Lighthouse cuối đợt: điện thoại 67-70 (LCP 7,9-8,0 s), **thấp hơn mức 71-80 đã chấp nhận, cần xem lại**; máy tính 93-95
+      Lighthouse cuối đợt: điện thoại 67-70 (LCP 7,9-8,0 s), thấp hơn mức 71-80 đã chấp nhận; máy tính 93-95. Đã tối ưu lại sau đó: điện thoại 74-77, máy tính 96-97 (xem Ghi chú kỹ thuật)
 
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
 
@@ -173,6 +173,10 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
   Sau Giai đoạn 8.5 (cùng cách đo, trang chủ, 6 lượt máy tính + 3 lượt điện thoại): mẫu Báo điện tử trên máy tính 94-96, điện thoại 71-73; cấu hình cũ máy tính
   95-97, điện thoại 71-72; mốc đo ngay trước khi sửa là 95-96 và 72. CLS thường 0,001-0,002; thỉnh thoảng 0,03 do cả thẻ `main` bị đẩy (gặp ở cả cấu hình cũ
   lẫn mới, chưa xác định phần tử phía trên nào gây ra).
+  Tối ưu sau Giai đoạn 8.6 (2026-11-01, cùng cách đo, trang chủ): điện thoại từ 66-70 (LCP 7,2-7,9 s) lên 74-77 (LCP 5,0-5,2 s), 698 KB thay vì 1107 KB; máy tính 96-97;
+  CLS máy tính 0,001-0,011 trong 4 lượt cuối. Ba thay đổi: `DeferredBlock` hoãn dựng khối xa màn hình (dựng khi cách 300px, khi bấm phím, hoặc sau 3 giây),
+  slider chỉ tải ảnh đang hiện và một ảnh kế tiếp, nhóm `shared` không còn kéo `react-hook-form` và DOMPurify vào gói chung. Muốn tăng tiếp thì nhắm vào `vendor`
+  (181 KB, Lighthouse báo 104 KB chưa dùng lúc tải trang), chủ yếu Zod và Supabase Auth.
 - **Nâng cấp**: mỗi lần tăng `schema_version` là một bước; `buildUpgrades` sinh `/upgrades/<phiên-bản>.sql` và `index.json`
   từ migrations, mỗi file kiểm tra phiên bản trước khi chạy và nằm trong giao dịch.
 - Tài khoản demo khi chạy trên máy (mật khẩu `demo1234`): `superadmin@demo.local`, `admin@demo.local`,

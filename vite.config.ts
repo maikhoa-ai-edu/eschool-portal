@@ -60,7 +60,11 @@ export default defineConfig({
               test: /node_modules[\\/](react|react-dom|react-router|scheduler|cookie|set-cookie-parser|@tanstack|@supabase|zod|clsx|tailwind-merge)[\\/]/,
             },
             { name: 'icons', test: /node_modules[\\/]lucide-react/ },
-            { name: 'shared', test: /src[\\/](lib|components[\\/]ui|features[\\/](site|media|auth))[\\/]/ },
+            // Không gộp trang đăng nhập và sanitize: chúng kéo react-hook-form, DOMPurify vào gói mọi trang đều tải
+            {
+              name: 'shared',
+              test: /src[\\/](lib[\\/](?!sanitize)|components[\\/]ui[\\/]|features[\\/](site|media)[\\/]|features[\\/]auth[\\/](AuthProvider|auth-context|guards))/,
+            },
           ],
         },
       },

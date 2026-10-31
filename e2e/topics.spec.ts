@@ -40,7 +40,8 @@ test.describe('Menu', () => {
     await expect(bar.getByRole('link', { name: 'Trang chủ' })).toHaveClass(/text-primary/)
     await page.screenshot({ path: screenshotPath('thanh-day', info) })
 
-    // Cuộn hết trang: dòng ghi công vẫn nằm trên thanh đáy
+    // Cuộn hết trang: dòng ghi công vẫn nằm trên thanh đáy. Chờ các khối hoãn dựng xong thì trang mới hết dài ra
+    await expect(page.locator('[data-deferred-block]')).toHaveCount(0)
     await page.waitForLoadState('networkidle')
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
     const credit = page.getByText('Thiết kế bởi MVK')
