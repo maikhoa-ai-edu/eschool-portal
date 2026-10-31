@@ -1,6 +1,6 @@
 -- Sao lưu & khôi phục: quyền, không lộ bí mật, khôi phục đúng dữ liệu, đổi id theo email, giữ nhật ký
 begin;
-select plan(21);
+select plan(26);
 
 -- ===================== QUYỀN =====================
 select tests.as_anon();
@@ -42,6 +42,10 @@ select tests.as_postgres();
 insert into public.news (title, slug, category_id, author_id)
   values ('Bài sau khi sao lưu', 'bai-sau-khi-sao-luu', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a1');
 delete from auth.users where email = 'giaovien.van@demo.local';
+insert into public.videos (title, url) values ('Video sau khi sao lưu', 'https://youtu.be/sau');
+delete from public.content_groups where true;
+delete from public.work_plans where true;
+delete from public.news_comments where true;
 select set_config('tests.backup', replace(current_setting('tests.backup'),
   '00000000-0000-0000-0000-0000000000a2', '00000000-0000-0000-0000-00000000a222'), true);
 
@@ -54,6 +58,11 @@ select ok(exists (select 1 from public.news where author_id = '00000000-0000-000
   'Tham chiếu tới người có cùng email được đổi về id đang có');
 select is((select role from public.profiles where email = 'giaovien.van@demo.local'), 'EDITOR', 'Tài khoản bị thiếu được tạo lại');
 select is(public.current_user_role(), 'SUPER_ADMIN', 'Người khôi phục vẫn giữ quyền');
+select is((select count(*)::int from public.videos where title = 'Video sau khi sao lưu'), 0, 'Bảng video được khôi phục về bản sao lưu');
+select ok(exists (select 1 from public.content_groups where parent_id is not null), 'Khôi phục cây thư mục');
+select ok(exists (select 1 from public.documents where folder_id is not null), 'Văn bản giữ thư mục');
+select ok(exists (select 1 from public.work_plan_items), 'Khôi phục kế hoạch công tác');
+select ok(exists (select 1 from public.news_comments where status = 'pending'), 'Khôi phục bình luận, giữ trạng thái');
 select ok(exists (select 1 from public.audit_logs where table_name = 'backup' and summary like 'Khôi phục bản sao lưu%'),
   'Việc khôi phục được ghi nhật ký');
 

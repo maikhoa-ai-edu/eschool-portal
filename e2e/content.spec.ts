@@ -144,7 +144,7 @@ test.describe('Thông báo, trang tĩnh, menu', () => {
     const item = guest.getByRole('listitem').filter({ hasText: title })
     await expect(item.getByText('Khẩn')).toBeVisible()
     await guest.screenshot({ path: screenshotPath('announcements', info), fullPage: true })
-    await item.getByRole('link', { name: title }).click()
+    await item.getByRole('link', { name: title }).first().click()
     await expect(guest.getByText('Học sinh nghỉ học ngày mai.')).toBeVisible()
   })
 

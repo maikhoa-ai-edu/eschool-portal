@@ -79,6 +79,7 @@ test('thành viên tự đăng ký, bình luận chờ duyệt, quản trị duy
 
   await page.goto('/dang-nhap')
   await page.getByRole('link', { name: /Đăng ký thành viên/ }).click()
+  await expect(page.getByRole('heading', { name: 'Đăng ký thành viên' })).toBeVisible()
   await page.getByLabel('Email').fill(email)
   await page.getByLabel('Họ và tên').fill('E2E Thành Viên')
   await page.getByLabel('Mật khẩu', { exact: true }).fill(PASSWORD)

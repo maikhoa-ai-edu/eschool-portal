@@ -82,6 +82,10 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
       5 kiểu hiển thị tin (Tiêu điểm, Tạp chí, Lưới, Danh sách ảnh, Danh sách gọn), mỗi chuyên mục một khối, slide 2/3 + cột Tiêu điểm,
       khối Lối tắt (menu `shortcuts`, tắt sẵn), tiêu đề gạch chân hoặc thanh màu, 3 mẫu bố cục + bố cục mặc định, sơ đồ bản nháp và
       xem trước chưa lưu, kiểu trang danh sách tin (danh sách ảnh hoặc lưới). Schema 0.9.0. Cấu hình cũ đọc được và không đổi giao diện
+- [x] Giai đoạn 8.6: tinh chỉnh theo góp ý, schema 0.10.0. Icon mạng xã hội, tìm kiếm chung `/tim-kiem`, chữ chạy chỉnh được, kiểu đầu trang `portal`
+      (dải tin + tab Tiêu điểm/Xem nhiều), lối tắt một hàng có logo, thông báo mới nhất nổi bật, văn bản chạy lên, chân trang tùy chỉnh; ảnh sau sapo, mục lục,
+      tác giả và nguồn, tin liên quan; phân loại thông báo, cây thư mục và lượt xem văn bản; Video, Tài nguyên, Kế hoạch công tác (nhập từ bảng Word, PDF chỉ đính kèm);
+      đăng nhập 2 cột, Google khai trong Thông tin trường, vai trò Thành viên, bình luận có duyệt. Lighthouse sau đợt này: điện thoại 69-74, máy tính 94-95
 
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
 
@@ -150,6 +154,10 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
   (giữ đúng lớp CSS cũ, đã so từng điểm ảnh ở 1366/820/390 px); đừng sửa kiểu dáng ở đó. Kiểu mới co theo khối bằng container query,
   nhưng `sizes` ảnh tính theo vùng trong `features/homepage/layout.ts`, đổi điểm chia thì sửa cả hai nơi. Dùng `z.guid()`, không `z.uuid()`, cho id:
   Zod 4 từ chối UUID không theo RFC như id trong seed (lỗi này từng làm khối chuyên mục không hiện trên dữ liệu mẫu).
+- **Phiên bản nhiều migration**: `buildUpgrades` gộp mọi file tới dòng đặt `schema_version`, nên dòng này phải nằm ở file cuối của phiên bản (xem `20261110000000_version_0_10_0.sql`).
+- **Bản cài mới và trường đang chạy**: migration phân biệt bằng việc đã có SUPER_ADMIN chưa; tùy chọn giao diện mới bật cho bản cài mới, tắt cho trường đang chạy.
+- **Thành viên** là hồ sơ có `role` null. Khách không đọc được hồ sơ này (có thể là học sinh); bình luận lưu sẵn `author_name` do trigger đặt. Trigger `handle_new_user` là nơi quyết định ai được tạo tài khoản, giao diện chỉ phản ánh lại.
+- **Google**: Client Secret chỉ nằm trong Supabase; nút đăng nhập hiện khi trường bật và `/auth/v1/settings` báo đã bật. Chưa thử với Client ID thật.
 - **Ghi đè cấu hình trang chủ**: mọi nơi lưu đều ghi cả JSON `homepage`, nên `LayoutTab` lấy `visit_counter_offset` và `news_list` từ giá trị đang lưu.
   Kiểu trang danh sách tin nằm trong `homepage` nên chỉ người có `homepage.manage` đổi được.
 - **SEO**: sửa `seo-core.mjs` thì sửa cả `seo.php`; `npm run test:seo` chạy cùng một bộ kiểm tra cho cả hai. Trên Vercel, `/` là file

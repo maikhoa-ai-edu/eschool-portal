@@ -181,7 +181,11 @@ test('cài đặt từ đầu đến khi vào trang quản trị', async ({ page
   // Bước 9: tóm tắt + nhắc lưu config.json (đang chạy bằng bản nháp)
   await expect(page.getByRole('heading', { name: 'Hoàn tất cài đặt' })).toBeVisible()
   await expect(page.getByText('Trường THPT Kiểm Thử')).toBeVisible()
-  await expect(page.getByText('Tin tức, Thông báo, Văn bản, Trang thông tin')).toBeVisible()
+  await expect(
+    page.getByText(
+      'Tin tức, Thông báo, Văn bản, Thư viện video, Tài nguyên, Kế hoạch công tác, Bình luận, Trang thông tin',
+    ),
+  ).toBeVisible()
   await expect(page.getByText(INSTALLER_EMAIL)).toBeVisible()
   await expect(page.getByText('Website chưa lưu cấu hình kết nối')).toBeVisible()
   await page.screenshot({ path: `${SCREENS}/install-9.png`, fullPage: true })
