@@ -35,6 +35,9 @@ export const LAYOUT_PRESETS = {
       { key: 'announcements', zone: 'sidebar', limit: 5 },
       { key: 'documents', zone: 'sidebar', limit: 5 },
       { key: 'visit_counter', zone: 'sidebar' },
+      { key: 'plan_month', zone: 'sidebar', enabled: true },
+      { key: 'latest_video', zone: 'sidebar', enabled: true },
+      { key: 'web_links', zone: 'sidebar', enabled: true },
       { key: 'albums', zone: 'bottom', columns: 4, limit: 4 },
     ],
   },
@@ -54,6 +57,9 @@ export const LAYOUT_PRESETS = {
       { key: 'announcements', zone: 'sidebar', limit: 5 },
       { key: 'documents', zone: 'sidebar', limit: 5 },
       { key: 'visit_counter', zone: 'sidebar' },
+      { key: 'plan_month', zone: 'sidebar', enabled: true },
+      { key: 'latest_video', zone: 'sidebar', enabled: true },
+      { key: 'web_links', zone: 'sidebar', enabled: true },
     ],
   },
   photo: {
@@ -168,6 +174,9 @@ const ORDER: HomepageSectionKey[] = [
   'announcements',
   'documents',
   'visit_counter',
+  'plan_month',
+  'latest_video',
+  'web_links',
 ]
 
 /** Qua bộ chuẩn hóa để kiểu, số cột luôn hợp lệ với vùng (mẫu viết tay cũng không lọt giá trị sai). */

@@ -15,6 +15,7 @@ import type { ConfigSource, RuntimeConfig } from '@/lib/runtime-config'
 import { fetchInstallStatus, INSTALL_STATUS_QUERY_KEY, probeSchema } from './api'
 import { AdminStep } from './AdminStep'
 import { DatabaseStep } from './DatabaseStep'
+import { DefaultAccountsStep } from './DefaultAccountsStep'
 import { FinishStep, InstalledScreen } from './FinishStep'
 import { PreConnectSteps } from './PreConnectSteps'
 import { SaveConfigPanel } from './SaveConfigPanel'
@@ -22,7 +23,7 @@ import { BrandingStep, ModulesStep, SchoolInfoStep } from './SchoolSteps'
 import { StepCard, WizardShell } from './ui'
 
 /**
- * Trình cài đặt 9 bước. Bước hiện tại được suy ra từ trạng thái thật (CSDL, phiên đăng nhập,
+ * Trình cài đặt 10 bước. Bước hiện tại được suy ra từ trạng thái thật (CSDL, phiên đăng nhập,
  * nơi lưu cấu hình), nên tải lại trang hay mở từ máy khác đều tiếp tục đúng chỗ.
  */
 export function InstallPage() {
@@ -32,7 +33,7 @@ export function InstallPage() {
 }
 
 const FIRST_SETUP_STEP = 6
-const LAST_STEP = 9
+const LAST_STEP = 10
 
 function ConnectedWizard({ source, config }: { source: ConfigSource; config: RuntimeConfig }) {
   const auth = useAuth()
@@ -171,7 +172,8 @@ function ConnectedWizard({ source, config }: { source: ConfigSource; config: Run
       {step === 6 && <SchoolInfoStep onNext={next} />}
       {step === 7 && <BrandingStep onBack={back} onNext={next} />}
       {step === 8 && <ModulesStep onBack={back} onNext={next} />}
-      {step === 9 && <FinishStep source={source} config={config} onBack={back} />}
+      {step === 9 && <DefaultAccountsStep onBack={back} onNext={next} />}
+      {step === 10 && <FinishStep source={source} config={config} onBack={back} />}
     </WizardShell>
   )
 }

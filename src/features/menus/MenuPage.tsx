@@ -103,7 +103,7 @@ function ItemForm({
   })
   const { item } = editing
   const hasChildren = item ? items.some((i) => i.parent_id === item.id) : false
-  const isFlat = location === 'mobile_bar' || location === 'shortcuts'
+  const isFlat = location === 'mobile_bar' || location === 'shortcuts' || location === 'web_links'
   // Chỉ hai cấp: mục cha phải là mục gốc; mục đang có con thì không đưa vào làm con
   const parentOptions = hasChildren
     ? []
@@ -195,7 +195,7 @@ function ItemForm({
         name="icon"
         render={({ field }) => <IconPicker value={field.value} onChange={field.onChange} />}
       />
-      {location === 'shortcuts' && (
+      {(location === 'shortcuts' || location === 'web_links') && (
         <Controller
           control={form.control}
           name="image_path"
@@ -424,6 +424,12 @@ function MenuEditor({ menuId, location }: { menuId: string; location: string }) 
             ngoài.
           </p>
         )}
+        {location === 'web_links' && (
+          <p className="text-sm text-muted">
+            Các ô logo trỏ ra website ngoài ở cột phải trang chủ. Bật khối Liên kết website ở Trang chủ → Bố
+            cục.
+          </p>
+        )}
         {tree.length === 0 ? (
           <p className="rounded-xl border border-dashed border-border bg-surface p-6 text-center text-sm text-muted">
             Menu chưa có mục nào.
@@ -438,7 +444,7 @@ function MenuEditor({ menuId, location }: { menuId: string; location: string }) 
                 siblings={tree}
                 depth={0}
                 busy={busy}
-                canNest={location !== 'mobile_bar' && location !== 'shortcuts'}
+                canNest={location !== 'mobile_bar' && location !== 'shortcuts' && location !== 'web_links'}
                 onEdit={(n) => setEditing({ item: byId.get(n.id)!, parentId: n.parent_id })}
                 onAddChild={(n) => setEditing({ item: null, parentId: n.id })}
                 onMove={move}

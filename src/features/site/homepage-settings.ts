@@ -15,6 +15,9 @@ export const HOMEPAGE_SECTION_KEYS = [
   'announcements',
   'documents',
   'visit_counter',
+  'plan_month',
+  'latest_video',
+  'web_links',
 ] as const
 export type HomepageSectionKey = (typeof HOMEPAGE_SECTION_KEYS)[number]
 
@@ -144,6 +147,33 @@ export const SECTION_INFO: Record<HomepageSectionKey, SectionInfo> = {
     defaultLimit: 0,
     maxLimit: 0,
     module: null,
+  },
+  plan_month: {
+    label: 'Kế hoạch tháng này',
+    zone: 'sidebar',
+    defaultTitle: 'Kế hoạch tháng này',
+    defaultLimit: 5,
+    maxLimit: 10,
+    module: 'plans',
+    defaultOff: true,
+  },
+  latest_video: {
+    label: 'Video mới',
+    zone: 'sidebar',
+    defaultTitle: 'Video mới',
+    defaultLimit: 1,
+    maxLimit: 3,
+    module: 'videos',
+    defaultOff: true,
+  },
+  web_links: {
+    label: 'Liên kết website',
+    zone: 'sidebar',
+    defaultTitle: 'Liên kết website',
+    defaultLimit: 6,
+    maxLimit: 12,
+    module: null,
+    defaultOff: true,
   },
 }
 

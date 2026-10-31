@@ -12,6 +12,7 @@ import { SchoolLogo } from '@/components/SchoolLogo'
 import { useSite } from '@/features/site/site-context'
 import { toVietnameseError } from '@/lib/errors'
 import { useAuth } from './auth-context'
+import { useCaptcha } from './captcha-check'
 import { safeNextPath } from './next-path'
 import { isGoogleProviderEnabled, readOAuthError, signInWithGoogle } from './oauth'
 
@@ -49,6 +50,7 @@ export function LoginPage() {
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(() => readOAuthError(location.search, location.hash))
   const [googleBusy, setGoogleBusy] = useState(false)
+  const { captchaToken, refreshCaptcha, captchaBox } = useCaptcha()
   const next = safeNextPath(params.get('next'))
   // Chỉ hiện nút khi trường đã bật và Supabase thật sự sẵn sàng, tránh bấm vào ra trang lỗi
   const { data: googleReady = false } = useQuery({
@@ -69,10 +71,11 @@ export function LoginPage() {
   const onSubmit = form.handleSubmit(async ({ email, password }) => {
     setError(null)
     try {
-      await signIn(email, password)
+      await signIn(email, password, captchaToken)
       if (params.has('next')) navigate(next, { replace: true })
     } catch (err) {
       setError(toVietnameseError(err))
+      refreshCaptcha()
     }
   })
 
@@ -153,6 +156,7 @@ export function LoginPage() {
                 error={form.formState.errors.password?.message}
                 {...form.register('password')}
               />
+              {captchaBox}
               <Button type="submit" className="w-full" loading={form.formState.isSubmitting}>
                 Đăng nhập
               </Button>

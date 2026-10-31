@@ -941,6 +941,7 @@ export type Database = {
           full_name: string
           id: string
           is_active: boolean
+          must_change_password: boolean
           phone: string | null
           role: string | null
           updated_at: string
@@ -952,6 +953,7 @@ export type Database = {
           full_name: string
           id: string
           is_active?: boolean
+          must_change_password?: boolean
           phone?: string | null
           role?: string | null
           updated_at?: string
@@ -963,6 +965,7 @@ export type Database = {
           full_name?: string
           id?: string
           is_active?: boolean
+          must_change_password?: boolean
           phone?: string | null
           role?: string | null
           updated_at?: string
@@ -1291,6 +1294,10 @@ export type Database = {
         Returns: undefined
       }
       complete_install: { Args: never; Returns: undefined }
+      create_staff_account: {
+        Args: { p_email: string; p_full_name: string; p_role: string }
+        Returns: Json
+      }
       current_user_role: { Args: never; Returns: string }
       export_backup: { Args: never; Returns: Json }
       get_install_status: { Args: never; Returns: Json }
@@ -1321,6 +1328,7 @@ export type Database = {
         }[]
       }
       record_visit: { Args: never; Returns: undefined }
+      reset_staff_password: { Args: { p_user_id: string }; Returns: Json }
       restore_backup: { Args: { p_backup: Json }; Returns: Json }
       search_news: {
         Args: { p_limit?: number; p_offset?: number; p_query: string }

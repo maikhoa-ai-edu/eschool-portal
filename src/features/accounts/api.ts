@@ -116,3 +116,40 @@ export function invitationMailto(
   ].join('\n')
   return `mailto:${encodeURIComponent(target.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 }
+
+export interface StaffCredentials {
+  id: string
+  email: string
+  full_name: string
+  role: string
+  password: string
+}
+
+/** Các nhóm tạo sẵn ở trình cài đặt. */
+export const DEFAULT_STAFF_GROUPS: Array<{ role: Role; name: string }> = [
+  { role: 'BAN_GIAM_HIEU', name: 'Ban giám hiệu' },
+  { role: 'TO_TRUONG', name: 'Tổ trưởng chuyên môn' },
+  { role: 'DOAN_THE', name: 'Đoàn thể' },
+  { role: 'GIAO_VIEN', name: 'Giáo viên' },
+  { role: 'NHAN_VIEN', name: 'Nhân viên' },
+]
+
+export async function createStaffAccount(
+  email: string,
+  fullName: string,
+  role: Role,
+): Promise<StaffCredentials> {
+  const { data, error } = await getSupabase().rpc('create_staff_account', {
+    p_email: email,
+    p_full_name: fullName,
+    p_role: role,
+  })
+  if (error) throw error
+  return data as unknown as StaffCredentials
+}
+
+export async function resetStaffPassword(id: string): Promise<StaffCredentials> {
+  const { data, error } = await getSupabase().rpc('reset_staff_password', { p_user_id: id })
+  if (error) throw error
+  return data as unknown as StaffCredentials
+}

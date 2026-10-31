@@ -13,6 +13,10 @@ const KNOWN_ERRORS: Array<[RegExp, string]> = [
     'Project Supabase đang tắt đăng ký tài khoản (Authentication → Sign In / Providers).',
   ],
   [/email address .* is invalid/i, 'Địa chỉ email không hợp lệ.'],
+  [
+    /captcha/i,
+    'Chưa qua được bước xác minh. Hãy tích vào ô xác minh rồi thử lại; nếu không thấy ô này, báo quản trị viên kiểm tra cấu hình captcha.',
+  ],
   [/invalid api key/i, 'Khóa anon không đúng hoặc không thuộc project này.'],
   [/could not find the (function|table)/i, 'Cơ sở dữ liệu chưa được khởi tạo (chưa chạy install.sql).'],
   [/password should be at least/i, 'Mật khẩu quá ngắn.'],

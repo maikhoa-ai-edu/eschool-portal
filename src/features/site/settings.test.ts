@@ -16,7 +16,7 @@ describe('parseSiteSettings', () => {
       bg_color: '',
       speed: 40,
     })
-    expect(s.homepage.sections).toHaveLength(8)
+    expect(s.homepage.sections).toHaveLength(11)
   })
 
   it('từ chối màu không phải mã hex (chống chèn CSS)', () => {

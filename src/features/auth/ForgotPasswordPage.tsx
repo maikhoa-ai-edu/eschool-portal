@@ -9,6 +9,7 @@ import { Field } from '@/components/ui/Field'
 import { toVietnameseError } from '@/lib/errors'
 import { getSupabase } from '@/lib/supabase'
 import { AuthCard } from './AuthCard'
+import { useCaptcha } from './captcha-check'
 
 const schema = z.object({ email: z.email('Email không hợp lệ') })
 type Values = z.infer<typeof schema>
@@ -16,6 +17,7 @@ type Values = z.infer<typeof schema>
 export function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null)
   const [sentTo, setSentTo] = useState<string | null>(null)
+  const { captchaToken, refreshCaptcha, captchaBox } = useCaptcha()
   const form = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { email: '' } })
 
   const onSubmit = form.handleSubmit(async ({ email }) => {
@@ -23,11 +25,13 @@ export function ForgotPasswordPage() {
     try {
       const { error: resetError } = await getSupabase().auth.resetPasswordForEmail(email.trim(), {
         redirectTo: `${window.location.origin}/dat-lai-mat-khau`,
+        captchaToken,
       })
       if (resetError) throw resetError
       setSentTo(email.trim())
     } catch (err) {
       setError(toVietnameseError(err))
+      refreshCaptcha()
     }
   })
 
@@ -50,6 +54,7 @@ export function ForgotPasswordPage() {
             error={form.formState.errors.email?.message}
             {...form.register('email')}
           />
+          {captchaBox}
           <Button type="submit" className="w-full" loading={form.formState.isSubmitting}>
             Gửi liên kết đặt lại mật khẩu
           </Button>

@@ -50,6 +50,7 @@ export function RequireStaff() {
       </Notice>
     )
   }
+  if (profile?.must_change_password) return <Navigate to="/doi-mat-khau" replace />
   return <Outlet />
 }
 

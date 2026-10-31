@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useQueryClient } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link, useNavigate } from 'react-router'
@@ -22,7 +23,9 @@ type Values = z.infer<typeof schema>
 
 /** Supabase tự đọc liên kết trong thư và tạo phiên; trang này chỉ cần đặt mật khẩu mới cho phiên đó. */
 export function ResetPasswordPage() {
-  const { status } = useAuth()
+  const { status, profile, role } = useAuth()
+  const queryClient = useQueryClient()
+  const forced = Boolean(profile?.must_change_password)
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const form = useForm<Values>({
@@ -38,14 +41,16 @@ export function ResetPasswordPage() {
     try {
       const { error: updateError } = await getSupabase().auth.updateUser({ password })
       if (updateError) throw updateError
-      navigate('/admin', { replace: true })
+      // Máy chủ đã xóa cờ buộc đổi: tải lại hồ sơ trước khi vào, kẻo bị đưa ngược về đây
+      await queryClient.invalidateQueries({ queryKey: ['auth', 'profile'] })
+      navigate(role ? '/admin' : '/', { replace: true })
     } catch (err) {
       setError(toVietnameseError(err))
     }
   })
 
   return (
-    <AuthCard title="Đặt lại mật khẩu">
+    <AuthCard title={forced ? 'Đổi mật khẩu lần đầu' : 'Đặt lại mật khẩu'}>
       {status === 'signed_out' ? (
         <div className="space-y-4">
           <Alert tone="danger" title="Liên kết không hợp lệ hoặc đã hết hạn" />
@@ -56,6 +61,12 @@ export function ResetPasswordPage() {
       ) : (
         <form onSubmit={onSubmit} noValidate className="space-y-4">
           {error && <Alert tone="danger" title={error} />}
+          {forced && (
+            <Alert
+              tone="warning"
+              title="Mật khẩu được cấp chỉ dùng một lần. Hãy đặt mật khẩu của riêng bạn."
+            />
+          )}
           <Field
             label="Mật khẩu mới"
             type="password"

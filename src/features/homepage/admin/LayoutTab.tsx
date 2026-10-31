@@ -45,6 +45,8 @@ const MODULE_LABELS: Record<string, string> = {
   albums: 'Thư viện ảnh',
   announcements: 'Thông báo',
   documents: 'Văn bản',
+  plans: 'Kế hoạch công tác',
+  videos: 'Thư viện video',
 }
 
 const SMALL_SELECT = 'h-9 rounded-lg border border-border bg-surface px-2 text-sm text-text'
@@ -267,6 +269,15 @@ function SectionRow({
             Menu → Lối tắt trang chủ
           </Link>{' '}
           (icon hoặc logo, tên, liên kết). Ô Số mục là số ô hiện, tối đa {SHORTCUTS_MAX_ITEMS}.
+        </p>
+      )}
+      {section.key === 'web_links' && (
+        <p className="pl-6 text-xs text-muted">
+          Nội dung sửa ở{' '}
+          <Link to="/admin/menu" className="text-primary hover:underline">
+            Menu → Liên kết website
+          </Link>{' '}
+          (logo hoặc icon, tên, liên kết).
         </p>
       )}
       {moduleOff && section.enabled && (

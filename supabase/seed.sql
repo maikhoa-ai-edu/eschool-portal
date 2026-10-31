@@ -410,6 +410,9 @@ update public.site_settings set value = jsonb_set(value, '{sections}', jsonb_bui
     jsonb_build_object('key', 'announcements', 'zone', 'sidebar', 'limit', 5, 'icon', 'bell'),
     jsonb_build_object('key', 'documents', 'zone', 'sidebar', 'limit', 5, 'icon', 'file-text'),
     jsonb_build_object('key', 'visit_counter', 'zone', 'sidebar'),
+    jsonb_build_object('key', 'plan_month', 'enabled', true, 'zone', 'sidebar', 'icon', 'calendar'),
+    jsonb_build_object('key', 'latest_video', 'enabled', true, 'zone', 'sidebar', 'icon', 'video'),
+    jsonb_build_object('key', 'web_links', 'enabled', true, 'zone', 'sidebar', 'icon', 'link-2'),
     jsonb_build_object('key', 'albums', 'zone', 'bottom', 'columns', 4, 'limit', 4, 'icon', 'images')
   )) || jsonb_build_object('hero', 'portal', 'heading_style', 'bar', 'highlight_latest_announcement', true, 'documents_ticker', true) || jsonb_build_object('banner', jsonb_build_object(
     'image_path', 'seed/slide-bac-ho-rsw.jpg', 'alt', '', 'badge', 'Chuyên đề đặc biệt',

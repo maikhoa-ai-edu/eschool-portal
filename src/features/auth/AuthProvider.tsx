@@ -7,7 +7,7 @@ import { AuthContext, type AuthContextValue, type Profile, type Role } from './a
 async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await getSupabase()
     .from('profiles')
-    .select('id, email, full_name, avatar_url, role, is_active')
+    .select('id, email, full_name, avatar_url, role, is_active, must_change_password')
     .eq('id', userId)
     .maybeSingle()
   if (error) throw error
@@ -49,8 +49,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     staleTime: Infinity,
   })
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await getSupabase().auth.signInWithPassword({ email: email.trim(), password })
+  const signIn = useCallback(async (email: string, password: string, captchaToken?: string) => {
+    const { error } = await getSupabase().auth.signInWithPassword({
+      email: email.trim(),
+      password,
+      options: { captchaToken },
+    })
     if (error) throw error
   }, [])
 

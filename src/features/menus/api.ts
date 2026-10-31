@@ -24,7 +24,7 @@ export interface AdminMenuItem {
 }
 
 /** Thứ tự tab: menu đầu trang trước, rồi lối tắt, chân trang, liên kết nhanh */
-const LOCATION_ORDER = ['header', 'mobile_bar', 'shortcuts', 'footer', 'quick_links']
+const LOCATION_ORDER = ['header', 'mobile_bar', 'shortcuts', 'web_links', 'footer', 'quick_links']
 
 export async function fetchMenus() {
   const { data, error } = await getSupabase().from('menus').select('id, code, name, location').order('name')

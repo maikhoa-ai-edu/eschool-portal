@@ -125,3 +125,13 @@ export async function deletePlan(plan: WorkPlan): Promise<void> {
   if (error) throw error
   if (plan.file_path) await supabase.storage.from(DOCUMENTS_BUCKET).remove([plan.file_path])
 }
+
+/** Kế hoạch đã đăng của tháng hiện tại; chưa có thì lấy kế hoạch mới nhất. Kèm các hàng để hiện ở trang chủ. */
+export async function fetchCurrentPlan(limit: number) {
+  const plans = await fetchPlans(true)
+  const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }))
+  const plan = plans.find((p) => p.year === now.getFullYear() && p.month === now.getMonth() + 1) ?? plans[0]
+  if (!plan) return null
+  const items = await fetchPlanItems(plan.id)
+  return { plan, items: items.slice(0, limit) }
+}

@@ -12,6 +12,7 @@ import { useSite } from '@/features/site/site-context'
 import { getSupabase } from '@/lib/supabase'
 import { useAuth } from './auth-context'
 import { AuthCard } from './AuthCard'
+import { useCaptcha } from './captcha-check'
 
 const registerSchema = z
   .object({
@@ -29,6 +30,7 @@ type RegisterValues = z.infer<typeof registerSchema>
 export function RegisterPage() {
   const { status, role } = useAuth()
   const { authOptions } = useSite()
+  const { captchaToken, refreshCaptcha, captchaBox } = useCaptcha()
   const [params] = useSearchParams()
   const [error, setError] = useState<string | null>(null)
   const [pendingEmail, setPendingEmail] = useState<string | null>(null)
@@ -60,6 +62,7 @@ export function RegisterPage() {
         email,
         password,
         options: {
+          captchaToken,
           data: { full_name: fullName, invite_token: token },
           emailRedirectTo: `${window.location.origin}${invited ? '/admin' : '/'}`,
         },
@@ -71,6 +74,7 @@ export function RegisterPage() {
       if (!data.session) setPendingEmail(email)
     } catch (err) {
       setError(toVietnameseError(err))
+      refreshCaptcha()
     }
   })
 
@@ -129,6 +133,7 @@ export function RegisterPage() {
             error={e.confirm?.message}
             {...form.register('confirm')}
           />
+          {captchaBox}
           <Button type="submit" className="w-full" loading={form.formState.isSubmitting}>
             Tạo tài khoản
           </Button>

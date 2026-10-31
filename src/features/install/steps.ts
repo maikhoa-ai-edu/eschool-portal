@@ -7,6 +7,7 @@ export const INSTALL_STEPS = [
   'Thông tin nhà trường',
   'Logo, màu sắc, khẩu hiệu',
   'Chọn module',
+  'Tài khoản các nhóm',
   'Hoàn tất',
 ] as const
 

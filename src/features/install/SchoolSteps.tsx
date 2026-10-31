@@ -16,6 +16,7 @@ import { cn } from '@/lib/cn'
 import { toVietnameseError } from '@/lib/errors'
 import { LOGO_TYPES, mergeSiteSetting, saveModules, uploadLogo } from './api'
 import { adjustLightness, COLOR_PRESETS, contrastRatio, HEX_COLOR } from './color'
+import { CaptchaFields } from './CaptchaFields'
 import { GoogleLoginFields } from './GoogleLoginFields'
 import { MODULE_INFO } from './steps'
 import { StepCard } from './ui'
@@ -130,6 +131,8 @@ const schoolSchema = z.object({
   youtube_url: optionalUrl,
   zalo_url: optionalUrl,
   tiktok_url: optionalUrl,
+  captcha_enabled: z.boolean(),
+  captcha_site_key: z.string().trim().max(100),
   allow_self_signup: z.boolean(),
   google_enabled: z.boolean(),
   google_client_id: z.union([
@@ -162,13 +165,19 @@ export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
       allow_self_signup: authOptions.allow_self_signup,
       google_enabled: authOptions.google_enabled,
       google_client_id: authOptions.google_client_id,
+      captcha_enabled: authOptions.captcha_enabled,
+      captcha_site_key: authOptions.captcha_site_key,
     },
   })
   const e = form.formState.errors
-  const [googleEnabled, selfSignup, clientId] = useWatch({
+  const [googleEnabled, selfSignup, clientId, captchaEnabled, captchaKey] = useWatch({
     control: form.control,
-    name: ['google_enabled', 'allow_self_signup', 'google_client_id'],
+    name: ['google_enabled', 'allow_self_signup', 'google_client_id', 'captcha_enabled', 'captcha_site_key'],
   })
+  // Khóa đang lưu đã bật sẵn thì coi như đã kiểm tra; đổi khóa hoặc mới bật thì phải kiểm tra lại
+  const [checkedKey, setCheckedKey] = useState(
+    authOptions.captcha_enabled ? authOptions.captcha_site_key : '',
+  )
 
   return (
     <StepFrame
@@ -188,11 +197,30 @@ export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
         id="school-form"
         noValidate
         className="space-y-4"
-        onSubmit={form.handleSubmit(({ allow_self_signup, google_enabled, google_client_id, ...values }) =>
-          save(async () => {
-            await mergeSiteSetting('school_identity', values)
-            await mergeSiteSetting('auth_options', { allow_self_signup, google_enabled, google_client_id })
-          }),
+        onSubmit={form.handleSubmit(
+          ({
+            allow_self_signup,
+            google_enabled,
+            google_client_id,
+            captcha_enabled,
+            captcha_site_key,
+            ...values
+          }) => {
+            if (captcha_enabled && (!captcha_site_key || captcha_site_key !== checkedKey)) {
+              form.setError('captcha_site_key', { message: 'Hãy bấm Kiểm tra và đạt trước khi lưu.' })
+              return
+            }
+            return save(async () => {
+              await mergeSiteSetting('school_identity', values)
+              await mergeSiteSetting('auth_options', {
+                allow_self_signup,
+                google_enabled,
+                google_client_id,
+                captcha_enabled,
+                captcha_site_key,
+              })
+            })
+          },
         )}
       >
         {error && <Alert tone="danger" title={error} />}
@@ -258,6 +286,21 @@ export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
             enabled: form.register('google_enabled'),
             selfSignup: form.register('allow_self_signup'),
             clientId: form.register('google_client_id'),
+          }}
+        />
+        <CaptchaFields
+          enabled={captchaEnabled}
+          siteKey={captchaKey}
+          siteKeyError={e.captcha_site_key?.message}
+          register={{
+            enabled: form.register('captcha_enabled'),
+            siteKey: form.register('captcha_site_key'),
+          }}
+          onChecked={({ siteKey, ok }) => {
+            if (ok) {
+              setCheckedKey(siteKey)
+              form.clearErrors('captcha_site_key')
+            }
           }}
         />
       </form>

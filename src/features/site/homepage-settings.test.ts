@@ -28,8 +28,17 @@ describe('cấu hình trang chủ', () => {
       'announcements',
       'documents',
       'visit_counter',
+      'plan_month',
+      'latest_video',
+      'web_links',
     ])
-    expect(s.sections.filter((x) => !x.enabled).map((x) => x.key)).toEqual(['topic_banner', 'shortcuts'])
+    expect(s.sections.filter((x) => !x.enabled).map((x) => x.key)).toEqual([
+      'topic_banner',
+      'shortcuts',
+      'plan_month',
+      'latest_video',
+      'web_links',
+    ])
     expect(s.hero).toBe('full')
     expect(s.heading_style).toBe('underline')
     expect(s.news_list).toBe('list')
@@ -59,7 +68,7 @@ describe('cấu hình trang chủ', () => {
       limit: 6,
       variant: null,
     })
-    expect(sections).toHaveLength(8)
+    expect(sections).toHaveLength(11)
   })
 
   it('số liệu sai kiểu dùng giá trị an toàn', () => {

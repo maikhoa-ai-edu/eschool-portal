@@ -178,7 +178,14 @@ test('cài đặt từ đầu đến khi vào trang quản trị', async ({ page
   await page.screenshot({ path: `${SCREENS}/install-8.png`, fullPage: true })
   await page.getByRole('button', { name: 'Lưu và tiếp tục' }).click()
 
-  // Bước 9: tóm tắt + nhắc lưu config.json (đang chạy bằng bản nháp)
+  // Bước 9: tạo sẵn tài khoản một nhóm, mật khẩu hiện một lần; nhóm khác để sau
+  await expect(page.getByRole('heading', { name: 'Tài khoản các nhóm trong trường' })).toBeVisible()
+  await page.getByLabel('Email Giáo viên').fill('giaovien@e2e.local')
+  await page.getByRole('button', { name: 'Tạo 1 tài khoản' }).click()
+  await expect(page.getByLabel('Mật khẩu của giaovien@e2e.local')).toHaveText(/^\w{14}$/)
+  await page.getByRole('button', { name: 'Đã lưu mật khẩu, tiếp tục' }).click()
+
+  // Bước 10: tóm tắt + nhắc lưu config.json (đang chạy bằng bản nháp)
   await expect(page.getByRole('heading', { name: 'Hoàn tất cài đặt' })).toBeVisible()
   await expect(page.getByText('Trường THPT Kiểm Thử')).toBeVisible()
   await expect(

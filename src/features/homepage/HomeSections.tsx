@@ -24,6 +24,7 @@ import {
 import { VideoThumb } from '@/features/library/VideoThumb'
 import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
 import { fetchCategories, NEWS_KEY } from '@/features/news/api'
+import { fetchCurrentPlan, PLANS_KEY } from '@/features/plans/api'
 import { categoryTitle, sectionTitle, type HomepageSection } from '@/features/site/homepage-settings'
 import { fetchMenu, hideDisabledModules, isExternalUrl } from '@/features/site/menu'
 import { MenuIcon } from '@/features/site/menu-icons'
@@ -471,6 +472,110 @@ export function DocumentsBox({ section, ticker = false }: { section: HomepageSec
         <DocumentRows items={data} />
       )}
       <SideMore to="/van-ban" />
+    </SidebarBox>
+  )
+}
+
+/** Tự ẩn khi chưa có kế hoạch đã đăng. */
+export function PlanMonthBox({ section }: { section: HomepageSection }) {
+  const { data } = useQuery({
+    queryKey: [...PLANS_KEY, 'home', section.limit],
+    queryFn: () => fetchCurrentPlan(section.limit),
+  })
+  if (!data || data.items.length === 0) return null
+  return (
+    <SidebarBox title={`${sectionTitle(section)}`} icon={boxIcon(section)}>
+      <p className="mb-2 text-xs text-muted">
+        Tháng {data.plan.month}/{data.plan.year}
+      </p>
+      <ul className="space-y-2.5">
+        {data.items.map((row, i) => (
+          <li key={i} className="text-sm">
+            {row.time_text && (
+              <span className="block text-xs font-semibold text-accent">{row.time_text}</span>
+            )}
+            <span className="line-clamp-2 font-medium leading-snug">{row.content}</span>
+          </li>
+        ))}
+      </ul>
+      <SideMore to="/ke-hoach" />
+    </SidebarBox>
+  )
+}
+
+export function LatestVideoBox({ section }: { section: HomepageSection }) {
+  const { data = [] } = useQuery({
+    queryKey: [...VIDEOS_KEY, 'home-box', section.limit],
+    queryFn: () => fetchVideos(true, section.limit),
+  })
+  const items = data.filter((v) => videoEmbedUrl(v.url))
+  if (items.length === 0) return null
+  return (
+    <SidebarBox title={sectionTitle(section)} icon={boxIcon(section)}>
+      <ul className="space-y-3">
+        {items.map((v) => (
+          <li key={v.id}>
+            <Link to={`/video?xem=${v.id}`} className="group block">
+              <VideoThumb url={v.url} />
+              <span className="mt-1.5 line-clamp-2 block text-sm font-semibold leading-snug group-hover:text-primary">
+                {v.title}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <SideMore to="/video" />
+    </SidebarBox>
+  )
+}
+
+/** Ô logo hoặc icon trỏ ra website ngoài, dữ liệu từ menu "web_links". */
+export function WebLinksBox({ section }: { section: HomepageSection }) {
+  const { isModuleEnabled } = useSite()
+  const { data = [] } = useQuery({
+    queryKey: ['menu', 'web_links'],
+    queryFn: () => fetchMenu('web_links'),
+  })
+  const items = hideDisabledModules(data, isModuleEnabled).slice(0, section.limit)
+  if (items.length === 0) return null
+  return (
+    <SidebarBox title={sectionTitle(section)} icon={boxIcon(section)}>
+      <ul className="grid gap-2">
+        {items.map((item) => {
+          const image = resolveMediaUrl(item.image_path)
+          const external = isExternalUrl(item.url)
+          const tile =
+            'flex items-center gap-2.5 rounded-lg border border-primary/15 bg-primary/5 p-2 text-sm font-semibold transition hover:border-primary hover:bg-primary/10'
+          const body = (
+            <>
+              {image ? (
+                <img
+                  src={image}
+                  alt=""
+                  loading="lazy"
+                  className="h-8 w-8 shrink-0 rounded bg-white object-contain"
+                />
+              ) : (
+                <MenuIcon name={item.icon} className="h-5 w-5 shrink-0 text-primary" />
+              )}
+              <span className="min-w-0 leading-snug">{item.title}</span>
+            </>
+          )
+          return (
+            <li key={item.id}>
+              {external ? (
+                <a href={item.url} target="_blank" rel="noopener noreferrer" className={tile}>
+                  {body}
+                </a>
+              ) : (
+                <Link to={item.url} className={tile}>
+                  {body}
+                </Link>
+              )}
+            </li>
+          )
+        })}
+      </ul>
     </SidebarBox>
   )
 }

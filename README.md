@@ -63,7 +63,7 @@ Hướng dẫn chi tiết (có ảnh) sẽ có ở Giai đoạn 9. Tóm tắt:
 
 1. Tạo một project [Supabase](https://supabase.com/dashboard/new) (gói miễn phí là đủ).
 2. Đưa website lên hosting: giải nén bản phát hành vào thư mục web (cPanel, VibeHost: nhớ tải cả file ẩn `.htaccess`), hoặc deploy từ GitHub lên Vercel.
-3. Mở website: trình cài đặt hiện ra và hướng dẫn 9 bước (kết nối Supabase, chạy `install.sql` trong SQL Editor để lấy mã cài đặt, lưu cấu hình, tạo quản trị viên, thông tin trường, logo & màu sắc, chọn module).
+3. Mở website: trình cài đặt hiện ra và hướng dẫn 10 bước (kết nối Supabase, chạy `install.sql` trong SQL Editor để lấy mã cài đặt, lưu cấu hình, tạo quản trị viên, thông tin trường, logo & màu sắc, chọn module).
 
 Cách lưu cấu hình kết nối theo từng loại hosting:
 

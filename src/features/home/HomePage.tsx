@@ -12,8 +12,11 @@ import {
   DocumentsBox,
   FeaturedNews,
   LatestNews,
+  LatestVideoBox,
+  PlanMonthBox,
   ShortcutsBlock,
   VisitCounterBox,
+  WebLinksBox,
 } from '@/features/homepage/HomeSections'
 import { useFeaturedNews } from '@/features/homepage/hooks'
 import {
@@ -124,6 +127,12 @@ export function HomePage() {
         )
       case 'documents':
         return <DocumentsBox key={section.id} section={section} ticker={homepage.documents_ticker} />
+      case 'plan_month':
+        return <PlanMonthBox key={section.id} section={section} />
+      case 'latest_video':
+        return <LatestVideoBox key={section.id} section={section} />
+      case 'web_links':
+        return <WebLinksBox key={section.id} section={section} />
       case 'visit_counter':
         return <VisitCounterBox key={section.id} section={section} />
     }

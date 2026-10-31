@@ -247,6 +247,10 @@ export function createAppRouter(configState: ConfigState) {
               lazy: page(() => import('@/features/auth/ResetPasswordPage'), 'ResetPasswordPage'),
             },
             {
+              path: '/doi-mat-khau',
+              lazy: page(() => import('@/features/auth/ResetPasswordPage'), 'ResetPasswordPage'),
+            },
+            {
               path: '/dang-ky',
               lazy: () => import('@/features/auth/RegisterPage').then((m) => ({ Component: m.RegisterPage })),
             },

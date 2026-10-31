@@ -122,3 +122,19 @@ test('tab cạnh slide đổi được tên và icon từ cấu hình', async ({
   await expect(page.getByRole('tab', { name: 'Nổi bật' })).toHaveAttribute('aria-selected', 'true')
   await expect(page.getByRole('tab', { name: 'Xem nhiều' })).toHaveAttribute('aria-selected', 'false')
 })
+
+test('cột phải có Kế hoạch tháng, Video mới, Liên kết website; tắt thì ẩn', async ({ page }) => {
+  await page.goto('/')
+  const aside = page.getByRole('complementary')
+  await expect(aside.getByRole('heading', { name: 'Kế hoạch tháng này' })).toBeVisible()
+  await expect(aside.getByText('Họp hội đồng sư phạm tháng 11')).toBeVisible()
+  await expect(aside.getByRole('heading', { name: 'Video mới' })).toBeVisible()
+  await expect(aside.getByRole('link', { name: 'vnEdu' })).toHaveAttribute('target', '_blank')
+
+  await sql(`update public.site_settings set value = jsonb_set(value, '{sections}', (
+    select jsonb_agg(s) from jsonb_array_elements(value -> 'sections') s
+    where s ->> 'key' not in ('plan_month', 'latest_video', 'web_links'))) where key = 'homepage'`)
+  await page.reload()
+  await expect(aside.getByRole('heading', { name: 'Thông báo' })).toBeVisible()
+  await expect(aside.getByRole('heading', { name: 'Video mới' })).toHaveCount(0)
+})

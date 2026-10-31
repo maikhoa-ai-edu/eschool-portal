@@ -123,6 +123,8 @@ export const authOptionsSchema = z.object({
   allow_self_signup: z.boolean().catch(false),
   google_enabled: z.boolean().catch(false),
   google_client_id: text,
+  captcha_enabled: z.boolean().catch(false),
+  captcha_site_key: text,
 })
 
 export type AuthOptions = z.infer<typeof authOptionsSchema>
