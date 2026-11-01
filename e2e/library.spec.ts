@@ -104,12 +104,13 @@ test('kế hoạch: nhập từ Word, sửa, đính kèm PDF, đăng; khách xem
   const guest = await guestContext.newPage()
   await guest.goto('http://localhost:3000/ke-hoach')
   await expect(guest.getByRole('heading', { name: 'Kế hoạch công tác tháng 11/2026' })).toBeVisible()
-  await expect(guest.getByRole('option', { name: 'Tháng 12/2099' })).toHaveCount(0)
+  await expect(guest.getByRole('link', { name: 'Tháng 12/2099' })).toHaveCount(0)
 
   await page.getByRole('button', { name: 'Đăng kế hoạch' }).click()
   await expect(page.getByText('Đã đăng kế hoạch.')).toBeVisible()
 
   await guest.reload()
+  await guest.getByRole('link', { name: 'Tháng 12/2099' }).click()
   await expect(guest.getByRole('heading', { name: 'E2E Kế hoạch tháng 12' })).toBeVisible()
   await expect(guest.getByRole('cell', { name: 'E2E Kiểm tra hồ sơ đã sửa' })).toBeVisible()
   await expect(guest.getByRole('link', { name: 'Tải file PDF' })).toBeVisible()

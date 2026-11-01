@@ -12,7 +12,16 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { Field } from '@/components/ui/Field'
 import { TextareaField } from '@/components/ui/FormControls'
 import { toVietnameseError } from '@/lib/errors'
-import { deletePlan, fetchPlan, fetchPlanItems, fetchPlans, PLANS_KEY, savePlan, type WorkPlan } from './api'
+import {
+  deletePlan,
+  fetchPlan,
+  fetchPlanItems,
+  fetchPlans,
+  PLANS_KEY,
+  savePlan,
+  type PlanItem,
+  type WorkPlan,
+} from './api'
 import type { PlanRow } from './docx'
 
 export function PlanListPage() {
@@ -65,15 +74,22 @@ export function PlanListPage() {
   )
 }
 
-interface EditRow extends PlanRow {
+interface EditRow extends PlanItem {
   key: number
 }
 
 let nextKey = 0
-const toEditRow = (row: PlanRow): EditRow => ({ ...row, key: nextKey++ })
+/** Hàng lấy từ file Word chưa có thông tin sự kiện: mặc định không đánh dấu. */
+const toEditRow = (row: PlanRow & Partial<PlanItem>): EditRow => ({
+  is_important: false,
+  event_date: null,
+  event_end_date: null,
+  ...row,
+  key: nextKey++,
+})
 const emptyRow = (): EditRow => toEditRow({ time_text: '', content: '', assignee: '' })
 
-function PlanForm({ plan, initialRows }: { plan: WorkPlan | null; initialRows: PlanRow[] }) {
+function PlanForm({ plan, initialRows }: { plan: WorkPlan | null; initialRows: PlanItem[] }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [now] = useState(() => new Date())
@@ -91,7 +107,7 @@ function PlanForm({ plan, initialRows }: { plan: WorkPlan | null; initialRows: P
   const docxInput = useRef<HTMLInputElement>(null)
   const pdfInput = useRef<HTMLInputElement>(null)
 
-  const setRow = (key: number, patch: Partial<PlanRow>) =>
+  const setRow = (key: number, patch: Partial<PlanItem>) =>
     setRows((list) => list.map((r) => (r.key === key ? { ...r, ...patch } : r)))
   const move = (index: number, delta: -1 | 1) =>
     setRows((list) => {
@@ -99,7 +115,9 @@ function PlanForm({ plan, initialRows }: { plan: WorkPlan | null; initialRows: P
       ;[next[index], next[index + delta]] = [next[index + delta]!, next[index]!]
       return next
     })
-  const filled = rows.filter((r) => r.content.trim() || r.time_text.trim() || r.assignee.trim())
+  const filled = rows.filter(
+    (r) => r.content.trim() || r.time_text.trim() || r.assignee.trim() || r.is_important,
+  )
   const missingContent = filled.some((r) => !r.content.trim())
   const finalTitle = title.trim() || `Kế hoạch công tác tháng ${month}/${year}`
 
@@ -132,6 +150,14 @@ function PlanForm({ plan, initialRows }: { plan: WorkPlan | null; initialRows: P
       setNotice({ tone: 'danger', text: 'Hàng nào đã nhập cũng cần có nội dung công việc.' })
       return
     }
+    if (filled.some((r) => r.is_important && !r.event_date)) {
+      setNotice({ tone: 'danger', text: 'Sự kiện quan trọng cần có ngày để hiện trên lịch.' })
+      return
+    }
+    if (filled.some((r) => r.is_important && r.event_end_date && r.event_end_date < r.event_date!)) {
+      setNotice({ tone: 'danger', text: 'Ngày kết thúc sự kiện không được trước ngày bắt đầu.' })
+      return
+    }
     if (status === 'published' && filled.length === 0 && !pdf && (!plan?.file_path || removePdf)) {
       setNotice({ tone: 'danger', text: 'Kế hoạch cần có ít nhất một hàng hoặc file PDF.' })
       return
@@ -146,10 +172,13 @@ function PlanForm({ plan, initialRows }: { plan: WorkPlan | null; initialRows: P
           title: finalTitle,
           note: note.trim(),
           status,
-          rows: filled.map(({ time_text, content, assignee }) => ({
+          rows: filled.map(({ time_text, content, assignee, is_important, event_date, event_end_date }) => ({
             time_text: time_text.trim(),
             content: content.trim(),
             assignee: assignee.trim(),
+            is_important,
+            event_date: is_important ? event_date : null,
+            event_end_date: is_important ? event_end_date || null : null,
           })),
           pdf,
           removePdf,
@@ -301,6 +330,43 @@ function PlanForm({ plan, initialRows }: { plan: WorkPlan | null; initialRows: P
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-sm md:col-span-4 md:mb-2">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={row.is_important}
+                    aria-label={`Sự kiện quan trọng hàng ${index + 1}`}
+                    onChange={(e) => setRow(row.key, { is_important: e.target.checked })}
+                    className="h-4 w-4"
+                  />
+                  Sự kiện quan trọng (đánh dấu trên lịch)
+                </label>
+                {row.is_important && (
+                  <>
+                    <label className="flex items-center gap-2">
+                      Từ ngày
+                      <input
+                        type="date"
+                        value={row.event_date ?? ''}
+                        aria-label={`Ngày bắt đầu hàng ${index + 1}`}
+                        onChange={(e) => setRow(row.key, { event_date: e.target.value || null })}
+                        className="h-9 rounded-lg border border-border bg-surface px-2"
+                      />
+                    </label>
+                    <label className="flex items-center gap-2">
+                      Đến ngày (nếu nhiều ngày)
+                      <input
+                        type="date"
+                        value={row.event_end_date ?? ''}
+                        min={row.event_date ?? undefined}
+                        aria-label={`Ngày kết thúc hàng ${index + 1}`}
+                        onChange={(e) => setRow(row.key, { event_end_date: e.target.value || null })}
+                        className="h-9 rounded-lg border border-border bg-surface px-2"
+                      />
+                    </label>
+                  </>
+                )}
               </div>
             </li>
           ))}

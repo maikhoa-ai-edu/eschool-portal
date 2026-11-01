@@ -174,6 +174,12 @@ const adminContentRoutes: RouteObject[] = [
       page(() => import('@/features/pages/admin/PageEditorPage'), 'PageEditorPage'),
     ),
   ),
+  adminSection('co-cau-to-chuc', 'organization.manage', [
+    {
+      index: true,
+      lazy: page(() => import('@/features/organization/OrganizationAdminPage'), 'OrganizationAdminPage'),
+    },
+  ]),
   adminSection(
     'chuyen-de',
     'topics.manage',
@@ -267,6 +273,10 @@ export function createAppRouter(configState: ConfigState) {
                 {
                   path: 'tim-kiem',
                   lazy: page(() => import('@/features/search/SearchPage'), 'SearchPage'),
+                },
+                {
+                  path: 'so-do-trang',
+                  lazy: page(() => import('@/features/sitemap/SitemapPage'), 'SitemapPage'),
                 },
                 {
                   path: '*',

@@ -28,6 +28,8 @@ import {
   savePage,
   type EditablePage,
 } from '../api'
+import { mapEmbedUrl, parseAboutLanding } from '../landing'
+import { AboutFields } from './AboutFields'
 
 const schema = z.object({
   title: z.string().trim().min(1, 'Vui lòng nhập tiêu đề').max(200),
@@ -74,12 +76,18 @@ function PageForm({ page }: { page: EditablePage | null }) {
   })
   const e = form.formState.errors
   const slug = useWatch({ control: form.control, name: 'slug' })
+  const template = useWatch({ control: form.control, name: 'template' })
+  const [landing, setLanding] = useState(() => parseAboutLanding(page?.landing))
 
   const submit = form.handleSubmit(async (values) => {
     setError(null)
     setMessage(null)
+    if (values.template === 'about' && landing.map_url.trim() && !mapEmbedUrl(landing.map_url)) {
+      setError('Bản đồ chỉ nhận link nhúng của Google Maps.')
+      return
+    }
     try {
-      const id = await savePage(values, page?.id)
+      const id = await savePage({ ...values, landing }, page?.id)
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: PAGES_KEY }),
         queryClient.invalidateQueries({ queryKey: ['menu'] }),
@@ -164,7 +172,17 @@ function PageForm({ page }: { page: EditablePage | null }) {
                 )}
               />
             </div>
+            {template === 'organization' && (
+              <p className="text-sm text-muted">
+                Bộ phận và thành viên nhập ở mục{' '}
+                <Link to="/admin/co-cau-to-chuc" className="text-primary hover:underline">
+                  Cơ cấu tổ chức
+                </Link>
+                , hiện ngay dưới nội dung trên.
+              </p>
+            )}
           </Panel>
+          {template === 'about' && <AboutFields value={landing} onChange={setLanding} />}
           <Panel title="Tối ưu tìm kiếm (SEO)">
             <Field
               label="Tiêu đề SEO"

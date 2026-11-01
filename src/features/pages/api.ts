@@ -1,15 +1,18 @@
 import type { BadgeTone } from '@/components/ui/Badge'
 import { withRandomSuffix } from '@/lib/slug'
 import { getSupabase, requireUserId } from '@/lib/supabase'
+import type { AboutLanding } from './landing'
 
 export const PAGES_KEY = ['pages'] as const
 
-export const PAGE_TEMPLATES = ['default', 'fullwidth', 'contact'] as const
+export const PAGE_TEMPLATES = ['default', 'fullwidth', 'contact', 'about', 'organization'] as const
 export type PageTemplate = (typeof PAGE_TEMPLATES)[number]
 export const PAGE_TEMPLATE_LABELS: Record<PageTemplate, string> = {
   default: 'Mặc định',
   fullwidth: 'Toàn chiều rộng',
   contact: 'Liên hệ (kèm thông tin trường)',
+  about: 'Giới thiệu (landing page)',
+  organization: 'Cơ cấu tổ chức (danh sách bộ phận)',
 }
 export function asPageTemplate(value: string): PageTemplate {
   return (PAGE_TEMPLATES as readonly string[]).includes(value) ? (value as PageTemplate) : 'default'
@@ -45,7 +48,7 @@ export async function fetchPage(id: string) {
   const { data, error } = await getSupabase()
     .from('pages')
     .select(
-      'id, title, slug, content, excerpt, featured_image_url, template, status, sort_order, meta_title, meta_description, no_index',
+      'id, title, slug, content, excerpt, featured_image_url, template, landing, status, sort_order, meta_title, meta_description, no_index',
     )
     .eq('id', id)
     .maybeSingle()
@@ -67,6 +70,7 @@ export interface PageInput {
   meta_title: string
   meta_description: string
   no_index: boolean
+  landing: AboutLanding
 }
 
 export async function savePage(input: PageInput, id?: string): Promise<string> {
@@ -107,7 +111,9 @@ export async function deletePage(id: string): Promise<void> {
 export async function fetchPublicPage(slug: string) {
   const { data, error } = await getSupabase()
     .from('pages')
-    .select('id, title, slug, content, excerpt, featured_image_url, template, status, meta_title, updated_at')
+    .select(
+      'id, title, slug, content, excerpt, featured_image_url, template, landing, status, meta_title, updated_at',
+    )
     .eq('slug', slug)
     .maybeSingle()
   if (error) throw error

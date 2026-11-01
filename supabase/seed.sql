@@ -64,7 +64,7 @@ update public.site_settings set value = value || jsonb_build_object(
 ) where key = 'branding';
 
 update public.site_settings set value = jsonb_build_object(
-  'header_social', true, 'nav_search', true, 'content_sidebar', true, 'footer_link_icons', true, 'footer_connect_icons', true,
+  'header_social', true, 'header_sitemap', true, 'nav_search', true, 'content_sidebar', true, 'footer_link_icons', true, 'footer_connect_icons', true,
   'footer_info_lines', jsonb_build_array(
     jsonb_build_object('icon', 'clock', 'text', 'Giờ làm việc: 7h00 - 17h00, thứ Hai đến thứ Sáu', 'url', null)
   )
@@ -486,10 +486,51 @@ insert into public.resources (title, url, kind, description, sort_order, created
   ('Giáo án mẫu môn Ngữ văn', 'https://example.com/giao-an-ngu-van', 'giao_an', 'Link minh họa.', 2, '00000000-0000-0000-0000-0000000000a2');
 insert into public.work_plans (id, year, month, title, note, status, created_by) values
   ('00000000-0000-0000-0000-0000000000d9', 2026, 11, 'Kế hoạch công tác tháng 11/2026', 'Trọng tâm: chào mừng Ngày Nhà giáo Việt Nam 20/11.', 'published', '00000000-0000-0000-0000-0000000000a2');
-insert into public.work_plan_items (plan_id, sort_order, time_text, content, assignee) values
-  ('00000000-0000-0000-0000-0000000000d9', 0, '02/11', 'Họp hội đồng sư phạm tháng 11', 'Ban giám hiệu'),
-  ('00000000-0000-0000-0000-0000000000d9', 1, '03/11 - 14/11', 'Hội giảng chào mừng 20/11', 'Các tổ chuyên môn'),
-  ('00000000-0000-0000-0000-0000000000d9', 2, '20/11', 'Lễ kỷ niệm Ngày Nhà giáo Việt Nam', 'Công đoàn, Đoàn trường');
+-- Kế hoạch tháng trước để thấy danh sách các tháng; các hàng có đánh dấu sự kiện hiện trên lịch
+insert into public.work_plans (id, year, month, title, note, status, created_by) values
+  ('00000000-0000-0000-0000-0000000000d8', 2026, 10, 'Kế hoạch công tác tháng 10/2026', null, 'published', '00000000-0000-0000-0000-0000000000a2');
+insert into public.work_plan_items (plan_id, sort_order, time_text, content, assignee, is_important, event_date, event_end_date) values
+  ('00000000-0000-0000-0000-0000000000d8', 0, '05/10', 'Họp phụ huynh đầu năm', 'Giáo viên chủ nhiệm', true, '2026-10-05', null),
+  ('00000000-0000-0000-0000-0000000000d8', 1, '20/10', 'Hoạt động chào mừng Ngày Phụ nữ Việt Nam', 'Công đoàn', false, null, null),
+  ('00000000-0000-0000-0000-0000000000d9', 0, '02/11', 'Họp hội đồng sư phạm tháng 11', 'Ban giám hiệu', false, null, null),
+  ('00000000-0000-0000-0000-0000000000d9', 1, '03/11 - 14/11', 'Hội giảng chào mừng 20/11', 'Các tổ chuyên môn', true, '2026-11-03', '2026-11-14'),
+  ('00000000-0000-0000-0000-0000000000d9', 2, '20/11', 'Lễ kỷ niệm Ngày Nhà giáo Việt Nam', 'Công đoàn, Đoàn trường', true, '2026-11-20', null);
+
+-- Trang Giới thiệu dạng landing và Cơ cấu tổ chức. Tên, số liệu chỉ là dữ liệu minh họa.
+update public.pages set template = 'about', content = '', featured_image_url = 'seed/slide-hoc-tap-rsw.jpg', landing = jsonb_build_object(
+  'tagline', 'Dạy tốt - Học tốt - Rèn luyện tốt',
+  'history', E'Trường được thành lập năm 1978, từ một trường cấp II nhỏ nay đã trở thành trường THCS & THPT với hơn 1.200 học sinh và 80 cán bộ, giáo viên, nhân viên.\nNhiều năm liền đạt danh hiệu Tập thể lao động xuất sắc và đạt chuẩn quốc gia mức độ 1.',
+  'mission', 'Xây dựng môi trường học tập thân thiện, an toàn; giúp mỗi học sinh phát triển toàn diện phẩm chất và năng lực.',
+  'vision', 'Trở thành ngôi trường được phụ huynh tin chọn, nơi học sinh tự tin, sáng tạo và sống có trách nhiệm.',
+  'core_values', jsonb_build_array(
+    jsonb_build_object('title', 'Trách nhiệm', 'text', 'Mỗi thầy cô, học sinh làm tròn phần việc của mình.'),
+    jsonb_build_object('title', 'Nhân ái', 'text', 'Tôn trọng, sẻ chia và giúp đỡ lẫn nhau.'),
+    jsonb_build_object('title', 'Sáng tạo', 'text', 'Khuyến khích đặt câu hỏi, thử nghiệm và đổi mới.')
+  ),
+  'campus_text', 'Khuôn viên rộng rãi, nhiều cây xanh, có thư viện, phòng thực hành và sân chơi cho học sinh.',
+  'campus_images', jsonb_build_array('seed/album/khuon-vien-rsw.jpg', 'seed/album/san-truong-rsw.jpg', 'seed/album/thu-vien-rsw.jpg'),
+  'map_url', 'https://www.google.com/maps?q=An+Giang&output=embed'
+)
+where slug = 'gioi-thieu';
+
+update public.pages set template = 'organization', content = '<p>Bấm vào từng bộ phận để xem danh sách thành viên.</p>'
+where slug = 'co-cau-to-chuc';
+
+insert into public.org_units (id, name, description, sort_order) values
+  ('00000000-0000-0000-0000-0000000000e1', 'Ban giám hiệu', null, 0),
+  ('00000000-0000-0000-0000-0000000000e2', 'Tổ văn phòng', null, 1),
+  ('00000000-0000-0000-0000-0000000000e3', 'Tổ chuyên môn 1', 'Toán - Tin', 2),
+  ('00000000-0000-0000-0000-0000000000e4', 'Tổ chuyên môn 2', 'Ngữ văn - Ngoại ngữ', 3);
+insert into public.org_members (unit_id, full_name, position, start_year, qualification, subjects, is_visible, sort_order) values
+  ('00000000-0000-0000-0000-0000000000e1', 'Nguyễn Văn An', 'Hiệu trưởng', 1998, 'Thạc sĩ Quản lý giáo dục', 'Toán', true, 0),
+  ('00000000-0000-0000-0000-0000000000e1', 'Trần Thị Bình', 'Phó Hiệu trưởng', 2003, 'Đại học Sư phạm Ngữ văn', 'Ngữ văn', true, 1),
+  ('00000000-0000-0000-0000-0000000000e2', 'Lê Thị Cúc', 'Kế toán', 2010, 'Đại học Kế toán', null, true, 0),
+  ('00000000-0000-0000-0000-0000000000e2', 'Phạm Văn Dũng', 'Nhân viên thiết bị', 2015, 'Cao đẳng Công nghệ', null, true, 1),
+  ('00000000-0000-0000-0000-0000000000e3', 'Võ Minh Đức', 'Tổ trưởng', 2006, 'Đại học Sư phạm Toán', 'Toán', true, 0),
+  ('00000000-0000-0000-0000-0000000000e3', 'Huỳnh Thị Giang', 'Giáo viên', 2012, 'Đại học Sư phạm Tin học', 'Tin học', true, 1),
+  ('00000000-0000-0000-0000-0000000000e3', 'Giáo viên Đang Ẩn', 'Giáo viên', 2020, 'Đại học Sư phạm Toán', 'Toán', false, 2),
+  ('00000000-0000-0000-0000-0000000000e4', 'Đặng Thu Hà', 'Tổ trưởng', 2008, 'Đại học Sư phạm Ngữ văn', 'Ngữ văn', true, 0),
+  ('00000000-0000-0000-0000-0000000000e4', 'Bùi Quốc Khánh', 'Giáo viên', 2016, 'Đại học Sư phạm Tiếng Anh', 'Tiếng Anh', true, 1);
 
 -- Bình luận mẫu: đã duyệt và đang chờ duyệt (kết nối seed là kết nối tin cậy nên trigger không đổi trạng thái)
 insert into public.news_comments (news_id, user_id, author_name, content, status, created_at)

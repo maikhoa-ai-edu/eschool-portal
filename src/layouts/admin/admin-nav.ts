@@ -12,6 +12,7 @@ import {
   LayoutTemplate,
   ListTree,
   MessageSquare,
+  Network,
   Newspaper,
   NotebookText,
   Palette,
@@ -116,6 +117,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
         to: '/admin/trang',
         icon: NotebookText,
         permission: 'pages.manage',
+        module: 'pages',
+      },
+      {
+        label: 'Cơ cấu tổ chức',
+        to: '/admin/co-cau-to-chuc',
+        icon: Network,
+        permission: 'organization.manage',
         module: 'pages',
       },
       {

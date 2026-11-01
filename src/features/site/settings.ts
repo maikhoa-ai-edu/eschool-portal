@@ -85,6 +85,7 @@ export interface FooterInfoLine {
 /** Đầu trang và chân trang. Thiếu khóa (cấu hình cũ) thì mọi tùy chọn tắt, giao diện giữ nguyên. */
 export const siteChromeSchema = z.object({
   header_social: z.boolean().catch(false),
+  header_sitemap: z.boolean().catch(false),
   nav_search: z.boolean().catch(false),
   /** Trang Thông báo, Văn bản có cột phải */
   content_sidebar: z.boolean().catch(false),

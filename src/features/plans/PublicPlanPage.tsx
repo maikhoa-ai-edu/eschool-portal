@@ -1,23 +1,30 @@
-import { useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
-import { CalendarRange, Download } from 'lucide-react'
-import { PublicPageHeader, PublicQueryState } from '@/components/content/PublicPage'
+import { CalendarRange, Download, Star } from 'lucide-react'
+import { PublicPageHeader, PublicQueryState, SidebarBox, WithSidebar } from '@/components/content/PublicPage'
 import { buttonClasses } from '@/components/ui/button-classes'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { cn } from '@/lib/cn'
 import { usePageTitle } from '@/lib/use-page-title'
 import { fetchPlanItems, fetchPlans, planFileUrl, planFileViewUrl, PLANS_KEY } from './api'
+import { todayInVietnam } from './calendar'
+import { PlanCalendar } from './PlanCalendar'
 
 export function PublicPlanPage() {
   usePageTitle('Kế hoạch công tác')
-  const [params, setParams] = useSearchParams()
+  const [params] = useSearchParams()
   const plans = useQuery({ queryKey: [...PLANS_KEY, 'public'], queryFn: () => fetchPlans(true) })
   const list = plans.data ?? []
-  const plan = list.find((p) => p.id === params.get('thang')) ?? list[0]
+  const today = todayInVietnam()
+  const thisMonth = { year: Number(today.slice(0, 4)), month: Number(today.slice(5, 7)) }
+  const picked = list.find((p) => p.id === params.get('thang'))
+  const plan = picked ?? list.find((p) => p.year === thisMonth.year && p.month === thisMonth.month) ?? list[0]
   const items = useQuery({
     queryKey: [...PLANS_KEY, 'items', plan?.id],
     queryFn: () => fetchPlanItems(plan!.id),
     enabled: Boolean(plan),
   })
+  const calendarMonth = picked ? { year: picked.year, month: picked.month } : thisMonth
 
   return (
     <div>
@@ -25,21 +32,32 @@ export function PublicPlanPage() {
       <PublicQueryState isPending={plans.isPending} error={plans.error} />
       {plans.data && list.length === 0 && <EmptyState icon={CalendarRange} title="Chưa có kế hoạch" />}
       {plan && (
-        <div className="space-y-4">
-          <label className="flex items-center gap-2 text-sm font-medium">
-            Tháng
-            <select
-              value={plan.id}
-              onChange={(e) => setParams({ thang: e.target.value })}
-              className="h-10 rounded-lg border border-border bg-surface px-3 text-sm font-normal"
-            >
-              {list.map((p) => (
-                <option key={p.id} value={p.id}>
-                  Tháng {p.month}/{p.year}
-                </option>
-              ))}
-            </select>
-          </label>
+        <WithSidebar
+          sidebar={
+            <>
+              <PlanCalendar key={`${calendarMonth.year}-${calendarMonth.month}`} initial={calendarMonth} />
+              <SidebarBox title="Kế hoạch các tháng">
+                <ul className="space-y-1 text-sm">
+                  {list.map((p) => (
+                    <li key={p.id}>
+                      <Link
+                        to={`/ke-hoach?thang=${p.id}`}
+                        aria-current={p.id === plan.id ? 'page' : undefined}
+                        className={cn(
+                          'flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-primary/10',
+                          p.id === plan.id && 'bg-primary/10 font-bold text-primary',
+                        )}
+                      >
+                        <CalendarRange className="h-4 w-4 shrink-0" aria-hidden />
+                        Tháng {p.month}/{p.year}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </SidebarBox>
+            </>
+          }
+        >
           <section className="space-y-4 rounded-xl bg-surface p-4 shadow-sm sm:p-6">
             <h2 className="text-xl font-bold text-primary">{plan.title}</h2>
             {plan.note && <p className="whitespace-pre-line text-sm text-muted">{plan.note}</p>}
@@ -61,9 +79,21 @@ export function PublicPlanPage() {
                   </thead>
                   <tbody>
                     {items.data.map((row, i) => (
-                      <tr key={i} className="border-b border-border align-top">
+                      <tr
+                        key={i}
+                        className={cn('border-b border-border align-top', row.is_important && 'bg-danger/5')}
+                      >
                         <td className="whitespace-pre-line p-2.5 font-medium">{row.time_text}</td>
-                        <td className="whitespace-pre-line p-2.5">{row.content}</td>
+                        <td className="whitespace-pre-line p-2.5">
+                          {row.is_important && (
+                            <Star
+                              className="mr-1 inline h-4 w-4 align-text-bottom text-danger"
+                              role="img"
+                              aria-label="Sự kiện quan trọng"
+                            />
+                          )}
+                          {row.content}
+                        </td>
                         <td className="whitespace-pre-line p-2.5">{row.assignee}</td>
                       </tr>
                     ))}
@@ -89,7 +119,7 @@ export function PublicPlanPage() {
               </>
             )}
           </section>
-        </div>
+        </WithSidebar>
       )}
     </div>
   )

@@ -87,6 +87,10 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
       tác giả và nguồn, tin liên quan; phân loại thông báo, cây thư mục và lượt xem văn bản; Video, Tài nguyên, Kế hoạch công tác (nhập từ bảng Word, PDF chỉ đính kèm);
       đăng nhập 2 cột, Google khai trong Thông tin trường, vai trò Thành viên, bình luận có duyệt. Nhóm tài khoản (Ban giám hiệu, Tổ trưởng, Đoàn thể, Giáo viên, Nhân viên) tạo với mật khẩu ngẫu nhiên, buộc đổi lần đầu, Nhân bản, Cấp lại mật khẩu; Turnstile tùy chọn; khối cột phải Kế hoạch tháng, Video mới, Liên kết website; đầu trang dính trên điện thoại.
       Lighthouse cuối đợt: điện thoại 67-70 (LCP 7,9-8,0 s), thấp hơn mức 71-80 đã chấp nhận; máy tính 93-95. Đã tối ưu lại sau đó: điện thoại 74-77, máy tính 96-97 (xem Ghi chú kỹ thuật)
+- [x] Tinh chỉnh sau 8.6, schema 0.11.0. Bố cục trang `about` (landing, nội dung theo mục trong `pages.landing`, bản đồ chỉ nhận link nhúng Google Maps) và `organization`
+      (bảng `org_units`, `org_members`, quyền `organization.manage`, tách khỏi tài khoản, không có điện thoại, email, ngày sinh, ẩn được từng người); trang Kế hoạch 2 cột, lịch tháng,
+      đánh dấu sự kiện quan trọng (`is_important`, `event_date`, `event_end_date`); Sơ đồ trang `/so-do-trang`, icon theo `site_chrome.header_sitemap`.
+      Trường đang chạy giữ bố cục cũ tới khi đổi trong Trang tĩnh, icon tắt
 
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
 

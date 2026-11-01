@@ -108,6 +108,7 @@ export interface LinkSuggestion {
 const MODULE_LINKS: Array<{ module: ModuleKey | null; title: string; url: string }> = [
   { module: null, title: 'Trang chủ', url: '/' },
   { module: null, title: 'Tìm kiếm', url: '/tim-kiem' },
+  { module: null, title: 'Sơ đồ trang', url: '/so-do-trang' },
   { module: 'news', title: 'Tin tức', url: '/tin-tuc' },
   { module: 'announcements', title: 'Thông báo', url: '/thong-bao' },
   { module: 'documents', title: 'Văn bản', url: '/van-ban' },

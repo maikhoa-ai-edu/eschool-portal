@@ -15,10 +15,13 @@ export function PublicPageHeader({
   title,
   crumbs = [],
   children,
+  hideTitle = false,
 }: {
   title: string
   crumbs?: Crumb[]
   children?: ReactNode
+  /** Trang tự hiện tiêu đề lớn (landing): thẻ h1 chỉ còn cho trình đọc màn hình */
+  hideTitle?: boolean
 }) {
   return (
     <header className="mb-5 space-y-2">
@@ -43,7 +46,7 @@ export function PublicPageHeader({
           ))}
         </ol>
       </nav>
-      <h1 className="text-2xl font-bold text-primary">{title}</h1>
+      <h1 className={hideTitle ? 'sr-only' : 'text-2xl font-bold text-primary'}>{title}</h1>
       {children}
     </header>
   )

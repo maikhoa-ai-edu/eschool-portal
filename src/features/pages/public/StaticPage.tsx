@@ -10,10 +10,12 @@ import {
 } from '@/components/content/PublicPage'
 import { RichContent } from '@/components/content/RichContent'
 import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
+import { OrganizationList } from '@/features/organization/OrganizationList'
 import { useSite } from '@/features/site/site-context'
 import { cn } from '@/lib/cn'
 import { usePageTitle } from '@/lib/use-page-title'
 import { asPageTemplate, fetchPublicPage, PAGES_KEY } from '../api'
+import { AboutLanding } from './AboutLanding'
 
 function ContactCard() {
   const { identity } = useSite()
@@ -71,6 +73,15 @@ export function StaticPage() {
   if (!page) return <NotFound />
   const template = asPageTemplate(page.template)
 
+  if (template === 'about') {
+    return (
+      <div>
+        {page.status !== 'published' && <DraftPreviewNotice />}
+        <AboutLanding page={page} />
+      </div>
+    )
+  }
+
   const body = (
     <article className="rounded-xl bg-surface p-4 shadow-sm sm:p-6">
       <PublicPageHeader title={page.title} crumbs={[{ label: page.title }]} />
@@ -83,6 +94,7 @@ export function StaticPage() {
         />
       )}
       <RichContent html={page.content} />
+      {template === 'organization' && <OrganizationList />}
     </article>
   )
 

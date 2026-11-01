@@ -1,6 +1,6 @@
 -- Sao lưu & khôi phục: quyền, không lộ bí mật, khôi phục đúng dữ liệu, đổi id theo email, giữ nhật ký
 begin;
-select plan(26);
+select plan(27);
 
 -- ===================== QUYỀN =====================
 select tests.as_anon();
@@ -62,6 +62,7 @@ select is((select count(*)::int from public.videos where title = 'Video sau khi 
 select ok(exists (select 1 from public.content_groups where parent_id is not null), 'Khôi phục cây thư mục');
 select ok(exists (select 1 from public.documents where folder_id is not null), 'Văn bản giữ thư mục');
 select ok(exists (select 1 from public.work_plan_items), 'Khôi phục kế hoạch công tác');
+select ok(exists (select 1 from public.org_members), 'Khôi phục thành viên bộ phận');
 select ok(exists (select 1 from public.news_comments where status = 'pending'), 'Khôi phục bình luận, giữ trạng thái');
 select ok(exists (select 1 from public.audit_logs where table_name = 'backup' and summary like 'Khôi phục bản sao lưu%'),
   'Việc khôi phục được ghi nhật ký');

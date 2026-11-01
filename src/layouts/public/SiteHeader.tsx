@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
-import { LogIn, LogOut, LayoutDashboard } from 'lucide-react'
+import { LogIn, LogOut, LayoutDashboard, Network } from 'lucide-react'
 import { SchoolLogo } from '@/components/SchoolLogo'
 import { useAuth } from '@/features/auth/auth-context'
 import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
@@ -45,6 +45,16 @@ function UtilityBar() {
         </p>
         <div className="flex items-center gap-3">
           {chrome.header_social && <SocialLinks size="sm" />}
+          {chrome.header_sitemap && (
+            <Link
+              to="/so-do-trang"
+              aria-label="Sơ đồ trang"
+              title="Sơ đồ trang"
+              className="flex h-6 w-6 items-center justify-center hover:text-white"
+            >
+              <Network className="h-3.5 w-3.5" aria-hidden />
+            </Link>
+          )}
           {status === 'signed_in' && role ? (
             <Link to="/admin" className="inline-flex items-center gap-1.5 whitespace-nowrap hover:text-white">
               <LayoutDashboard className="h-3.5 w-3.5" aria-hidden /> Trang quản trị

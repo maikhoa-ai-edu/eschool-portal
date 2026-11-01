@@ -1,5 +1,6 @@
 import { DOCUMENTS_BUCKET, publicFileUrl } from '@/features/media/api'
 import { getSupabase, requireUserId } from '@/lib/supabase'
+import { daysInMonth, isoDate, type PlanEvent, type YearMonth } from './calendar'
 import type { PlanRow } from './docx'
 
 export const PLANS_KEY = ['plans'] as const
@@ -31,14 +32,39 @@ export async function fetchPlans(publishedOnly: boolean): Promise<WorkPlan[]> {
   return data
 }
 
-export async function fetchPlanItems(planId: string): Promise<PlanRow[]> {
+/** Một hàng kế hoạch; hàng được đánh dấu quan trọng luôn có ngày để hiện trên lịch. */
+export interface PlanItem extends PlanRow {
+  is_important: boolean
+  event_date: string | null
+  event_end_date: string | null
+}
+
+export async function fetchPlanItems(planId: string): Promise<PlanItem[]> {
   const { data, error } = await getSupabase()
     .from('work_plan_items')
-    .select('time_text, content, assignee')
+    .select('time_text, content, assignee, is_important, event_date, event_end_date')
     .eq('plan_id', planId)
     .order('sort_order')
   if (error) throw error
   return data
+}
+
+/** Sự kiện quan trọng có ngày rơi vào tháng. Lọc rõ kế hoạch đã đăng vì RLS cho nhân viên đọc cả bản nháp. */
+export async function fetchMonthEvents(target: YearMonth): Promise<PlanEvent[]> {
+  const start = isoDate(target.year, target.month, 1)
+  const end = isoDate(target.year, target.month, daysInMonth(target))
+  const { data, error } = await getSupabase()
+    .from('work_plan_items')
+    .select('content, event_date, event_end_date, work_plans!inner(status)')
+    .eq('is_important', true)
+    .eq('work_plans.status', 'published')
+    .lte('event_date', end)
+    .or(`event_end_date.gte.${start},and(event_end_date.is.null,event_date.gte.${start})`)
+    .order('event_date')
+  if (error) throw error
+  return data.flatMap(({ content, event_date, event_end_date }) =>
+    event_date ? [{ content, event_date, event_end_date }] : [],
+  )
 }
 
 export async function fetchPlan(id: string): Promise<WorkPlan | null> {
@@ -61,7 +87,7 @@ export interface PlanInput {
   title: string
   note: string
   status: 'draft' | 'published'
-  rows: PlanRow[]
+  rows: PlanItem[]
   /** null = giữ file đang có */
   pdf: File | null
   removePdf: boolean

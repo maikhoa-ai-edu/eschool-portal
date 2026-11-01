@@ -858,6 +858,86 @@ export type Database = {
         }
         Relationships: []
       }
+      org_members: {
+        Row: {
+          avatar_path: string | null
+          created_at: string
+          full_name: string
+          id: string
+          is_visible: boolean
+          position: string | null
+          qualification: string | null
+          sort_order: number
+          start_year: number | null
+          subjects: string | null
+          unit_id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_path?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          is_visible?: boolean
+          position?: string | null
+          qualification?: string | null
+          sort_order?: number
+          start_year?: number | null
+          subjects?: string | null
+          unit_id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_path?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          is_visible?: boolean
+          position?: string | null
+          qualification?: string | null
+          sort_order?: number
+          start_year?: number | null
+          subjects?: string | null
+          unit_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_members_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "org_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_units: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pages: {
         Row: {
           content: string
@@ -866,6 +946,7 @@ export type Database = {
           excerpt: string | null
           featured_image_url: string | null
           id: string
+          landing: Json
           meta_description: string | null
           meta_title: string | null
           no_index: boolean
@@ -885,6 +966,7 @@ export type Database = {
           excerpt?: string | null
           featured_image_url?: string | null
           id?: string
+          landing?: Json
           meta_description?: string | null
           meta_title?: string | null
           no_index?: boolean
@@ -904,6 +986,7 @@ export type Database = {
           excerpt?: string | null
           featured_image_url?: string | null
           id?: string
+          landing?: Json
           meta_description?: string | null
           meta_title?: string | null
           no_index?: boolean
@@ -1203,7 +1286,10 @@ export type Database = {
         Row: {
           assignee: string
           content: string
+          event_date: string | null
+          event_end_date: string | null
           id: string
+          is_important: boolean
           plan_id: string
           sort_order: number
           time_text: string
@@ -1211,7 +1297,10 @@ export type Database = {
         Insert: {
           assignee?: string
           content: string
+          event_date?: string | null
+          event_end_date?: string | null
           id?: string
+          is_important?: boolean
           plan_id: string
           sort_order?: number
           time_text?: string
@@ -1219,7 +1308,10 @@ export type Database = {
         Update: {
           assignee?: string
           content?: string
+          event_date?: string | null
+          event_end_date?: string | null
           id?: string
+          is_important?: boolean
           plan_id?: string
           sort_order?: number
           time_text?: string

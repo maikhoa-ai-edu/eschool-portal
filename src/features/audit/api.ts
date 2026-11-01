@@ -32,6 +32,8 @@ export const AUDIT_TABLE_LABELS: Record<string, string> = {
   videos: 'Video',
   resources: 'Tài nguyên',
   work_plans: 'Kế hoạch công tác',
+  org_units: 'Bộ phận',
+  org_members: 'Thành viên bộ phận',
   news_comments: 'Bình luận',
   backup: 'Sao lưu',
 }

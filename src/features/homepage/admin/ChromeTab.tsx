@@ -26,6 +26,7 @@ export function ChromeTab() {
   const { chrome } = useSite()
   const queryClient = useQueryClient()
   const [headerSocial, setHeaderSocial] = useState(chrome.header_social)
+  const [headerSitemap, setHeaderSitemap] = useState(chrome.header_sitemap)
   const [navSearch, setNavSearch] = useState(chrome.nav_search)
   const [contentSidebar, setContentSidebar] = useState(chrome.content_sidebar)
   const [linkIcons, setLinkIcons] = useState(chrome.footer_link_icons)
@@ -46,6 +47,7 @@ export function ChromeTab() {
     try {
       await saveSetting('site_chrome', {
         header_social: headerSocial,
+        header_sitemap: headerSitemap,
         nav_search: navSearch,
         content_sidebar: contentSidebar,
         footer_link_icons: linkIcons,
@@ -71,6 +73,11 @@ export function ChromeTab() {
           label="Hiện icon mạng xã hội ở thanh trên cùng"
           checked={headerSocial}
           onChange={(e) => setHeaderSocial(e.target.checked)}
+        />
+        <CheckboxField
+          label="Hiện icon Sơ đồ trang cạnh nút Đăng nhập"
+          checked={headerSitemap}
+          onChange={(e) => setHeaderSitemap(e.target.checked)}
         />
         <CheckboxField
           label="Hiện kính lúp tìm kiếm trên menu ngang"
