@@ -49,6 +49,8 @@ test.describe('Trang chủ công khai', () => {
 
     // Chuyển slide bằng nút
     await slider.getByRole('button', { name: 'Tạm dừng tự chạy' }).click()
+    // Slide tự chuyển trong lúc chạy các bước trên: về ảnh đầu để biết chắc ảnh kế tiếp
+    await slider.getByRole('button', { name: 'Chuyển tới ảnh 1' }).click()
     await slider.getByRole('button', { name: 'Ảnh sau' }).click()
     await expect(slider.getByRole('group', { name: /^2\/4/ })).toBeVisible()
   })
