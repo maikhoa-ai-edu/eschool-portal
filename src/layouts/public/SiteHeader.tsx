@@ -14,6 +14,12 @@ const dateFormat = new Intl.DateTimeFormat('vi-VN', {
   year: 'numeric',
   timeZone: 'Asia/Ho_Chi_Minh',
 })
+const shortDateFormat = new Intl.DateTimeFormat('vi-VN', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  timeZone: 'Asia/Ho_Chi_Minh',
+})
 const timeFormat = new Intl.DateTimeFormat('vi-VN', {
   hour: '2-digit',
   minute: '2-digit',
@@ -40,7 +46,10 @@ function UtilityBar() {
       <div className="mx-auto flex h-9 max-w-7xl items-center justify-between gap-4 px-4">
         <p className="truncate">
           <time dateTime={now.toISOString()}>
-            {timeFormat.format(now)} · {date.charAt(0).toUpperCase() + date.slice(1)}
+            {timeFormat.format(now)} ·{' '}
+            {/* Điện thoại không đủ chỗ cho thứ trong tuần cạnh các icon */}
+            <span className="sm:hidden">{shortDateFormat.format(now)}</span>
+            <span className="hidden sm:inline">{date.charAt(0).toUpperCase() + date.slice(1)}</span>
           </time>
         </p>
         <div className="flex items-center gap-3">

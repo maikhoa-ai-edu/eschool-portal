@@ -92,7 +92,13 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
       đánh dấu sự kiện quan trọng (`is_important`, `event_date`, `event_end_date`); Sơ đồ trang `/so-do-trang`, icon theo `site_chrome.header_sitemap`.
       Trường đang chạy giữ bố cục cũ tới khi đổi trong Trang tĩnh, icon tắt
 
-## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1)
+- [ ] Giai đoạn 9:
+  - [x] Đợt A: phiên bản ứng dụng tách khỏi schema (bản đầu 0.11.0), workflow `release.yml`, gói build sạch có quét rò rỉ (`scripts/build-release.ts`), kiểm thử gói trên Apache + PHP thật và luồng cài đặt từ gói (`scripts/test-package.ts`), hướng dẫn PDF, dọn CI
+  - [ ] Đợt B: kiểm chứng thật với trường Vĩnh Phong trên Vercel (Supabase, tên miền, SMTP, Google, Turnstile), sau đó VibeHost
+  - [ ] Đợt C: chỉnh hướng dẫn theo thực tế, phát hành gói, cài cho trường thứ hai trên Vercel rồi cPanel
+  - [ ] Đợt D: nghiệm thu với người không chuyên, phát hành công khai 1.0.0
+
+## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1, bước 9 Tài khoản các nhóm thêm ở 8.6)
 
 Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã đăng nhập (mọi thao tác ghi đều qua RLS):
 
@@ -104,7 +110,8 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
 6. Thông tin nhà trường
 7. Nhận diện: logo, màu sắc, khẩu hiệu
 8. Chọn module
-9. Hoàn tất (`complete_install`)
+9. Tài khoản các nhóm
+10. Hoàn tất (`complete_install`)
 
 ## Ghi chú kỹ thuật
 

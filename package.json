@@ -1,7 +1,7 @@
 {
   "name": "eschool-portal",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.11.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -22,7 +22,9 @@
     "test:php": "node scripts/test-install-php.ts",
     "test:seo": "node scripts/test-seo.ts",
     "start": "node dist/server.mjs",
-    "db:seed-storage": "node scripts/seed-storage.ts"
+    "db:seed-storage": "node scripts/seed-storage.ts",
+    "release:build": "node scripts/build-release.ts",
+    "test:package": "node scripts/test-package.ts"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",
@@ -58,6 +60,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "jsdom": "^29.1.1",
+    "marked": "^18.1.2",
     "oxlint": "^1.89.0",
     "pg": "^8.23.1",
     "prettier": "^3.9.10",

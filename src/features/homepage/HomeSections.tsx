@@ -600,7 +600,7 @@ export function VisitCounterBox({ section }: { section: HomepageSection }) {
           <dt className="flex items-center gap-1.5 font-semibold text-primary">
             <Eye className="h-4 w-4" aria-hidden /> Tổng lượt truy cập
           </dt>
-          <dd className="text-lg font-bold text-accent">{data ? formatNumber(data.total) : '…'}</dd>
+          <dd className="text-lg font-bold text-primary">{data ? formatNumber(data.total) : '…'}</dd>
         </div>
       </dl>
     </SidebarBox>

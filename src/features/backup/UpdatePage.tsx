@@ -139,8 +139,9 @@ export function UpdatePage() {
             <ol className="list-decimal space-y-1 pl-4">
               <li>Tải bản sao lưu ở mục Sao lưu.</li>
               <li>
-                Vercel: cập nhật repo rồi Redeploy. cPanel, VibeHost: tải <code>dist.zip</code>, giải nén đè
-                lên thư mục web (giữ nguyên <code>config.json</code>).
+                Vercel: mở bản fork trên GitHub, bấm <strong>Sync fork</strong> → <strong>Update branch</strong>
+                , Vercel tự build lại. cPanel, VibeHost: tải <code>dist.zip</code>, giải nén đè lên thư mục web
+                (giữ nguyên <code>config.json</code>).
               </li>
               <li>Mở lại trang này: nếu CSDL cần nâng cấp, đoạn SQL sẽ hiện ở mục dưới.</li>
             </ol>

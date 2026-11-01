@@ -141,7 +141,7 @@ export function HeroSlider({
           >
             <ChevronRight className="h-5 w-5" />
           </button>
-          <div className="absolute inset-x-0 bottom-3 flex items-center justify-center gap-2">
+          <div className="absolute inset-x-0 bottom-3 flex items-center justify-center">
             {slides.map((slide, i) => (
               <button
                 key={slide.id}
@@ -149,11 +149,15 @@ export function HeroSlider({
                 aria-label={`Chuyển tới ảnh ${i + 1}`}
                 aria-current={i === current ? 'true' : undefined}
                 onClick={() => setIndex(i)}
-                className={cn(
-                  'h-2.5 rounded-full transition-all',
-                  i === current ? 'w-7 bg-accent' : 'w-2.5 bg-white/70 hover:bg-white',
-                )}
-              />
+                className="group flex h-6 min-w-6 items-center justify-center px-1"
+              >
+                <span
+                  className={cn(
+                    'block h-2.5 rounded-full transition-all',
+                    i === current ? 'w-7 bg-accent' : 'w-2.5 bg-white/70 group-hover:bg-white',
+                  )}
+                />
+              </button>
             ))}
             <button
               type="button"

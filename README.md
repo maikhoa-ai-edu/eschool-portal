@@ -2,7 +2,7 @@
 
 Cổng thông tin điện tử dành cho trường phổ thông Việt Nam: tin tức, thông báo, văn bản, thư viện ảnh, trang giới thiệu và trang quản trị. Mỗi trường tự cài một bản riêng, dùng cơ sở dữ liệu riêng, tự chọn tên trường, logo, màu sắc và các module cần dùng.
 
-> Trạng thái: **đang phát triển (đang làm Giai đoạn 8: SEO & hiệu năng)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
+> Trạng thái: **đang kiểm chứng trên môi trường thật trước khi phát hành (Giai đoạn 9)**. Xem [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Quy trình đăng tin
 
@@ -59,10 +59,10 @@ Các lệnh khác:
 
 ## Cài đặt cho trường
 
-Hướng dẫn chi tiết (có ảnh) sẽ có ở Giai đoạn 9. Tóm tắt:
+Hướng dẫn từng bước có ảnh: [docs/HUONG-DAN-CAI-DAT.md](docs/HUONG-DAN-CAI-DAT.md) (bản PDF nằm trong gói phát hành). Tóm tắt:
 
-1. Tạo một project [Supabase](https://supabase.com/dashboard/new) (gói miễn phí là đủ).
-2. Đưa website lên hosting: giải nén bản phát hành vào thư mục web (cPanel, VibeHost: nhớ tải cả file ẩn `.htaccess`), hoặc deploy từ GitHub lên Vercel.
+1. Tạo một project [Supabase](https://supabase.com/dashboard/new) (gói miễn phí là đủ để bắt đầu).
+2. Đưa website lên hosting, ở **gốc tên miền hoặc tên miền phụ**, không dùng thư mục con: giải nén `dist.zip` của bản phát hành (cPanel cần PHP 8.0 trở lên, nhớ kiểm tra file ẩn `.htaccess`), hoặc Fork repo này rồi Import vào Vercel.
 3. Mở website: trình cài đặt hiện ra và hướng dẫn 10 bước (kết nối Supabase, chạy `install.sql` trong SQL Editor để lấy mã cài đặt, lưu cấu hình, tạo quản trị viên, thông tin trường, logo & màu sắc, chọn module).
 
 Cách lưu cấu hình kết nối theo từng loại hosting:
@@ -83,6 +83,13 @@ Xem trước bài viết khi chia sẻ lên Facebook, Zalo (thẻ OG) và sitema
 | Hosting chỉ có file tĩnh | Website vẫn chạy đầy đủ nhưng link chia sẻ chỉ có tiêu đề chung và không có sitemap |
 
 Muốn cài lại trên cPanel: xóa `config.json` và `.eschool-install.lock` bằng File Manager.
+
+## Phát hành (dành cho người bảo trì)
+
+- Phát triển trên `main`. Website các trường không theo `main` mà theo nhánh `stable`, nên commit dở dang không ảnh hưởng trường nào.
+- Số phiên bản website nằm ở `package.json`; số cơ sở dữ liệu nằm ở migration và `REQUIRED_SCHEMA_VERSION`, chỉ tăng khi cấu trúc đổi.
+- Ra bản mới: tăng `version`, thêm mục vào `CHANGELOG.md`, commit, rồi tạo và đẩy tag `v<phiên bản>`. Workflow chạy đủ kiểm thử, đóng gói, tạo GitHub Release và đưa `stable` tới bản đó.
+- Thử gói trên máy: `npm run release:build`, rồi `npm run test:package` (cần Docker và Supabase cục bộ đã seed). Mỗi lần CI cũng lưu gói bản thử trong mục Artifacts.
 
 ## Bản quyền
 

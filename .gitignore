@@ -36,3 +36,6 @@ supabase/.temp
 # Playwright
 test-results/
 playwright-report/
+
+# Gói phát hành (npm run release:build)
+release/

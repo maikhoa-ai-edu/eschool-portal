@@ -147,15 +147,15 @@ export function SiteFooter() {
           {visits && (
             <p>
               Lượt truy cập:{' '}
-              <strong className="font-bold tabular-nums text-accent">
+              <strong className="font-bold tabular-nums text-white">
                 {numberFormat.format(visits.total)}
               </strong>
-              <span className="text-white/60"> · Hôm nay: {numberFormat.format(visits.today)}</span>
+              <span className="text-white/85"> · Hôm nay: {numberFormat.format(visits.today)}</span>
             </p>
           )}
         </section>
       </div>
-      <div className="border-t border-white/10 py-4 text-center text-xs text-white/60">
+      <div className="border-t border-white/10 py-4 text-center text-xs text-white/85">
         © {CURRENT_YEAR} {identity.school_name} · Thiết kế bởi MVK
       </div>
     </footer>

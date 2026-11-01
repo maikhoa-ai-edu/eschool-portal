@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { INSTALL_CODE, INSTALLER_EMAIL, localSupabase, resetToFreshInstall, restoreSeed, sql } from './db.ts'
 
 /** Dev server không có cấu hình kết nối (xem playwright.config.ts) */
-const FRESH = 'http://localhost:3001'
+const FRESH = process.env.FRESH_URL ?? 'http://localhost:3001'
 const SCREENS = 'test-results/screens'
 
 const SERVICE_ROLE_LIKE =
