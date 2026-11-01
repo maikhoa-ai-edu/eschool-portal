@@ -58,6 +58,8 @@ jobs:
       - run: npm run test:e2e
       - name: Đóng gói bản thử
         run: npm run release:build
+      - name: Đưa CSDL về dữ liệu mẫu (E2E trên đã tạo tài khoản trùng với luồng cài đặt)
+        run: npm run db:reset
       - name: Kiểm thử gói trên Apache + PHP và luồng cài đặt từ gói
         run: npm run test:package
       - name: Lưu gói bản thử
