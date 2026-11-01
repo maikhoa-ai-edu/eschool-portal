@@ -51,7 +51,7 @@ function MenuLink({
 
 function DesktopItem({ node }: { node: MenuNode }) {
   const base =
-    'flex h-12 items-center gap-1.5 whitespace-nowrap px-2.5 text-[13px] font-semibold uppercase text-white hover:bg-white/10 [&.is-active]:bg-accent'
+    'flex h-12 items-center gap-1.5 whitespace-nowrap px-2.5 text-[13px] font-semibold uppercase text-white hover:bg-white/10 [&.is-active]:bg-accent-strong'
   if (node.children.length === 0) return <MenuLink node={node} className={base} />
 
   return (

@@ -120,7 +120,7 @@ function BigNews({ news, sizes }: { news: HomeNews; sizes: string }) {
     <Link to={`/tin-tuc/${news.slug}`} className="group block">
       <Thumb src={news.thumbnail_url} sizes={sizes} className="aspect-video w-full rounded-xl" />
       {news.category && (
-        <p className="mt-3 text-xs font-semibold uppercase text-accent">{news.category.name}</p>
+        <p className="mt-3 text-xs font-semibold uppercase text-accent-strong">{news.category.name}</p>
       )}
       <h3 className="mt-1 text-xl font-bold leading-snug group-hover:text-primary">{news.title}</h3>
       {news.excerpt && <p className="mt-2 line-clamp-3 text-sm text-muted">{news.excerpt}</p>}
@@ -151,7 +151,7 @@ function GridCard({ news, sizes }: { news: HomeNews; sizes: string }) {
     >
       <Thumb src={news.thumbnail_url} sizes={sizes} className="aspect-video w-full" />
       <div className="space-y-1 p-2.5 sm:space-y-1.5 sm:p-3">
-        {news.category && <p className="text-xs font-semibold uppercase text-accent">{news.category.name}</p>}
+        {news.category && <p className="text-xs font-semibold uppercase text-accent-strong">{news.category.name}</p>}
         <h3 className="line-clamp-3 text-sm font-semibold leading-snug group-hover:text-primary sm:text-base">
           {news.title}
         </h3>
@@ -184,7 +184,7 @@ function ImageRow({ news, sizes }: { news: HomeNews; sizes: string }) {
       />
       <span className="min-w-0">
         {news.category && (
-          <span className="hidden text-xs font-semibold uppercase text-accent @md:block">
+          <span className="hidden text-xs font-semibold uppercase text-accent-strong @md:block">
             {news.category.name}
           </span>
         )}

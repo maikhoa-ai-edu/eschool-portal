@@ -189,7 +189,7 @@ function NewsBlock({ section }: { section: SectionOf<'news'> }) {
                 )}
                 <div className="flex flex-1 flex-col gap-1.5 p-4">
                   {n.category && (
-                    <p className="text-xs font-semibold uppercase text-accent">{n.category.name}</p>
+                    <p className="text-xs font-semibold uppercase text-accent-strong">{n.category.name}</p>
                   )}
                   <h3 className="line-clamp-2 font-semibold leading-snug group-hover:text-primary">
                     {n.title}

@@ -25,6 +25,8 @@
   --color-primary: var(--brand-primary);
   --color-primary-light: var(--brand-primary-light);
   --color-accent: var(--brand-accent);
+  /* Sẫm hơn màu nhấn của trường để chữ nhỏ đủ tương phản: chữ cùng màu trên nền trắng và chữ trắng trên nền này */
+  --color-accent-strong: color-mix(in srgb, var(--brand-accent) 75%, black);
   --color-bg: #f8fafc;
   --color-surface: #ffffff;
   --color-border: #e2e8f0;

@@ -32,7 +32,7 @@ Supabase là nơi lưu bài viết, tài khoản, ảnh và văn bản của tr�
 4. Bấm **Generate a password** ở ô **Database Password**, chép mật khẩu và lưu lại.
 5. Ở **Region**, chọn **Southeast Asia (Singapore)** để website nhanh hơn ở Việt Nam.
 6. Bấm **Create new project**, chờ vài phút tới khi project sẵn sàng.
-7. Mở **Project Settings → API Keys**. Lát nữa bạn sẽ cần **Project URL** và khóa **anon public** (hoặc **publishable**). Tuyệt đối không dùng khóa **service_role** hay **secret**.
+7. Lát nữa bạn sẽ cần **Project URL** (ở **Project Settings → Data API**, hoặc nút **Connect** trên đầu trang) và khóa **anon public** hoặc **publishable** (ở **Project Settings → API Keys**). Tuyệt đối không dùng khóa **service_role** hay **secret**.
 
 > **Gói miễn phí:** project có thể bị tạm dừng nếu 7 ngày gần như không có hoạt động, thường gặp dịp nghỉ hè. Supabase gửi email báo trước; mở trang Supabase và bấm khôi phục project là chạy lại. Nên kiểm tra email này thường xuyên.
 
@@ -46,6 +46,10 @@ Supabase là nơi lưu bài viết, tài khoản, ảnh và văn bản của tr�
 6. Bấm vào ảnh website vừa tạo. Trình cài đặt hiện ra; chuyển sang Phần 4.
 
 Ở bước **Lưu cấu hình**, chọn thẻ **Vercel** và làm theo hướng dẫn trên màn hình: thêm 2 biến môi trường, rồi **Redeploy**.
+
+- **Loại biến:** nếu Vercel hỏi loại biến, chọn **Config**, không chọn loại bí mật. Vercel có thể hiện cảnh báo màu cam rằng giá trị sẽ lộ ra trình duyệt. Với hai biến này, cảnh báo đó không đáng lo vì Project URL và khóa anon vốn công khai. Nếu ô giá trị của bạn đang là khóa **service_role** hay **secret** thì phải dừng lại và đổi đúng khóa.
+
+**Kiểm tra nhánh chạy website:** mở project trên Vercel → **Settings → Environments → Production**, mục **Branch Tracking** phải là `stable`. Nếu là nhánh khác, đổi thành `stable`, bấm **Save**, rồi **Redeploy**. Nhánh `stable` chỉ nhận các bản đã phát hành; các nhánh khác có thể chứa mã đang làm dở.
 
 ## Phần 3B. Đưa website lên cPanel
 
@@ -88,7 +92,7 @@ Dán **Project URL** và khóa **anon public** đã thấy ở Phần 2, bấm *
 ### Bước 3. Khởi tạo cơ sở dữ liệu
 
 1. Chép toàn bộ nội dung SQL trên màn hình.
-2. Mở **SQL Editor** trong Supabase, bấm **New query**, dán vào, bấm **Run**.
+2. Mở **SQL Editor** trong Supabase, bấm **New query**, dán vào, bấm **Run**. Nếu Supabase cảnh báo về RLS (Row Level Security), chọn **Run without RLS**: đoạn SQL này tự bật RLS và tự tạo quy tắc phân quyền cho các bảng của nó.
 3. Chép **Mã cài đặt** hiện ở kết quả, lưu lại để dùng ở Bước 5.
 4. Quay lại website, bấm **Tôi đã chạy xong, kiểm tra**.
 
@@ -207,7 +211,7 @@ Trang **Cập nhật** trong quản trị báo khi có bản mới. Dữ liệu 
 2. **Thay website:**
    - **Vercel:** mở bản fork của bạn trên GitHub, bấm **Sync fork → Update branch**. Vercel tự build lại trong 1–3 phút.
    - **cPanel, VibeHost:** tải `dist.zip` từ trang phát hành, tải lên thư mục website và giải nén đè. Không xóa `config.json`. Khởi động lại ứng dụng nếu dùng Node.js.
-3. **Nâng cấp cơ sở dữ liệu:** mở lại trang **Cập nhật**. Nếu cần, trang hiện đoạn SQL: bấm **Sao chép SQL**, **Mở SQL Editor**, dán, **Run**, rồi bấm **Tôi đã chạy xong, kiểm tra lại**. Nếu SQL báo lỗi, cơ sở dữ liệu giữ nguyên trạng thái cũ.
+3. **Nâng cấp cơ sở dữ liệu:** mở lại trang **Cập nhật**. Nếu cần, trang hiện đoạn SQL: bấm **Sao chép SQL**, **Mở SQL Editor**, dán, **Run** (nếu có cảnh báo RLS, chọn **Run without RLS**), rồi bấm **Tôi đã chạy xong, kiểm tra lại**. Nếu SQL báo lỗi, cơ sở dữ liệu giữ nguyên trạng thái cũ.
 4. Nhấn **Ctrl + F5** để tải lại trang và kiểm tra vài trang chính.
 
 ## Phần 11. Lỗi thường gặp

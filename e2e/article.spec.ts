@@ -11,6 +11,36 @@ test.afterAll(async () => {
   await sql(`delete from public.news where title like 'E2E %'`)
 })
 
+test('bài viết có nút chia sẻ Facebook và Zalo, không tải script ngoài', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'Trên điện thoại nút Zalo mở bảng chia sẻ của máy, xem share.test.ts')
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText: (t: string) => ((window as unknown as { __copied: string }).__copied = t, Promise.resolve()) },
+    })
+  })
+  const external: string[] = []
+  page.on('request', (r) => {
+    if (/facebook|zalo/i.test(new URL(r.url()).hostname)) external.push(r.url())
+  })
+  const slug = await articleWith('<p>Nội dung</p>')
+  await page.goto(`/tin-tuc/${slug}`)
+  const articleUrl = new URL(`/tin-tuc/${slug}`, page.url()).href
+
+  await expect(page.getByRole('article').getByRole('link', { name: 'Facebook' })).toHaveAttribute(
+    'href',
+    `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(articleUrl)}`,
+  )
+  await page.getByRole('button', { name: 'Zalo' }).click()
+  await expect(page.getByText('Đã chép liên kết, hãy dán vào Zalo.')).toBeVisible()
+  expect(await page.evaluate(() => (window as unknown as { __copied: string }).__copied)).toBe(articleUrl)
+  expect(external).toEqual([])
+
+  await expect(page.getByRole('complementary').getByRole('link', { name: 'Tin nhà trường' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  )
+})
+
 async function articleWith(content: string): Promise<string> {
   const slug = `e2e-bai-${uniqueSuffix()}`
   await sql(

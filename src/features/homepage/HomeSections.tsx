@@ -492,7 +492,7 @@ export function PlanMonthBox({ section }: { section: HomepageSection }) {
         {data.items.map((row, i) => (
           <li key={i} className="text-sm">
             {row.time_text && (
-              <span className="block text-xs font-semibold text-accent">{row.time_text}</span>
+              <span className="block text-xs font-semibold text-accent-strong">{row.time_text}</span>
             )}
             <span className="line-clamp-2 font-medium leading-snug">{row.content}</span>
           </li>

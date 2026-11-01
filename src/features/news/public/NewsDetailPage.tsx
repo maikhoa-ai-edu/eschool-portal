@@ -19,6 +19,7 @@ import { buildToc, TOC_MIN_HEADINGS, type TocHeading } from '@/lib/toc'
 import { usePageTitle } from '@/lib/use-page-title'
 import { fetchNewsByTags, fetchPublicNewsBySlug, fetchRelatedNews, NEWS_KEY, recordNewsView } from '../api'
 import { CategoryList } from './NewsListPage'
+import { ShareButtons } from './ShareButtons'
 
 const SIDEBAR_RELATED = 4
 const BOTTOM_RELATED = 4
@@ -176,7 +177,7 @@ export function NewsDetailPage() {
       sidebar={
         <>
           <RelatedNews categoryId={news.category_id} excludeId={news.id} />
-          <CategoryList />
+          <CategoryList activeSlug={news.category?.slug} />
         </>
       }
     >
@@ -254,6 +255,7 @@ export function NewsDetailPage() {
             ))}
           </div>
         )}
+        {isPublished && <ShareButtons title={news.title} path={`/tin-tuc/${news.slug}`} />}
       </article>
       {isPublished && <NewsComments newsId={news.id} />}
       {isPublished && (

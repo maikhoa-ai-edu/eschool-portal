@@ -1,7 +1,7 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
-import { CalendarDays, Newspaper, Search } from 'lucide-react'
+import { CalendarDays, ChevronRight, Newspaper, Search } from 'lucide-react'
 import {
   PublicPageHeader,
   PublicQueryState,
@@ -55,7 +55,7 @@ export function NewsCard({ news, priority = false }: { news: PublicNewsCard; pri
         {news.category && (
           <Link
             to={`/tin-tuc/chuyen-muc/${news.category.slug}`}
-            className="text-xs font-semibold uppercase text-accent hover:underline"
+            className="text-xs font-semibold uppercase text-accent-strong hover:underline"
           >
             {news.category.name}
           </Link>
@@ -105,7 +105,7 @@ export function NewsGridCard({ news, priority = false }: { news: PublicNewsCard;
         {news.category && (
           <Link
             to={`/tin-tuc/chuyen-muc/${news.category.slug}`}
-            className="text-xs font-semibold uppercase text-accent hover:underline"
+            className="text-xs font-semibold uppercase text-accent-strong hover:underline"
           >
             {news.category.name}
           </Link>
@@ -121,36 +121,39 @@ export function NewsGridCard({ news, priority = false }: { news: PublicNewsCard;
   )
 }
 
+function CategoryLink({ to, active, children }: { to: string; active: boolean; children: ReactNode }) {
+  return (
+    <Link
+      to={to}
+      aria-current={active ? 'page' : undefined}
+      className={cn(
+        'flex items-center gap-2 border-l-4 px-3 py-2.5 transition-colors hover:bg-primary/10 hover:text-primary',
+        active ? 'border-accent bg-primary/10 font-semibold text-primary' : 'border-transparent',
+      )}
+    >
+      <ChevronRight className="h-4 w-4 shrink-0 text-accent" aria-hidden />
+      {children}
+    </Link>
+  )
+}
+
 export function CategoryList({ activeSlug }: { activeSlug?: string }) {
   const { data = [] } = useQuery({ queryKey: [...NEWS_KEY, 'categories'], queryFn: fetchCategories })
   const visible = data.filter((c) => c.is_active)
   if (visible.length === 0) return null
   return (
     <SidebarBox title="Chuyên mục">
-      <ul className="space-y-1 text-sm">
+      <ul className="-m-4 divide-y divide-border bg-primary/5 text-sm">
         <li>
-          <Link
-            to="/tin-tuc"
-            className={cn(
-              'block rounded px-2 py-1.5 hover:bg-bg',
-              !activeSlug && 'font-semibold text-primary',
-            )}
-          >
+          <CategoryLink to="/tin-tuc" active={!activeSlug}>
             Tất cả tin tức
-          </Link>
+          </CategoryLink>
         </li>
         {visible.map((c) => (
           <li key={c.id}>
-            <Link
-              to={`/tin-tuc/chuyen-muc/${c.slug}`}
-              aria-current={c.slug === activeSlug ? 'page' : undefined}
-              className={cn(
-                'block rounded px-2 py-1.5 hover:bg-bg',
-                c.slug === activeSlug && 'font-semibold text-primary',
-              )}
-            >
+            <CategoryLink to={`/tin-tuc/chuyen-muc/${c.slug}`} active={c.slug === activeSlug}>
               {c.name}
-            </Link>
+            </CategoryLink>
           </li>
         ))}
       </ul>
