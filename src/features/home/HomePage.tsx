@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Alert } from '@/components/ui/Alert'
-import { HOMEPAGE_KEY, fetchLatestNewsWithImage, fetchSlides } from '@/features/homepage/api'
+import { HOMEPAGE_KEY, fetchHeroSlides, fetchLatestNewsWithImage } from '@/features/homepage/api'
 import { FULL_SLIDE_ASPECT, HeroSlider, SPLIT_SLIDE_ASPECT } from '@/features/homepage/HeroSlider'
 import { DeferredBlock } from '@/features/homepage/DeferredBlock'
 import { TopicBanner } from '@/features/homepage/TopicBanner'
@@ -54,10 +54,16 @@ export function HomePage() {
   const bottom = zone('bottom')
 
   const slides = useQuery({
-    queryKey: [...HOMEPAGE_KEY, 'slides', 'public'],
-    queryFn: () => fetchSlides(true),
+    queryKey: [...HOMEPAGE_KEY, 'slides', 'public', homepage.slide_news_limit, homepage.slide_auto_latest],
+    queryFn: () => fetchHeroSlides(homepage.slide_news_limit, homepage.slide_auto_latest),
     enabled: homepage.show_slides,
   })
+  const slidesLoading = homepage.show_slides && slides.isPending
+  // Bài đang ở slide không lặp lại ở các khối bên dưới; lấy dư đúng số đó để các khối vẫn đủ bài
+  const slideNewsIds = homepage.show_slides
+    ? (slides.data ?? []).flatMap((s) => (s.news_id ? [s.news_id] : []))
+    : []
+  const slideNewsExtra = homepage.show_slides ? homepage.slide_news_limit : 0
   const hasSlides = homepage.show_slides && (slides.isPending || (slides.data?.length ?? 0) > 0)
   const wantsRail = homepage.hero !== 'full' && isModuleEnabled('news') && hasSlides
   const portal = homepage.hero === 'portal' && wantsRail
@@ -66,22 +72,28 @@ export function HomePage() {
   const featuredSection = [...top, ...main, ...sidebar, ...bottom].find((s) => s.key === 'featured_news')
   const railLimit = railCount(homepage.hero)
   const featuredTotal = railLimit + (featuredSection?.limit ?? 0)
-  const featured = useFeaturedNews(featuredTotal, Boolean(featuredSection) || wantsRail)
-  const featuredData = featured.data ?? []
+  const featured = useFeaturedNews(featuredTotal + slideNewsExtra, Boolean(featuredSection) || wantsRail)
+  const featuredPending = featured.isPending || slidesLoading
+  const featuredData = (featured.data ?? []).filter((n) => !slideNewsIds.includes(n.id))
   const railItems = wantsRail ? featuredData.slice(0, railLimit) : []
   const featuredItems = featuredData.slice(railItems.length, railItems.length + (featuredSection?.limit ?? 0))
   // Lấy dư để sau khi bỏ bài đã có ở cột phải vẫn đủ số thẻ
   const stripQuery = useQuery({
-    queryKey: [...HOMEPAGE_KEY, 'strip', HERO_STRIP_COUNT + railLimit],
-    queryFn: () => fetchLatestNewsWithImage(HERO_STRIP_COUNT + railLimit),
+    queryKey: [...HOMEPAGE_KEY, 'strip', HERO_STRIP_COUNT + railLimit + slideNewsExtra],
+    queryFn: () => fetchLatestNewsWithImage(HERO_STRIP_COUNT + railLimit + slideNewsExtra),
     enabled: portal,
   })
   const railIds = railItems.map((n) => n.id)
   const stripItems = portal
-    ? (stripQuery.data ?? []).filter((n) => !railIds.includes(n.id)).slice(0, HERO_STRIP_COUNT)
+    ? (stripQuery.data ?? [])
+        .filter((n) => !railIds.includes(n.id) && !slideNewsIds.includes(n.id))
+        .slice(0, HERO_STRIP_COUNT)
     : []
-  const shownIds = [...railItems, ...(featuredSection ? featuredItems : []), ...stripItems].map((n) => n.id)
-  const split = wantsRail && (featured.isPending || featuredData.length > 0)
+  const shownIds = [
+    ...slideNewsIds,
+    ...[...railItems, ...(featuredSection ? featuredItems : []), ...stripItems].map((n) => n.id),
+  ]
+  const split = wantsRail && (featuredPending || featuredData.length > 0)
 
   const renderBlock = (section: HomepageSection) => (
     <DeferredBlock key={section.id}>{renderBlockContent(section)}</DeferredBlock>
@@ -95,7 +107,7 @@ export function HomePage() {
             key={section.id}
             section={section}
             items={featuredItems}
-            isPending={featured.isPending}
+            isPending={featuredPending}
           />
         )
       case 'latest_news':
@@ -104,8 +116,10 @@ export function HomePage() {
             key={section.id}
             section={section}
             excludeIds={shownIds}
-            excludeCount={featuredTotal + (portal ? HERO_STRIP_COUNT : 0)}
-            excludePending={(featuredTotal > 0 && featured.isPending) || (portal && stripQuery.isPending)}
+            excludeCount={featuredTotal + slideNewsExtra + (portal ? HERO_STRIP_COUNT : 0)}
+            excludePending={
+              slidesLoading || (featuredTotal > 0 && featured.isPending) || (portal && stripQuery.isPending)
+            }
           />
         )
       case 'category_news':
@@ -190,14 +204,12 @@ export function HomePage() {
           <div className="min-w-0">
             {slider}
             {sliderPlaceholder}
-            {portal && (
-              <HeroStrip items={stripItems} isPending={stripQuery.isPending || featured.isPending} />
-            )}
+            {portal && <HeroStrip items={stripItems} isPending={stripQuery.isPending || featuredPending} />}
           </div>
           {portal ? (
-            <HeroTabsRail items={railItems} isPending={featured.isPending} tabs={homepage.hero_tabs} />
+            <HeroTabsRail items={railItems} isPending={featuredPending} tabs={homepage.hero_tabs} />
           ) : (
-            <HeroRail items={railItems} isPending={featured.isPending} />
+            <HeroRail items={railItems} isPending={featuredPending} />
           )}
         </div>
       ) : (

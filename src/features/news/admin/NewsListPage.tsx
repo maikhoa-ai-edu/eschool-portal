@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
-import { Plus, Search, Star } from 'lucide-react'
+import { GalleryHorizontal, Plus, Search, Star } from 'lucide-react'
 import { AdminPageHeader, QueryState, TableCard } from '@/components/admin/AdminPage'
 import { Badge } from '@/components/ui/Badge'
 import { buttonClasses } from '@/components/ui/button-classes'
@@ -143,6 +143,12 @@ export function NewsListPage() {
                         <Star
                           className="ml-1.5 inline h-3.5 w-3.5 fill-accent text-accent"
                           aria-label="Nổi bật"
+                        />
+                      )}
+                      {item.show_on_slider && (
+                        <GalleryHorizontal
+                          className="ml-1.5 inline h-3.5 w-3.5 text-accent-strong"
+                          aria-label="Trên slide"
                         />
                       )}
                     </td>

@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Field } from '@/components/ui/Field'
 import { CheckboxField, SelectField, TextareaField } from '@/components/ui/FormControls'
+import { HOMEPAGE_KEY } from '@/features/homepage/api'
 import { useAuth } from '@/features/auth/auth-context'
 import { toVietnameseError } from '@/lib/errors'
 import { formatDateTime } from '@/lib/format'
@@ -57,6 +58,7 @@ const schema = z.object({
   tags: z.string(),
   thumbnail_url: z.string().nullable(),
   is_featured: z.boolean(),
+  show_on_slider: z.boolean(),
 })
 type Values = z.infer<typeof schema>
 
@@ -106,6 +108,7 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
       tags: news?.tags.join(', ') ?? '',
       thumbnail_url: news?.thumbnail_url ?? null,
       is_featured: news?.is_featured ?? false,
+      show_on_slider: news?.show_on_slider ?? false,
     },
   })
   const e = form.formState.errors
@@ -120,6 +123,18 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
     setMessage(null)
     if ((action === 'submit' || action === 'publish') && !values.content.trim()) {
       form.setError('content', { message: 'Nội dung không được để trống khi gửi duyệt hoặc đăng' })
+      return
+    }
+    if (
+      canPublish &&
+      values.show_on_slider &&
+      !values.thumbnail_url &&
+      action !== 'unpublish' &&
+      action !== 'reject'
+    ) {
+      form.setError('show_on_slider', {
+        message: 'Bài lên slide phải có ảnh đại diện. Hãy chọn ảnh hoặc bỏ tick.',
+      })
       return
     }
     let reviewNote = news?.review_note ?? null
@@ -148,12 +163,13 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
           tags: parseTags(values.tags),
           status: targetStatus(action, status),
           review_note: reviewNote,
-          ...(canPublish ? { is_featured: values.is_featured } : {}),
+          ...(canPublish ? { is_featured: values.is_featured, show_on_slider: values.show_on_slider } : {}),
         },
         news?.id,
       )
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: NEWS_KEY }),
+        queryClient.invalidateQueries({ queryKey: HOMEPAGE_KEY }),
         queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] }),
       ])
       const done = actionDoneMessage(action)
@@ -171,7 +187,10 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
     setBusy('delete')
     try {
       await deleteNews(news.id)
-      await queryClient.invalidateQueries({ queryKey: NEWS_KEY })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: NEWS_KEY }),
+        queryClient.invalidateQueries({ queryKey: HOMEPAGE_KEY }),
+      ])
       navigate('/admin/tin-tuc', { replace: true })
     } catch (err) {
       setError(toVietnameseError(err))
@@ -351,6 +370,20 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
                 hint="Ưu tiên hiển thị ở trang chủ."
                 {...form.register('is_featured')}
               />
+            )}
+            {canPublish && (
+              <div>
+                <CheckboxField
+                  label="Hiển thị trên slide"
+                  hint="Hiện ở slide trang chủ khi bài đã đăng. Bài phải có ảnh đại diện, nên dùng ảnh ngang."
+                  {...form.register('show_on_slider', { onChange: () => form.clearErrors('show_on_slider') })}
+                />
+                {e.show_on_slider && (
+                  <p role="alert" className="mt-1 text-xs text-danger">
+                    {e.show_on_slider.message}
+                  </p>
+                )}
+              </div>
             )}
           </Panel>
 

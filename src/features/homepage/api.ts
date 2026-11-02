@@ -17,6 +17,8 @@ export interface Slide {
   link_url: string | null
   sort_order: number
   is_active: boolean
+  /** Có khi slide được tạo từ bài viết */
+  news_id?: string
 }
 
 export async function fetchSlides(activeOnly: boolean): Promise<Slide[]> {
@@ -130,6 +132,43 @@ export async function fetchLatestNewsWithImage(limit: number) {
     .limit(limit)
   if (error) throw error
   return data
+}
+
+/** Bài được tick "Hiển thị trên slide"; thiếu ảnh thì bỏ qua vì slide phải có ảnh. */
+async function fetchSliderNews(limit: number) {
+  const { data, error } = await publishedNews()
+    .eq('show_on_slider', true)
+    .not('thumbnail_url', 'is', null)
+    .order('published_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return data
+}
+
+function newsToSlide(news: HomeNews): Slide {
+  return {
+    id: `news-${news.id}`,
+    news_id: news.id,
+    title: news.title,
+    subtitle: news.excerpt,
+    image_path: news.thumbnail_url ?? '',
+    link_url: `/tin-tuc/${news.slug}`,
+    sort_order: 0,
+    is_active: true,
+  }
+}
+
+/**
+ * Slide trang chủ: slide tạo tay trước, rồi tới bài được tick mới nhất.
+ * Không có cả hai thì lấy tin mới nhất có ảnh nếu trường bật `autoLatest`.
+ */
+export async function fetchHeroSlides(newsLimit: number, autoLatest: boolean): Promise<Slide[]> {
+  const [manual, ticked] = await Promise.all([fetchSlides(true), fetchSliderNews(newsLimit)])
+  const news =
+    manual.length === 0 && ticked.length === 0 && autoLatest
+      ? await fetchLatestNewsWithImage(newsLimit)
+      : ticked
+  return [...manual, ...news.map(newsToSlide)]
 }
 
 /** Chỉ lưu tổng lượt xem của từng bài, nên giới hạn bài đăng gần đây để bài cũ không đứng đầu mãi. */

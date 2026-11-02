@@ -107,11 +107,22 @@ export function HeroSlider({
               aria-hidden
             />
             <div className="absolute inset-x-0 bottom-0 p-4 pb-10 text-white sm:p-8 sm:pb-12">
-              <h2 className="max-w-3xl text-lg font-bold leading-snug drop-shadow sm:text-3xl">
+              <h2
+                className={cn(
+                  'max-w-3xl text-lg font-bold leading-snug drop-shadow',
+                  // Tiêu đề bài có thể dài: giữ dưới hai nút chuyển ảnh
+                  slide.news_id ? 'line-clamp-2 sm:text-2xl' : 'sm:text-3xl',
+                )}
+              >
                 {slide.title}
               </h2>
               {slide.subtitle && (
-                <p className="mt-1 hidden max-w-2xl text-sm text-white/90 drop-shadow sm:block sm:text-base">
+                <p
+                  className={cn(
+                    'mt-1 hidden max-w-2xl text-sm text-white/90 drop-shadow sm:text-base',
+                    slide.news_id ? 'sm:line-clamp-2' : 'sm:block',
+                  )}
+                >
                   {slide.subtitle}
                 </p>
               )}

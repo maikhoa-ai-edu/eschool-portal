@@ -437,6 +437,10 @@ export const homepageSchema = z
     show_slides: z.boolean().catch(true),
     /** Giây giữa hai slide */
     slide_interval: z.number().int().min(3).max(30).catch(6),
+    /** Số bài viết tối đa trên slide, tính sau các slide tạo tay */
+    slide_news_limit: z.number().int().min(1).max(10).catch(5),
+    /** Không có slide tạo tay và bài được tick thì tự lấy tin mới nhất có ảnh */
+    slide_auto_latest: z.boolean().catch(false),
     /**
      * full: slide toàn chiều rộng; split: slide 2/3 + cột Tiêu điểm 1/3;
      * portal: như split, thêm dải tin trượt dưới slide và tab Xem nhiều ở cột phải

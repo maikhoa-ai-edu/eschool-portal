@@ -593,7 +593,30 @@ export function LayoutTab() {
               />
               giây
             </label>
+            <label className="flex items-center gap-2 text-sm">
+              Tối đa
+              <input
+                type="number"
+                min={1}
+                max={10}
+                value={draft.slide_news_limit}
+                onChange={(e) =>
+                  setDraft((d) => ({
+                    ...d,
+                    slide_news_limit: Math.min(10, Math.max(1, Number(e.target.value) || 5)),
+                  }))
+                }
+                className="h-9 w-16 rounded-lg border border-border bg-surface px-2"
+              />
+              bài viết trên slide
+            </label>
           </div>
+          <CheckboxField
+            label="Tự lấy tin mới nhất có ảnh"
+            hint="Chỉ dùng khi không có slide tạo tay và không có bài nào được tick Hiển thị trên slide."
+            checked={draft.slide_auto_latest}
+            onChange={(e) => setDraft((d) => ({ ...d, slide_auto_latest: e.target.checked }))}
+          />
           <div className="flex flex-wrap gap-6">
             <ChoiceGroup
               legend="Kiểu đầu trang"

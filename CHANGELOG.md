@@ -2,6 +2,15 @@
 
 Mỗi bản phát hành có một mục ở đây; workflow phát hành lấy nội dung này làm ghi chú. Số phiên bản website và số phiên bản cơ sở dữ liệu tách riêng: cơ sở dữ liệu chỉ tăng số khi cấu trúc đổi.
 
+## 0.12.0
+
+Cần nâng cấp cơ sở dữ liệu lên 0.12.0 (trang Cập nhật hướng dẫn cách làm).
+
+- Khi soạn bài có ô "Hiển thị trên slide", chỉ người có quyền duyệt bài mới thấy. Bài đã đăng và có ảnh đại diện sẽ hiện ở slide trang chủ, sau các slide tạo tay; gỡ bài thì slide tự mất.
+- Tab Bố cục có thêm số bài tối đa trên slide (mặc định 5) và công tắc "Tự lấy tin mới nhất có ảnh" (mặc định tắt), dùng khi không có slide tạo tay và không có bài nào được tick.
+- Bài đang ở slide không lặp lại ở cột Tiêu điểm, dải tin và các khối Tin nổi bật, Tin mới nhất.
+- Trường không tick bài nào và không bật công tắc thì giao diện giữ nguyên.
+
 ## 0.11.1
 
 Không cần nâng cấp cơ sở dữ liệu.

@@ -1,6 +1,6 @@
 -- Quy trình tin tức: nháp -> chờ duyệt -> trả lại / đăng -> lưu trữ, và các trường chỉ người duyệt được đặt
 begin;
-select plan(13);
+select plan(16);
 
 -- ===================== EDITOR soạn bài =====================
 select tests.as_user('editor@demo.local');
@@ -23,6 +23,14 @@ select lives_ok(
 select throws_ok(
   $$update public.news set is_featured = true where slug = 'bai-quy-trinh'$$,
   '42501', null, 'Editor không đánh dấu nổi bật khi sửa bài');
+
+select throws_ok(
+  $$update public.news set show_on_slider = true where slug = 'bai-quy-trinh'$$,
+  '42501', null, 'Editor không đưa bài lên slide khi sửa bài');
+select throws_ok(
+  $$insert into public.news (title, slug, category_id, author_id, show_on_slider)
+    values ('Bài slide', 'bai-slide', '00000000-0000-0000-0000-0000000000c1', auth.uid(), true)$$,
+  '42501', null, 'Editor không tạo bài có sẵn slide');
 
 -- ===================== ADMIN trả lại bài =====================
 select tests.as_user('admin@demo.local');
@@ -49,6 +57,10 @@ select lives_ok(
   'Admin đăng và đánh dấu nổi bật');
 select is((select published_by from public.news where slug = 'bai-quy-trinh'),
   '00000000-0000-0000-0000-0000000000a2'::uuid, 'Ghi nhận người duyệt');
+
+select lives_ok(
+  $$update public.news set show_on_slider = true where slug = 'bai-quy-trinh'$$,
+  'Admin đưa bài lên slide');
 
 -- ===================== EDITOR sau khi bài đã đăng =====================
 select tests.as_user('editor@demo.local');

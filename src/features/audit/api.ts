@@ -70,6 +70,7 @@ const FIELD_LABELS: Record<string, string> = {
   excerpt: 'tóm tắt',
   value: 'giá trị',
   is_featured: 'nổi bật',
+  show_on_slider: 'hiển thị trên slide',
   is_pinned: 'ghim',
   published_at: 'ngày đăng',
   published_by: 'người duyệt',

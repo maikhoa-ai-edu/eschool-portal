@@ -157,7 +157,7 @@ export interface AdminNewsFilter {
 }
 
 const ADMIN_LIST_COLUMNS =
-  'id, title, slug, status, is_featured, updated_at, published_at, view_count, author_id, category:news_categories(name), author:profiles!news_author_id_fkey(full_name)'
+  'id, title, slug, status, is_featured, show_on_slider, updated_at, published_at, view_count, author_id, category:news_categories(name), author:profiles!news_author_id_fkey(full_name)'
 
 export async function fetchAdminNews(filter: AdminNewsFilter) {
   let query = getSupabase()
@@ -178,7 +178,7 @@ export async function fetchNewsForEdit(id: string) {
   const { data, error } = await getSupabase()
     .from('news')
     .select(
-      'id, title, slug, excerpt, content, thumbnail_url, category_id, author_id, author_name, source_name, source_url, status, is_featured, review_note, published_at, author:profiles!news_author_id_fkey(full_name), news_tag_map(news_tags(name))',
+      'id, title, slug, excerpt, content, thumbnail_url, category_id, author_id, author_name, source_name, source_url, status, is_featured, show_on_slider, review_note, published_at, author:profiles!news_author_id_fkey(full_name), news_tag_map(news_tags(name))',
     )
     .eq('id', id)
     .maybeSingle()
@@ -208,6 +208,7 @@ export interface NewsInput {
   review_note: string | null
   /** Chỉ gửi khi người dùng có quyền duyệt (CSDL chặn người khác đổi) */
   is_featured?: boolean
+  show_on_slider?: boolean
 }
 
 /** Tạo hoặc cập nhật bài; trả về id. Đường dẫn trùng thì tự thêm hậu tố ngắn. */

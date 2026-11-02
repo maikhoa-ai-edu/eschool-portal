@@ -243,6 +243,10 @@ export function SlidesTab() {
         ) : (
           <div className="space-y-3 text-sm text-muted">
             <p>Slide hiện ở đầu trang chủ và tự chuyển sau vài giây (đổi ở tab Bố cục).</p>
+            <p>
+              Muốn đưa bài viết lên slide: khi soạn bài, tick Hiển thị trên slide. Bài đó hiện sau các slide ở
+              đây và không nằm trong danh sách này.
+            </p>
             <Button onClick={() => setEditing('new')}>
               <Plus className="h-4 w-4" aria-hidden /> Thêm slide
             </Button>

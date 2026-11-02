@@ -628,6 +628,7 @@ export type Database = {
           published_by: string | null
           review_note: string | null
           search_vector: unknown
+          show_on_slider: boolean
           slug: string
           source_name: string | null
           source_url: string | null
@@ -650,6 +651,7 @@ export type Database = {
           published_by?: string | null
           review_note?: string | null
           search_vector?: unknown
+          show_on_slider?: boolean
           slug: string
           source_name?: string | null
           source_url?: string | null
@@ -672,6 +674,7 @@ export type Database = {
           published_by?: string | null
           review_note?: string | null
           search_vector?: unknown
+          show_on_slider?: boolean
           slug?: string
           source_name?: string | null
           source_url?: string | null
@@ -1437,6 +1440,7 @@ export type Database = {
           published_by: string | null
           review_note: string | null
           search_vector: unknown
+          show_on_slider: boolean
           slug: string
           source_name: string | null
           source_url: string | null
