@@ -96,8 +96,9 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
   - [x] Đợt A: phiên bản ứng dụng tách khỏi schema (bản đầu 0.11.0), workflow `release.yml`, gói build sạch có quét rò rỉ (`scripts/build-release.ts`), kiểm thử gói trên Apache + PHP thật và luồng cài đặt từ gói (`scripts/test-package.ts`), hướng dẫn PDF, dọn CI
   - [x] Bản 0.12.0 (schema 0.12.0): ô "Hiển thị trên slide" khi soạn bài, công tắc tự lấy tin mới nhất có ảnh
   - [x] Bản 0.11.1 (không đổi schema): nút chia sẻ Facebook và Zalo không tải script ngoài, khối Chuyên mục mới, màu `accent-strong` cho chữ nhỏ và menu đang chọn, chặn tải 4 file máy chủ trên Vercel, bổ sung hướng dẫn cài đặt
+  - [x] Nâng cấp thật 0.11.0 -> 0.12.0 qua trang Cập nhật: đạt ở Vĩnh Phong và Vĩnh Hòa (2026-11-03)
   - [ ] Đợt B: kiểm chứng thật với trường Vĩnh Phong trên Vercel (Supabase, tên miền, SMTP, Google, Turnstile), sau đó VibeHost
-  - [ ] Đợt C: chỉnh hướng dẫn theo thực tế, phát hành gói, cài cho trường thứ hai trên Vercel rồi cPanel
+  - [ ] Đợt C: chỉnh hướng dẫn theo thực tế, phát hành gói, cài cho trường thứ hai trên Vercel (đã chạy: Vĩnh Hòa, fork riêng, tên miền .edu.vn) rồi cPanel
   - [ ] Thay ảnh `khuon-vien`, `thu-vien` trong seed vì in tên trường khác, trước khi phát hành công khai
   - [ ] Đợt D: nghiệm thu với người không chuyên, phát hành công khai 1.0.0
 
