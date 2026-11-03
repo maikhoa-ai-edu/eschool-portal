@@ -16,6 +16,7 @@ import { cn } from '@/lib/cn'
 import { toVietnameseError } from '@/lib/errors'
 import { LOGO_TYPES, mergeSiteSetting, saveModules, uploadLogo } from './api'
 import { adjustLightness, COLOR_PRESETS, contrastRatio, HEX_COLOR } from './color'
+import { IDLE_MINUTES_RANGE, MAX_HOURS_RANGE } from '@/features/auth/session-limits'
 import { CaptchaFields } from './CaptchaFields'
 import { GoogleLoginFields } from './GoogleLoginFields'
 import { MODULE_INFO } from './steps'
@@ -142,6 +143,16 @@ const schoolSchema = z.object({
       .trim()
       .regex(/^[\w.-]+\.apps\.googleusercontent\.com$/, 'Client ID có dạng ....apps.googleusercontent.com'),
   ]),
+  session_idle_minutes: z
+    .number('Nhập số phút')
+    .int('Nhập số phút')
+    .min(IDLE_MINUTES_RANGE.min, `Từ ${IDLE_MINUTES_RANGE.min} đến ${IDLE_MINUTES_RANGE.max} phút`)
+    .max(IDLE_MINUTES_RANGE.max, `Từ ${IDLE_MINUTES_RANGE.min} đến ${IDLE_MINUTES_RANGE.max} phút`),
+  session_max_hours: z
+    .number('Nhập số giờ')
+    .int('Nhập số giờ')
+    .min(MAX_HOURS_RANGE.min, `Từ ${MAX_HOURS_RANGE.min} đến ${MAX_HOURS_RANGE.max} giờ`)
+    .max(MAX_HOURS_RANGE.max, `Từ ${MAX_HOURS_RANGE.min} đến ${MAX_HOURS_RANGE.max} giờ`),
 })
 type SchoolValues = z.infer<typeof schoolSchema>
 
@@ -167,6 +178,8 @@ export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
       google_client_id: authOptions.google_client_id,
       captcha_enabled: authOptions.captcha_enabled,
       captcha_site_key: authOptions.captcha_site_key,
+      session_idle_minutes: authOptions.session_idle_minutes,
+      session_max_hours: authOptions.session_max_hours,
     },
   })
   const e = form.formState.errors
@@ -204,6 +217,8 @@ export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
             google_client_id,
             captcha_enabled,
             captcha_site_key,
+            session_idle_minutes,
+            session_max_hours,
             ...values
           }) => {
             if (captcha_enabled && (!captcha_site_key || captcha_site_key !== checkedKey)) {
@@ -218,6 +233,8 @@ export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
                 google_client_id,
                 captcha_enabled,
                 captcha_site_key,
+                session_idle_minutes,
+                session_max_hours,
               })
             })
           },
@@ -303,6 +320,34 @@ export function SchoolInfoStep({ mode, onBack, onNext }: StepProps) {
             }
           }}
         />
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold text-text">Tự đăng xuất</legend>
+          <p className="text-sm text-muted">
+            Áp dụng cho mọi tài khoản. Tắt máy rồi mở lại sau số giờ tối đa thì phải đăng nhập lại.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field
+              label="Khi không thao tác (phút)"
+              type="number"
+              inputMode="numeric"
+              min={IDLE_MINUTES_RANGE.min}
+              max={IDLE_MINUTES_RANGE.max}
+              hint={`Mặc định 60, từ ${IDLE_MINUTES_RANGE.min} đến ${IDLE_MINUTES_RANGE.max}.`}
+              error={e.session_idle_minutes?.message}
+              {...form.register('session_idle_minutes', { valueAsNumber: true })}
+            />
+            <Field
+              label="Phải đăng nhập lại sau (giờ)"
+              type="number"
+              inputMode="numeric"
+              min={MAX_HOURS_RANGE.min}
+              max={MAX_HOURS_RANGE.max}
+              hint={`Mặc định 12, từ ${MAX_HOURS_RANGE.min} đến ${MAX_HOURS_RANGE.max}.`}
+              error={e.session_max_hours?.message}
+              {...form.register('session_max_hours', { valueAsNumber: true })}
+            />
+          </div>
+        </fieldset>
       </form>
     </StepFrame>
   )

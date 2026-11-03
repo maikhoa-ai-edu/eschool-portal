@@ -8,7 +8,7 @@ import { createServer } from 'node:http'
 import { dirname, extname, join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { constants, createBrotliCompress, createGzip } from 'node:zlib'
-import { renderPage, renderRobots, renderSitemap } from './seo-core.mjs'
+import { pingDatabase, renderPage, renderRobots, renderSitemap } from './seo-core.mjs'
 
 const ROOT = dirname(fileURLToPath(import.meta.url))
 const PORT = Number(process.env.PORT) || 3000
@@ -135,3 +135,9 @@ const server = createServer(async (req, res) => {
 })
 
 server.listen(PORT, () => console.log(`eSchool Portal: http://localhost:${PORT}`))
+
+// Giữ project Supabase gói miễn phí không bị tạm dừng sau 7 ngày không hoạt động (giống Vercel Cron)
+const PING_INTERVAL_MS = 24 * 60 * 60 * 1000
+setInterval(() => {
+  void pingDatabase({ config: readConfig() }).then((r) => r.ok || console.error(`Ping CSDL lỗi: ${r.detail}`))
+}, PING_INTERVAL_MS).unref()

@@ -1,8 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
+  "crons": [{ "path": "/api/keepalive", "schedule": "0 1 * * *" }],
   "redirects": [
-    { "source": "/(install\\.php|seo\\.php|seo-core\\.mjs|server\\.mjs)", "destination": "/", "permanent": false }
+    {
+      "source": "/(install\\.php|seo\\.php|seo-core\\.mjs|server\\.mjs)",
+      "destination": "/",
+      "permanent": false
+    }
   ],
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/seo?path=/sitemap.xml" },

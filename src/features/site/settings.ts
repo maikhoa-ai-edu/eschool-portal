@@ -1,4 +1,10 @@
 import { z } from 'zod'
+import {
+  DEFAULT_IDLE_MINUTES,
+  DEFAULT_MAX_HOURS,
+  IDLE_MINUTES_RANGE,
+  MAX_HOURS_RANGE,
+} from '@/features/auth/session-limits'
 import { getSupabase } from '@/lib/supabase'
 import { homepageSchema, type HomepageSettings } from './homepage-settings'
 
@@ -126,6 +132,19 @@ export const authOptionsSchema = z.object({
   google_client_id: text,
   captcha_enabled: z.boolean().catch(false),
   captcha_site_key: text,
+  /** Tự đăng xuất khi không thao tác (phút) và khi đã đăng nhập quá số giờ này */
+  session_idle_minutes: z
+    .number()
+    .int()
+    .min(IDLE_MINUTES_RANGE.min)
+    .max(IDLE_MINUTES_RANGE.max)
+    .catch(DEFAULT_IDLE_MINUTES),
+  session_max_hours: z
+    .number()
+    .int()
+    .min(MAX_HOURS_RANGE.min)
+    .max(MAX_HOURS_RANGE.max)
+    .catch(DEFAULT_MAX_HOURS),
 })
 
 export type AuthOptions = z.infer<typeof authOptionsSchema>

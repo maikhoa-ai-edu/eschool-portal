@@ -42,6 +42,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), installSql()],
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
+    // Vercel đặt biến VERCEL khi build; gói dist.zip (cPanel, VibeHost) build trên GitHub nên để trống
+    __HOSTING__: JSON.stringify(process.env.VERCEL ? 'Vercel' : ''),
   },
   resolve: {
     alias: {

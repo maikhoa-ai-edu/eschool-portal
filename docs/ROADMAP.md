@@ -97,9 +97,10 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
   - [x] Bản 0.12.0 (schema 0.12.0): ô "Hiển thị trên slide" khi soạn bài, công tắc tự lấy tin mới nhất có ảnh
   - [x] Bản 0.11.1 (không đổi schema): nút chia sẻ Facebook và Zalo không tải script ngoài, khối Chuyên mục mới, màu `accent-strong` cho chữ nhỏ và menu đang chọn, chặn tải 4 file máy chủ trên Vercel, bổ sung hướng dẫn cài đặt
   - [x] Nâng cấp thật 0.11.0 -> 0.12.0 qua trang Cập nhật: đạt ở Vĩnh Phong và Vĩnh Hòa (2026-11-03)
+  - [x] Bản 0.13.0 (schema 0.13.0): tự đăng xuất (60 phút không thao tác, tối đa 12 giờ, chỉnh ở Thông tin trường), chấm đỏ và chuông việc đang chờ trong quản trị, chân trang quản trị, nút lên đầu trang, Vercel Cron giữ Supabase hoạt động, Ban giám hiệu có quyền Cơ cấu tổ chức
   - [ ] Đợt B: kiểm chứng thật với trường Vĩnh Phong trên Vercel (Supabase, tên miền, SMTP, Google, Turnstile), sau đó VibeHost
   - [ ] Đợt C: chỉnh hướng dẫn theo thực tế, phát hành gói, cài cho trường thứ hai trên Vercel (đã chạy: Vĩnh Hòa, fork riêng, tên miền .edu.vn) rồi cPanel
-  - [ ] Thay ảnh `khuon-vien`, `thu-vien` trong seed vì in tên trường khác, trước khi phát hành công khai
+  - [x] Xóa tên trường khác khỏi ảnh `khuon-vien` (phủ biển trống) và `thu-vien` (cắt bỏ băng rôn) trong seed; thay ảnh thật khi có
   - [ ] Đợt D: nghiệm thu với người không chuyên, phát hành công khai 1.0.0
 
 ## Thứ tự bước cài đặt (đã chốt ở Giai đoạn 1, bước 9 Tài khoản các nhóm thêm ở 8.6)
@@ -146,7 +147,7 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
 - Dữ liệu mẫu: file thật ở `supabase/seed-storage/<bucket>/seed/...`, `npm run db:reset` chạy `db reset` rồi
   `scripts/seed-storage.ts` (khóa service_role từ `supabase status`, chỉ chạy với Supabase cục bộ). Tạo lại ảnh/PDF:
   `node scripts/make-seed-assets.ts <thư-mục-ảnh-gốc>` (Chromium của Playwright nén ảnh, in PDF tiếng Việt).
-  Ảnh lấy từ bản demo cũ (ảnh AI); hai ảnh album có chữ tên trường khác, nên thay khi có ảnh thật.
+  Ảnh lấy từ bản demo cũ (ảnh AI); chữ tên trường khác trong hai ảnh album đã được xóa ở 0.13.0, nên thay khi có ảnh thật.
 - Zod 4: khóa không có trong JSON thì `z.unknown()` báo lỗi, phải thêm `.optional()` (đã gặp với `sections`).
 - **Lời mời không tự gửi thư**: website tĩnh chỉ có khóa anon, không gọi được API gửi thư mời của Supabase. Người mời
   gửi liên kết `/dang-ky?email=...&ma=...` qua email (nút soạn thư sẵn) hoặc Zalo. Mã bí mật (schema 0.6.0) đi qua
@@ -192,6 +193,8 @@ Tạo quản trị viên trước, các bước cấu hình sau chạy khi đã 
   CLS máy tính 0,001-0,011 trong 4 lượt cuối. Ba thay đổi: `DeferredBlock` hoãn dựng khối xa màn hình (dựng khi cách 300px, khi bấm phím, hoặc sau 3 giây),
   slider chỉ tải ảnh đang hiện và một ảnh kế tiếp, nhóm `shared` không còn kéo `react-hook-form` và DOMPurify vào gói chung. Muốn tăng tiếp thì nhắm vào `vendor`
   (181 KB, Lighthouse báo 104 KB chưa dùng lúc tải trang), chủ yếu Zod và Supabase Auth.
+- **Tự đăng xuất**: trình duyệt tự kiểm tra (gói miễn phí không giới hạn phiên phía máy chủ). Thời điểm đăng nhập lấy từ claim `amr` của access token, giữ nguyên qua các lần làm mới; thao tác gần nhất lưu ở localStorage dùng chung giữa các tab. Đăng xuất tự động dùng `scope: local` để không đăng xuất máy khác.
+- **Giữ Supabase hoạt động**: `api/keepalive.mjs` chạy bằng Vercel Cron mỗi ngày (gói Hobby chỉ cho mỗi ngày một lần), `server.mjs` tự hẹn giờ, cPanel tạo Cron Job gọi `/sitemap.xml`. Không dùng GitHub Actions vì lịch chạy bị tắt trên fork và sau 60 ngày repo không hoạt động.
 - **Nâng cấp**: mỗi lần tăng `schema_version` là một bước; `buildUpgrades` sinh `/upgrades/<phiên-bản>.sql` và `index.json`
   từ migrations, mỗi file kiểm tra phiên bản trước khi chạy và nằm trong giao dịch.
 - Tài khoản demo khi chạy trên máy (mật khẩu `demo1234`): `superadmin@demo.local`, `admin@demo.local`,

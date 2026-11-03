@@ -2,6 +2,17 @@
 
 Mỗi bản phát hành có một mục ở đây; workflow phát hành lấy nội dung này làm ghi chú. Số phiên bản website và số phiên bản cơ sở dữ liệu tách riêng: cơ sở dữ liệu chỉ tăng số khi cấu trúc đổi.
 
+## 0.13.0
+
+Cần nâng cấp cơ sở dữ liệu lên 0.13.0 (trang Cập nhật hướng dẫn cách làm).
+
+- Tự đăng xuất: không thao tác 60 phút thì tự đăng xuất (có hộp báo trước 2 phút), và phải đăng nhập lại sau 12 giờ kể từ lúc đăng nhập. Hai con số chỉnh được ở Thông tin trường, mục Tự đăng xuất. Áp dụng cho mọi tài khoản.
+- Trang quản trị có chấm đỏ số trắng ở menu và chuông trên thanh đầu trang: bài chờ duyệt, bài của mình bị trả lại, bình luận chờ duyệt, có bản mới hoặc CSDL cần nâng cấp. Số tự làm mới mỗi phút.
+- Trang quản trị có chân trang: tên trường, phiên bản website và CSDL, hạ tầng, ghi công thiết kế.
+- Nút lên đầu trang hiện khi kéo xuống, ở mọi trang công khai và trang quản trị. Trên điện thoại, nút nằm trên thanh menu đáy. Đây là thay đổi giao diện chung, áp dụng cho mọi trường.
+- Website trên Vercel tự gọi vào cơ sở dữ liệu mỗi ngày (Vercel Cron) để Supabase gói miễn phí không tạm dừng project sau 7 ngày vắng khách; máy chủ Node tự gọi tương tự. cPanel cần tạo một Cron Job (xem hướng dẫn cài đặt, Phần 5).
+- Sửa lỗi: vai trò Ban giám hiệu được quản lý Cơ cấu tổ chức như Quản trị viên.
+
 ## 0.12.0
 
 Cần nâng cấp cơ sở dữ liệu lên 0.12.0 (trang Cập nhật hướng dẫn cách làm).

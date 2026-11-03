@@ -1,6 +1,6 @@
 -- Nhóm tài khoản: quyền theo nhóm, tạo tài khoản mật khẩu ngẫu nhiên, buộc đổi mật khẩu, cấp lại mật khẩu
 begin;
-select plan(19);
+select plan(20);
 
 create function pg_temp.perm(p_role text, p_permission text)
 returns boolean language sql as $$
@@ -11,6 +11,11 @@ $$;
 select ok(pg_temp.perm('BAN_GIAM_HIEU', 'news.publish'), 'Ban giám hiệu duyệt được tin');
 select ok(pg_temp.perm('BAN_GIAM_HIEU', 'comments.manage'), 'Ban giám hiệu duyệt được bình luận');
 select ok(not pg_temp.perm('BAN_GIAM_HIEU', 'users.manage'), 'Ban giám hiệu không quản lý tài khoản');
+select is_empty(
+  $$select permission from public.role_permissions where role = 'ADMIN'
+    except select permission from public.role_permissions where role = 'BAN_GIAM_HIEU'$$,
+  'Ban giám hiệu có mọi quyền của ADMIN (kể cả organization.manage)'
+);
 select ok(pg_temp.perm('TO_TRUONG', 'plans.manage') and pg_temp.perm('TO_TRUONG', 'documents.manage'), 'Tổ trưởng lập kế hoạch, đăng văn bản');
 select ok(not pg_temp.perm('TO_TRUONG', 'news.publish'), 'Tổ trưởng không tự đăng tin');
 select ok(pg_temp.perm('DOAN_THE', 'announcements.manage') and pg_temp.perm('DOAN_THE', 'media.manage'), 'Đoàn thể đăng thông báo, album');

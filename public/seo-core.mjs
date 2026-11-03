@@ -302,3 +302,18 @@ export function renderRobots(origin) {
   const rules = ROBOTS_DISALLOW.map((p) => `Disallow: ${p}`).join('\n')
   return `User-agent: *\n${rules}\n\nSitemap: ${origin}/sitemap.xml\n`
 }
+
+/**
+ * Gọi nhẹ vào CSDL để Supabase ghi nhận có hoạt động: gói miễn phí tạm dừng project sau 7 ngày không ai dùng.
+ * Vercel Cron gọi mỗi ngày qua api/keepalive.mjs; server.mjs (VibeHost) tự gọi bằng hẹn giờ.
+ */
+export async function pingDatabase({ config, fetchImpl = fetch }) {
+  if (!config?.supabaseUrl || !config?.supabaseAnonKey)
+    return { ok: false, detail: 'Chưa có cấu hình kết nối' }
+  try {
+    const version = await rest(config, 'rpc/get_schema_version', fetchImpl)
+    return { ok: true, detail: `CSDL ${version}` }
+  } catch (err) {
+    return { ok: false, detail: err instanceof Error ? err.message : String(err) }
+  }
+}

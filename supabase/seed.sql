@@ -231,8 +231,8 @@ insert into public.media (id, title, file_path, file_size, mime_type, width, hei
   ('00000000-0000-0000-0000-0000000000e2', 'Cô và trò', 'seed/album/hoc-tap-2-rsw.jpg', 114181, 'image/jpeg', 960, 720, '00000000-0000-0000-0000-0000000000a2'),
   ('00000000-0000-0000-0000-0000000000e3', 'Câu lạc bộ STEM', 'seed/album/stem-1-rsw.jpg', 114574, 'image/jpeg', 960, 720, '00000000-0000-0000-0000-0000000000a2'),
   ('00000000-0000-0000-0000-0000000000e4', 'Mô hình tưới nước', 'seed/album/stem-2-rsw.jpg', 120709, 'image/jpeg', 960, 720, '00000000-0000-0000-0000-0000000000a2'),
-  ('00000000-0000-0000-0000-0000000000e5', 'Khuôn viên', 'seed/album/khuon-vien-rsw.jpg', 162767, 'image/jpeg', 1280, 714, '00000000-0000-0000-0000-0000000000a2'),
-  ('00000000-0000-0000-0000-0000000000e6', 'Thư viện', 'seed/album/thu-vien-rsw.jpg', 145922, 'image/jpeg', 1280, 714, '00000000-0000-0000-0000-0000000000a2'),
+  ('00000000-0000-0000-0000-0000000000e5', 'Khuôn viên', 'seed/album/khuon-vien-rsw.jpg', 179220, 'image/jpeg', 1280, 714, '00000000-0000-0000-0000-0000000000a2'),
+  ('00000000-0000-0000-0000-0000000000e6', 'Thư viện', 'seed/album/thu-vien-rsw.jpg', 137538, 'image/jpeg', 1280, 714, '00000000-0000-0000-0000-0000000000a2'),
   ('00000000-0000-0000-0000-0000000000e7', 'Sân trường', 'seed/album/san-truong-rsw.jpg', 197074, 'image/jpeg', 1280, 714, '00000000-0000-0000-0000-0000000000a2');
 
 insert into public.albums (id, title, slug, description, event_date, cover_media_id, status, created_by) values

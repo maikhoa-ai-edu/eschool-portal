@@ -14,6 +14,7 @@ import { toVietnameseError } from '@/lib/errors'
 import { useAuth } from './auth-context'
 import { useCaptcha } from './captcha-check'
 import { safeNextPath } from './next-path'
+import { EXPIRED_KEY, EXPIRY_MESSAGES, type ExpiryReason } from './session-limits'
 import { isGoogleProviderEnabled, readOAuthError, signInWithGoogle } from './oauth'
 
 const loginSchema = z.object({
@@ -21,6 +22,17 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Vui lòng nhập mật khẩu'),
 })
 type LoginValues = z.infer<typeof loginSchema>
+
+/** Lý do vừa tự đăng xuất (đọc một lần rồi xóa). */
+function takeExpiredMessage(): string | null {
+  try {
+    const reason = sessionStorage.getItem(EXPIRED_KEY)
+    sessionStorage.removeItem(EXPIRED_KEY)
+    return reason && reason in EXPIRY_MESSAGES ? EXPIRY_MESSAGES[reason as ExpiryReason] : null
+  } catch {
+    return null
+  }
+}
 
 function GoogleMark() {
   return (
@@ -50,6 +62,7 @@ export function LoginPage() {
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(() => readOAuthError(location.search, location.hash))
   const [googleBusy, setGoogleBusy] = useState(false)
+  const [expiredMessage] = useState(takeExpiredMessage)
   const { captchaToken, refreshCaptcha, captchaBox } = useCaptcha()
   const next = safeNextPath(params.get('next'))
   // Chỉ hiện nút khi trường đã bật và Supabase thật sự sẵn sàng, tránh bấm vào ra trang lỗi
@@ -141,6 +154,7 @@ export function LoginPage() {
             )}
             <form onSubmit={onSubmit} noValidate className="space-y-4">
               {error && <Alert tone="danger" title={error} />}
+              {!error && expiredMessage && <Alert tone="info" title={expiredMessage} />}
               <Field
                 label="Email"
                 type="email"

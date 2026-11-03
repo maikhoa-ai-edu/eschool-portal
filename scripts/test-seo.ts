@@ -48,6 +48,7 @@ const stub = createServer((req, res) => {
     ])
   }
   if (table === 'homepage_slides') return json([{ image_path: 'seed/a-rsw.jpg' }])
+  if (table === 'rpc/get_schema_version') return json('0.13.0')
   if (table === 'module_settings') {
     return json([
       { module_key: 'news', is_enabled: true },
@@ -285,6 +286,40 @@ try {
   assert.ok((await call('/sitemap.xml')).body.includes('/tin-tuc/bai-mot</loc>'))
   assert.ok((await call('/robots.txt')).body.includes('Disallow: /admin'))
   globalThis.fetch = realFetch
+  console.log('    đạt')
+
+  // Vercel Cron giữ Supabase hoạt động: đọc phiên bản CSDL, lỗi thì trả 503 để Vercel ghi nhận
+  console.log('--- Vercel Cron (api/keepalive.mjs)')
+  // @ts-expect-error file JS thuần, không có khai báo kiểu
+  const { default: keepalive } = await import('../api/keepalive.mjs')
+  const ping = async () => {
+    const result = { status: 200, body: '', cache: '' }
+    await keepalive(
+      {
+        url: '/api/keepalive',
+        headers: { 'x-forwarded-proto': 'http', 'x-forwarded-host': `127.0.0.1:${NODE_PORT}` },
+      },
+      {
+        set statusCode(v: number) {
+          result.status = v
+        },
+        setHeader(name: string, value: string) {
+          if (name === 'Cache-Control') result.cache = value
+        },
+        end(body: string) {
+          result.body = body
+        },
+      },
+    )
+    return result
+  }
+  const alive = await ping()
+  assert.equal(alive.status, 200)
+  assert.equal(alive.body.trim(), 'ok: CSDL 0.13.0')
+  assert.equal(alive.cache, 'no-store')
+  down = true
+  assert.equal((await ping()).status, 503)
+  down = false
   console.log('    đạt')
 
   const phpDir = site(PHP_SUPABASE)

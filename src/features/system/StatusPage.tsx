@@ -15,12 +15,7 @@ import {
   type SystemCheck,
   type SystemHealth,
 } from './checks'
-
-async function fetchSchemaVersion(): Promise<string> {
-  const { data, error } = await getSupabase().rpc('get_schema_version')
-  if (error) throw error
-  return String(data)
-}
+import { fetchSchemaVersion } from './versions'
 
 async function fetchStorageCheck(): Promise<SystemCheck> {
   const { error } = await getSupabase().storage.from('media').list('', { limit: 1 })

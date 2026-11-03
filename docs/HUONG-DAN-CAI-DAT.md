@@ -155,6 +155,24 @@ Máy chủ thư có sẵn của Supabase chỉ dành để thử: giới hạn r
 3. Điền địa chỉ gửi, Host, Port, Username, Password theo dịch vụ, bấm **Save**.
 4. Thử bấm **Quên mật khẩu?** trên website bằng email của một giáo viên.
 
+### Giữ Supabase không bị tạm dừng
+
+Gói miễn phí của Supabase tạm dừng project sau 7 ngày không có hoạt động (thường gặp vào dịp nghỉ hè, nghỉ Tết). Website có sẵn cơ chế tự gọi vào cơ sở dữ liệu mỗi ngày:
+
+- **Vercel:** tự chạy, không cần làm gì. Kiểm tra: mở project trên Vercel → **Settings → Cron Jobs**, thấy dòng `/api/keepalive` chạy mỗi ngày.
+- **VibeHost, hosting có Node.js:** `server.mjs` tự gọi mỗi ngày khi ứng dụng đang chạy.
+- **cPanel:** tạo một Cron Job. Mở cPanel → **Cron Jobs**, mục **Common Settings** chọn **Once Per Day**, ô **Command** dán dòng sau (thay `truong.edu.vn` bằng tên miền của trường), bấm **Add New Cron Job**:
+
+  ```
+  curl -s -o /dev/null https://truong.edu.vn/sitemap.xml
+  ```
+
+Nếu project đã bị tạm dừng: mở Supabase, chọn project, bấm **Restore project** rồi đợi vài phút. Dữ liệu không mất.
+
+### Tự đăng xuất
+
+Mặc định, tài khoản tự đăng xuất khi **60 phút** không thao tác và phải đăng nhập lại sau **12 giờ** kể từ lúc đăng nhập, nên tắt máy hôm nay thì mai phải đăng nhập lại. Đổi hai con số này ở quản trị → **Thông tin trường**, mục **Tự đăng xuất**.
+
 ## Phần 6. Gắn tên miền riêng
 
 ### Trên Vercel
@@ -170,7 +188,7 @@ Trỏ tên miền về máy chủ theo hướng dẫn của nhà cung cấp, r�
 
 ### Sau khi đổi địa chỉ
 
-Làm lại mục **Khai báo địa chỉ website** ở Phần 5. Nếu đã bật Google, thêm địa chỉ mới vào **Authorized JavaScript origins** (Phần 7).
+Làm lại mục **Khai báo địa chỉ website** ở Phần 5. Nếu đã bật Google, thêm địa chỉ mới vào **Authorized JavaScript origins** (Phần 7). Nếu đã bật Turnstile, thêm tên miền mới vào **Hostname Management** của widget trên Cloudflare (Phần 8), nếu không trang đăng nhập sẽ báo lỗi mã bảo mật.
 
 ## Phần 7. Đăng nhập bằng Google (không bắt buộc)
 

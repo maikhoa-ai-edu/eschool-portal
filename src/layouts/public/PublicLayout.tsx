@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
 import { Outlet } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
+import { BackToTop } from '@/components/ui/BackToTop'
 import { getSupabase } from '@/lib/supabase'
 import { MainNav } from './MainNav'
 import { MarqueeBar } from './MarqueeBar'
 import { MobileBottomBar } from './MobileBottomBar'
+import { useMobileBarItems } from './mobile-bar'
 import { SiteFooter } from './SiteFooter'
 import { SiteHeader } from './SiteHeader'
 
@@ -29,6 +31,7 @@ function useRecordVisit() {
 
 export function PublicLayout() {
   useRecordVisit()
+  const hasBottomBar = useMobileBarItems().length > 0
   return (
     <div className="flex min-h-screen flex-col">
       <a
@@ -49,6 +52,7 @@ export function PublicLayout() {
       </main>
       <SiteFooter />
       <MobileBottomBar />
+      <BackToTop aboveBottomBar={hasBottomBar} />
     </div>
   )
 }

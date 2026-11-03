@@ -3,20 +3,10 @@
  * Cấu hình đọc từ biến môi trường VITE_*, không có thì đọc /config.json của chính website.
  */
 import { renderPage, renderRobots, renderSitemap } from '../public/seo-core.mjs'
-
-async function readConfig(origin) {
-  const { VITE_SUPABASE_URL: supabaseUrl, VITE_SUPABASE_ANON_KEY: supabaseAnonKey } = process.env
-  if (supabaseUrl && supabaseAnonKey) return { supabaseUrl, supabaseAnonKey }
-  try {
-    const res = await fetch(`${origin}/config.json`)
-    return res.ok ? await res.json() : null
-  } catch {
-    return null
-  }
-}
+import { originOf, readConfig } from './_config.mjs'
 
 export default async function handler(req, res) {
-  const origin = `${req.headers['x-forwarded-proto'] ?? 'https'}://${req.headers['x-forwarded-host'] ?? req.headers.host}`
+  const origin = originOf(req)
   const path = String(new URL(req.url, origin).searchParams.get('path') ?? '/')
 
   if (path === '/robots.txt') {

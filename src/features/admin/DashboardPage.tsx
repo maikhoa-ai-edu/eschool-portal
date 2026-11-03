@@ -17,6 +17,7 @@ import { useAuth } from '@/features/auth/auth-context'
 import { AuditActionBadge } from '@/features/audit/AuditLogPage'
 import { AUDIT_KEY, auditActorName, auditTarget, fetchRecentAudit } from '@/features/audit/api'
 import { useSite } from '@/features/site/site-context'
+import { fetchSchemaVersion } from '@/features/system/versions'
 import { formatDateTime, formatNumber } from '@/lib/format'
 import { compareVersions } from '@/lib/semver'
 import { getSupabase, requireUserId } from '@/lib/supabase'
@@ -113,12 +114,6 @@ async function fetchTodos(canManageAnnouncements: boolean, canManageUsers: boole
     expiringAnnouncements: expiring?.count ?? 0,
     expiredInvitations: invitations?.count ?? 0,
   }
-}
-
-async function fetchSchemaVersion(): Promise<string> {
-  const { data, error } = await getSupabase().rpc('get_schema_version')
-  if (error) throw error
-  return String(data)
 }
 
 function StatCard({

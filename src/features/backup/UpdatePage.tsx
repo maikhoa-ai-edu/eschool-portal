@@ -7,37 +7,14 @@ import { Alert } from '@/components/ui/Alert'
 import { Button } from '@/components/ui/Button'
 import { buttonClasses } from '@/components/ui/button-classes'
 import { dashboardLink } from '@/features/install/api'
-import { getSupabase } from '@/lib/supabase'
+import { fetchLatestRelease, fetchSchemaVersion } from '@/features/system/versions'
 import { compareVersions } from '@/lib/semver'
 import { APP_VERSION, REQUIRED_SCHEMA_VERSION } from '@/lib/version'
-
-const RELEASES_API = 'https://api.github.com/repos/maikhoa-ai-edu/eschool-portal/releases/latest'
-
-interface LatestRelease {
-  version: string
-  url: string
-  notes: string
-}
-
-async function fetchLatestRelease(): Promise<LatestRelease | null> {
-  const res = await fetch(RELEASES_API, { headers: { Accept: 'application/vnd.github+json' } })
-  // Chưa có bản phát hành nào
-  if (res.status === 404) return null
-  if (!res.ok) throw new Error('Không kiểm tra được bản mới trên GitHub. Vui lòng thử lại sau.')
-  const data = (await res.json()) as { tag_name: string; html_url: string; body?: string | null }
-  return { version: data.tag_name.replace(/^v/, ''), url: data.html_url, notes: data.body ?? '' }
-}
 
 interface UpgradeStep {
   version: string
   from: string
   file: string
-}
-
-async function fetchSchemaVersion(): Promise<string> {
-  const { data, error } = await getSupabase().rpc('get_schema_version')
-  if (error) throw error
-  return String(data)
 }
 
 /** Ghép các bước nâng cấp còn thiếu, từ phiên bản CSDL hiện tại tới phiên bản website cần. */
@@ -139,9 +116,9 @@ export function UpdatePage() {
             <ol className="list-decimal space-y-1 pl-4">
               <li>Tải bản sao lưu ở mục Sao lưu.</li>
               <li>
-                Vercel: mở bản fork trên GitHub, bấm <strong>Sync fork</strong> → <strong>Update branch</strong>
-                , Vercel tự build lại. cPanel, VibeHost: tải <code>dist.zip</code>, giải nén đè lên thư mục web
-                (giữ nguyên <code>config.json</code>).
+                Vercel: mở bản fork trên GitHub, bấm <strong>Sync fork</strong> →{' '}
+                <strong>Update branch</strong>, Vercel tự build lại. cPanel, VibeHost: tải{' '}
+                <code>dist.zip</code>, giải nén đè lên thư mục web (giữ nguyên <code>config.json</code>).
               </li>
               <li>Mở lại trang này: nếu CSDL cần nâng cấp, đoạn SQL sẽ hiện ở mục dưới.</li>
             </ol>
