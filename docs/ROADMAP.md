@@ -100,6 +100,8 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
   - [x] Nâng cấp thật 0.12.0 -> 0.13.0 qua trang Cập nhật: đạt ở Vĩnh Phong và Vĩnh Hòa (2026-11-03)
   - [x] Bản 0.13.0 (schema 0.13.0): tự đăng xuất (60 phút không thao tác, tối đa 12 giờ, chỉnh ở Thông tin trường), chấm đỏ và chuông việc đang chờ trong quản trị, chân trang quản trị, nút lên đầu trang, Vercel Cron giữ Supabase hoạt động, Ban giám hiệu có quyền Cơ cấu tổ chức
   - [ ] Đợt B: kiểm chứng thật với trường Vĩnh Phong trên Vercel (Supabase, tên miền, SMTP, Google, Turnstile), sau đó VibeHost
+    - [x] Tên miền `thcs-thptvinhphong.edu.vn` (Tenten, A + CNAME, `www` chuyển 308 về địa chỉ chính), Site URL Supabase, SMTP Brevo với người gửi `no-reply@` tên miền trường (DKIM, DMARC), đăng nhập Google với Client ID thật: chạy thật (2026-11-04)
+    - [ ] Turnstile với khóa thật, thử khôi phục sao lưu sang project mới, VibeHost
   - [ ] Đợt C: chỉnh hướng dẫn theo thực tế, phát hành gói, cài cho trường thứ hai trên Vercel (đã chạy: Vĩnh Hòa, fork riêng, tên miền .edu.vn) rồi cPanel
   - [x] Xóa tên trường khác khỏi ảnh `khuon-vien` (phủ biển trống) và `thu-vien` (cắt bỏ băng rôn) trong seed; thay ảnh thật khi có
   - [ ] Đợt D: nghiệm thu với người không chuyên, phát hành công khai 1.0.0

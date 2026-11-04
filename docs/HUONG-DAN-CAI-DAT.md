@@ -150,10 +150,20 @@ Nếu bỏ qua, liên kết trong thư quên mật khẩu sẽ không về đún
 
 Máy chủ thư có sẵn của Supabase chỉ dành để thử: giới hạn rất ít thư mỗi giờ và có thể chỉ gửi tới email trong nhóm quản lý project. Nếu thầy cô cần dùng **Quên mật khẩu** hoặc trường cho phép tự đăng ký, hãy cấu hình dịch vụ gửi thư riêng:
 
-1. Đăng ký một dịch vụ gửi thư có gói miễn phí (ví dụ Brevo), lấy thông tin SMTP của dịch vụ đó.
-2. Mở Supabase → **Authentication → Emails → SMTP Settings**, bật **Enable Custom SMTP**.
-3. Điền địa chỉ gửi, Host, Port, Username, Password theo dịch vụ, bấm **Save**.
-4. Thử bấm **Quên mật khẩu?** trên website bằng email của một giáo viên.
+Cách làm với Brevo (gói miễn phí 300 thư/ngày), người gửi theo tên miền của trường. Làm sau khi tên miền đã chạy (Phần 6):
+
+1. Đăng ký **brevo.com**, chọn gói **Free**.
+2. Bấm tên tài khoản → **Senders, Domains & Dedicated IPs** → tab **Domains** → **Add a domain**, nhập tên miền của trường.
+   - **Branded subdomain:** để trống (không cần cho thư của website).
+   - **Setup method:** chọn **Manual**.
+3. Brevo hiện 4 bản ghi: TXT `@` (`brevo-code:…`), CNAME `brevo1._domainkey`, CNAME `brevo2._domainkey`, TXT `_dmarc`. Thêm từng bản ghi ở trang quản lý DNS của tên miền: ô Tên chỉ nhập phần đầu (vd `brevo1._domainkey`), ô Giá trị bấm **Copy** bên Brevo rồi dán. Không xóa các bản ghi đang có của website.
+4. Đợi 10–30 phút, bấm **Verify records** rồi **Authenticate domain**.
+5. Tab **Senders** → **Add sender**: tên trường, email `no-reply@<tên-miền>` (không cần hộp thư thật).
+6. **SMTP & API** → tab **SMTP** → **Generate SMTP key**: Variant **Standard**, Expiry **No expiration**. Chép khóa ngay (chỉ hiện một lần), ghi lại dòng **Login**. **Không bấm** "Activate for SMTP keys" (chặn IP): Supabase gửi từ nhiều IP nên thư sẽ bị chặn.
+7. Supabase → **Authentication → Emails → SMTP Settings**, bật **Enable Custom SMTP**: Sender email `no-reply@<tên-miền>`, Sender name là tên trường, Host `smtp-relay.brevo.com`, Port `587`, Username là dòng Login, Password là khóa SMTP. Bấm **Save changes**.
+8. Thử bấm **Quên mật khẩu?** trên website bằng email của chính mình: thư phải đến từ `no-reply@<tên-miền>` và liên kết mở về đúng tên miền.
+
+> Khóa SMTP của Brevo tự hết hiệu lực nếu **90 ngày liên tục** không gửi thư nào (thường gặp sau nghỉ hè). Khi thư quên mật khẩu không tới nữa: vào Brevo → **SMTP & API**, tạo khóa mới và dán lại vào ô Password trong Supabase.
 
 ### Giữ Supabase không bị tạm dừng
 
@@ -177,10 +187,11 @@ Mặc định, tài khoản tự đăng xuất khi **60 phút** không thao tác
 
 ### Trên Vercel
 
-1. Mở project → **Settings → Domains**, nhập tên miền, bấm **Add**.
-2. Vercel hiện các bản ghi DNS cần thêm.
-3. Đăng nhập trang quản lý tên miền (nhà đăng ký hoặc đơn vị quản lý tên miền `.edu.vn` của trường), thêm đúng các bản ghi đó.
-4. Chờ tới khi Vercel báo **Valid Configuration**, thường vài phút tới vài giờ. Vercel tự cấp HTTPS.
+1. Mở project → **Settings → Domains**, bấm **Add Existing**, nhập tên miền (vd `truong.edu.vn`), bấm **Add**. Vercel tự thêm cả `www.`.
+2. Chọn địa chỉ chính. Muốn địa chỉ chính không có `www`: bấm **Edit** ở dòng không có www trước, chọn **Connect to an environment → Production**, **Save**; sau đó **Edit** dòng www, chọn **Redirect to Another Domain**, **308**, chọn tên miền không có www, **Save**. Làm ngược thứ tự thì nút Save bị mờ (Vercel chặn vòng chuyển hướng).
+3. Bấm **View DNS configuration** ở từng dòng, dùng tab **DNS Records** (không dùng tab Vercel DNS). Vercel cho một bản ghi **A** `@` và một bản ghi **CNAME** `www`.
+4. Đăng nhập trang quản lý tên miền (vd Tenten), mục **Bản ghi DNS**, thêm đúng hai bản ghi đó (chép giá trị bằng nút sao chép của Vercel), xóa các bản ghi A/AAAA cũ của `@` và `www` nếu có.
+5. Chờ tới khi Vercel báo **Valid Configuration**, thường vài phút tới vài giờ. Vercel tự cấp HTTPS.
 
 ### Trên cPanel
 
@@ -188,20 +199,20 @@ Trỏ tên miền về máy chủ theo hướng dẫn của nhà cung cấp, r�
 
 ### Sau khi đổi địa chỉ
 
-Làm lại mục **Khai báo địa chỉ website** ở Phần 5. Nếu đã bật Google, thêm địa chỉ mới vào **Authorized JavaScript origins** (Phần 7). Nếu đã bật Turnstile, thêm tên miền mới vào **Hostname Management** của widget trên Cloudflare (Phần 8), nếu không trang đăng nhập sẽ báo lỗi mã bảo mật.
+Làm lại mục **Khai báo địa chỉ website** ở Phần 5: Site URL là địa chỉ chính mới, thêm `https://<địa-chỉ-chính>/**` vào Redirect URLs và giữ địa chỉ cũ một thời gian. Không cần thêm địa chỉ `www` nếu nó chỉ chuyển hướng, không thêm `localhost`. Nếu đã bật Google, thêm địa chỉ mới vào **Authorized JavaScript origins** (Phần 7). Nếu đã bật Turnstile, thêm tên miền mới vào **Hostname Management** của widget trên Cloudflare (Phần 8), nếu không trang đăng nhập sẽ báo lỗi mã bảo mật.
 
 ## Phần 7. Đăng nhập bằng Google (không bắt buộc)
 
-1. Vào quản trị → **Thông tin trường**, chọn **Bật đăng nhập nhanh bằng Google**. Website hiện sẵn các địa chỉ cần chép.
-2. Mở **console.cloud.google.com/apis/credentials**, tạo project nếu chưa có.
-3. Điền **OAuth consent screen**: tên ứng dụng, email hỗ trợ. Ở phần Audience chọn **External**, rồi **Publish app** để mọi người dùng được.
-4. Bấm **Create credentials → OAuth client ID**, chọn **Web application**.
+1. Mở quản trị **trên tên miền chính** → **Thông tin trường**, chọn **Bật đăng nhập nhanh bằng Google**. Website hiện sẵn các địa chỉ cần chép. Chưa bấm lưu.
+2. Mở **console.cloud.google.com** bằng Gmail chung của trường, tạo project mới.
+3. Mở **Google Auth Platform** → **Get started**: tên ứng dụng là tên trường, email hỗ trợ, Audience **External**. Ở **Branding**, thêm tên miền của trường vào **Authorized domains**; **không tải logo** (tải logo buộc Google xét duyệt nhiều ngày). Ở **Audience**, bấm **Publish app** để mọi người dùng được.
+4. Mở **Clients** → **Create client**, chọn **Web application**.
 5. Dán **Authorized JavaScript origins** và **Authorized redirect URIs** từ website, bấm **Create**.
 6. Mở Supabase → **Authentication → Sign In / Providers → Google**, bật lên, dán **Client ID** và **Client Secret**, bấm **Save**.
 7. Trong **Authentication → URL Configuration**, thêm Redirect URL mà website hiển thị.
 8. Quay lại website, dán **Client ID** vào ô tương ứng, bấm lưu.
 
-> **Client Secret chỉ dán trong Supabase**, không dán vào website.
+> **Client Secret chỉ dán trong Supabase**, không dán vào website. Khi chưa bật **Cho phép tự đăng ký thành viên**, chỉ email đã được mời mới đăng nhập được bằng Google. Lỗi `redirect_uri_mismatch`: địa chỉ ở bước 5 sai, chép lại từ website. Lỗi "Access blocked": chưa **Publish app**.
 
 ## Phần 8. Mã bảo mật Cloudflare Turnstile (không bắt buộc)
 
