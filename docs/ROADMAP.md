@@ -97,6 +97,7 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
   - [x] Bản 0.12.0 (schema 0.12.0): ô "Hiển thị trên slide" khi soạn bài, công tắc tự lấy tin mới nhất có ảnh
   - [x] Bản 0.11.1 (không đổi schema): nút chia sẻ Facebook và Zalo không tải script ngoài, khối Chuyên mục mới, màu `accent-strong` cho chữ nhỏ và menu đang chọn, chặn tải 4 file máy chủ trên Vercel, bổ sung hướng dẫn cài đặt
   - [x] Nâng cấp thật 0.11.0 -> 0.12.0 qua trang Cập nhật: đạt ở Vĩnh Phong và Vĩnh Hòa (2026-11-03)
+  - [x] Nâng cấp thật 0.12.0 -> 0.13.0 qua trang Cập nhật: đạt ở Vĩnh Phong và Vĩnh Hòa (2026-11-03)
   - [x] Bản 0.13.0 (schema 0.13.0): tự đăng xuất (60 phút không thao tác, tối đa 12 giờ, chỉnh ở Thông tin trường), chấm đỏ và chuông việc đang chờ trong quản trị, chân trang quản trị, nút lên đầu trang, Vercel Cron giữ Supabase hoạt động, Ban giám hiệu có quyền Cơ cấu tổ chức
   - [ ] Đợt B: kiểm chứng thật với trường Vĩnh Phong trên Vercel (Supabase, tên miền, SMTP, Google, Turnstile), sau đó VibeHost
   - [ ] Đợt C: chỉnh hướng dẫn theo thực tế, phát hành gói, cài cho trường thứ hai trên Vercel (đã chạy: Vĩnh Hòa, fork riêng, tên miền .edu.vn) rồi cPanel
