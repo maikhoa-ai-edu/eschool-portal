@@ -216,15 +216,27 @@ Làm lại mục **Khai báo địa chỉ website** ở Phần 5: Site URL là �
 
 ## Phần 8. Mã bảo mật Cloudflare Turnstile (không bắt buộc)
 
-1. Đăng ký **cloudflare.com**, mở **Turnstile**, bấm **Add widget**.
-2. Đặt tên, thêm tên miền website, chọn chế độ **Managed**, bấm **Create**.
-3. Cloudflare cấp **Site key** và **Secret key**.
-4. Vào quản trị → **Thông tin trường**, bật Turnstile, dán **Site key**. Giữ trang này mở, chưa cần lưu.
-5. Mở Supabase → **Authentication → Attack Protection**, bật **CAPTCHA protection**, chọn **Cloudflare Turnstile**, dán **Secret key**, bấm **Save**.
-6. Quay lại website, bấm nút kiểm tra. Khi website báo **Đạt**, bấm **Lưu**. Website không cho lưu nếu chưa đạt, để tránh khai lệch làm không đăng nhập được.
-7. Mở cửa sổ ẩn danh và thử đăng nhập.
+Ô "Tôi không phải robot" miễn phí của Cloudflare, chặn máy tự dò mật khẩu và spam đăng ký ở các trang Đăng nhập, Đăng ký, Quên mật khẩu. Đăng nhập bằng Google và trang công khai không bị ảnh hưởng. Không cần chuyển DNS sang Cloudflare, tên miền giữ nguyên ở nhà cung cấp cũ.
 
-> **Secret key chỉ dán trong Supabase**, không dán vào website. Không đóng trang ở bước 4 khi chưa lưu: từ lúc bật CAPTCHA trong Supabase tới lúc lưu xong, đăng nhập mới sẽ tạm thời không qua được.
+Từ bước 5 tới bước 6, đăng nhập mới tạm thời không qua được (người đang đăng nhập không bị ảnh hưởng). Hãy làm lúc vắng người, liền một mạch, mất vài phút.
+
+1. Đăng ký **dash.cloudflare.com** bằng Gmail chung của trường. Nếu được hỏi thêm tên miền thì bỏ qua.
+2. Menu trái → **Turnstile** (hoặc gõ "Turnstile" vào ô tìm kiếm) → **Add widget**:
+   - **Widget name:** tên trường.
+   - **Hostname management → Add hostnames:** tên miền chính (vd `truong.edu.vn`) và địa chỉ dự phòng nếu có (vd `truong.vercel.app`). Tên miền gốc đã gồm `www.`; không thêm `localhost`.
+   - **Widget mode:** **Managed**. **Pre-clearance:** **No**.
+3. Bấm **Create**. Cloudflare hiện **Site key** và **Secret key** (bấm vào ô để sao chép; xem lại được sau trong cài đặt widget). Bỏ qua nút **Set up with Spin**: website đã có sẵn phần này. Giữ tab này mở.
+4. Tab mới: quản trị → **Thông tin trường** → mục **Mã bảo mật chống spam**, tick **Bật mã bảo mật Cloudflare Turnstile**, dán **Site key** (khóa bắt đầu bằng `0x4AAAAAAA`). **Chưa bấm Kiểm tra, chưa Lưu.**
+5. Tab mới: Supabase → **Authentication → Attack Protection**. Bật **Enable Captcha protection**, **Choose Captcha Provider** chọn **Turnstile by Cloudflare**, dán **Secret key** vào ô **Captcha secret**, bấm **Save changes**. Bỏ qua dòng "Prevent use of leaked passwords" (gói trả phí).
+6. Quay lại tab Thông tin trường, bấm **Kiểm tra**, chờ ô Turnstile hiện tích xanh:
+   - **Đạt** → bấm **Lưu**. Kiểm tra không tự lưu.
+   - "Supabase chưa bật captcha" → bước 5 chưa lưu, làm lại.
+   - "Supabase từ chối mã xác minh" → Secret key sai (thừa dấu cách hoặc nhầm Site key), dán lại ở bước 5.
+   - Ô Turnstile báo lỗi tên miền → thiếu tên miền ở bước 2.
+   - Kẹt quá 5 phút → tắt **Enable Captcha protection** trong Supabase, **Save changes**: mọi người đăng nhập lại bình thường, tìm nguyên nhân sau.
+7. Thử bằng cửa sổ ẩn danh (Ctrl+Shift+N): trang đăng nhập hiện ô Cloudflare báo **Thành công!**, đăng nhập được bằng một tài khoản giáo viên; bấm **Quên mật khẩu?** thì thư vẫn tới. Thử thêm trên điện thoại dùng 4G.
+
+> **Secret key chỉ dán trong Supabase**, không dán vào website và không gửi qua tin nhắn. Website không cho lưu khi Kiểm tra chưa đạt. **Tắt Turnstile:** tắt trong Supabase trước, sau đó mới bỏ tick trên website và Lưu; làm ngược lại sẽ không ai đăng nhập được. **Đổi tên miền:** thêm tên miền mới vào Hostname management của widget trước khi chuyển.
 
 ## Phần 9. Sao lưu và khôi phục
 
@@ -260,5 +272,6 @@ Trang **Cập nhật** trong quản trị báo khi có bản mới. Dữ liệu 
 | Liên kết trong thư mở về `localhost` | **Site URL** chưa đúng. Xem Phần 5 |
 | Website báo không kết nối được dữ liệu | Project Supabase có thể bị tạm dừng. Mở Supabase và khôi phục |
 | Đăng nhập báo lỗi mã xác minh | Sai **Secret key** Turnstile. Dán lại trong Supabase hoặc tạm tắt CAPTCHA protection |
+| Ô Turnstile báo lỗi, không hiện tích xanh | Tên miền đang dùng chưa có trong **Hostname management** của widget. Xem Phần 8 |
 | Google báo `redirect_uri_mismatch` | Địa chỉ trong Google chưa khớp. Chép lại từ trang **Thông tin trường** |
 | Trang quản trị báo CSDL cần nâng cấp | Làm bước 3 của Phần 10 |
