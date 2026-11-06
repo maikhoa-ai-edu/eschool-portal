@@ -186,6 +186,33 @@ test.describe('Thông báo, trang tĩnh, menu', () => {
     await page.goto('/trang/lien-he')
     await expect(page.getByRole('heading', { name: 'Liên hệ', level: 1 })).toBeVisible()
   })
+
+  test('quản trị thêm bộ phận ở trang Liên hệ, khách thấy ngay', async ({ page, browser }, info) => {
+    const name = `E2E Thư viện ${uniqueSuffix()}`
+    await login(page, 'admin@demo.local', '/admin/trang')
+    await page.getByRole('link', { name: 'Liên hệ', exact: true }).click()
+    await page.getByRole('button', { name: 'Thêm bộ phận' }).click()
+    await page.getByLabel('Tên bộ phận 5').fill(name)
+    await page.getByLabel('Điện thoại bộ phận 5').fill('0911 222 333')
+    await page.getByLabel('Hiện nút "Nhắn Zalo" cho bộ phận 5').check()
+    await page.getByRole('button', { name: 'Lưu trang' }).click()
+    await expect(page.getByText('Đã lưu trang.')).toBeVisible()
+
+    const guest = await otherMachine(browser, info)
+    try {
+      await guest.goto('/trang/lien-he')
+      await expect(guest.getByText(name)).toBeVisible()
+      await expect(guest.getByRole('link', { name: `Nhắn Zalo ${name}` })).toHaveAttribute(
+        'href',
+        'https://zalo.me/0911222333',
+      )
+    } finally {
+      await guest.context().close()
+      await page.getByRole('button', { name: 'Xóa bộ phận 5' }).click()
+      await page.getByRole('button', { name: 'Lưu trang' }).click()
+      await expect(page.getByText('Đã lưu trang.')).toBeVisible()
+    }
+  })
 })
 
 test.describe('Văn bản & thư viện ảnh', () => {

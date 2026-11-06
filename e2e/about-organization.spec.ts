@@ -22,6 +22,24 @@ test('trang Giới thiệu dạng landing có đủ các mục, không cuộn ng
   expect(overflow).toBe(false)
 })
 
+test('trang Liên hệ có điện thoại bộ phận, giờ làm việc, kênh khác, không cuộn ngang', async ({ page }) => {
+  await page.goto('/trang/lien-he')
+  for (const name of ['Điện thoại các bộ phận', 'Giờ làm việc', 'Kênh liên lạc khác']) {
+    await expect(page.getByRole('heading', { name, level: 2 })).toBeVisible()
+  }
+  await expect(page.getByRole('link', { name: '0296 3000 002' })).toHaveAttribute('href', 'tel:02963000002')
+  await expect(
+    page.getByRole('link', { name: 'Nhắn Zalo Tư vấn tâm lý - hướng nghiệp - tuyển sinh' }),
+  ).toHaveAttribute('href', 'https://zalo.me/0900000001')
+  // Bộ phận không bật Zalo thì không có nút; bản đồ để trống thì không nhúng
+  await expect(page.getByRole('link', { name: /^Nhắn Zalo/ })).toHaveCount(1)
+  await expect(page.locator('iframe')).toHaveCount(0)
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+  )
+  expect(overflow).toBe(false)
+})
+
 test('cơ cấu tổ chức: bấm để xổ danh sách, không hiện người đang ẩn', async ({ page }) => {
   await page.goto('/trang/co-cau-to-chuc')
   // Bộ phận đầu mở sẵn, bộ phận khác đóng tới khi bấm

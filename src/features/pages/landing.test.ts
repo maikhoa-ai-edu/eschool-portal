@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mapEmbedUrl, parseAboutLanding } from './landing'
+import { mapEmbedUrl, parseAboutLanding, parseContactLanding, telHref, zaloHref } from './landing'
 
 describe('mapEmbedUrl', () => {
   it('nhận link nhúng Google Maps', () => {
@@ -35,5 +35,34 @@ describe('parseAboutLanding', () => {
       history: '',
       campus_images: [],
     })
+  })
+})
+
+describe('parseContactLanding', () => {
+  it('đọc từ landing.contact, thiếu thì về giá trị rỗng', () => {
+    expect(parseContactLanding({})).toEqual({ departments: [], hours: [], show_social: false, map_url: '' })
+    expect(parseContactLanding(null).departments).toEqual([])
+    expect(parseContactLanding({ history: 'x', map_url: 'y' }).map_url).toBe('')
+    expect(
+      parseContactLanding({ contact: { departments: [{ name: 'Văn phòng', phone: 1 }], show_social: 'x' } }),
+    ).toMatchObject({
+      departments: [{ name: 'Văn phòng', phone: '', email: '', note: '', zalo: false }],
+      show_social: false,
+    })
+  })
+})
+
+describe('telHref và zaloHref', () => {
+  it('bỏ ký tự thừa trong số điện thoại', () => {
+    expect(telHref('0296 3000 001')).toBe('tel:02963000001')
+    expect(telHref('(+84) 912.345.678')).toBe('tel:+84912345678')
+    expect(telHref('chưa có')).toBeNull()
+  })
+
+  it('Zalo chỉ nhận số di động Việt Nam', () => {
+    expect(zaloHref('0912 345 678')).toBe('https://zalo.me/0912345678')
+    expect(zaloHref('+84 912 345 678')).toBe('https://zalo.me/0912345678')
+    expect(zaloHref('113')).toBeNull()
+    expect(zaloHref('')).toBeNull()
   })
 })

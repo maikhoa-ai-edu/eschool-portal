@@ -20,6 +20,37 @@ export function parseAboutLanding(value: unknown): AboutLanding {
   return aboutLandingSchema.parse(value ?? {})
 }
 
+/** Phần riêng của trang bố cục Liên hệ, lưu ở `landing.contact` để không lẫn với trang Giới thiệu. */
+const contactLandingSchema = z.object({
+  departments: z
+    .array(z.object({ name: text, phone: text, email: text, note: text, zalo: z.boolean().catch(false) }))
+    .catch([]),
+  hours: z.array(z.object({ label: text, value: text })).catch([]),
+  show_social: z.boolean().catch(false),
+  map_url: text,
+})
+
+export type ContactLanding = z.infer<typeof contactLandingSchema>
+export type ContactDepartment = ContactLanding['departments'][number]
+
+export function parseContactLanding(landing: unknown): ContactLanding {
+  const value = landing && typeof landing === 'object' ? (landing as { contact?: unknown }).contact : null
+  return contactLandingSchema.parse(value ?? {})
+}
+
+/** Số điện thoại cho liên kết `tel:`; rỗng nếu không có chữ số nào. */
+export function telHref(phone: string): string | null {
+  const digits = phone.replace(/[^\d+]/g, '')
+  return /\d{3,}/.test(digits) ? `tel:${digits}` : null
+}
+
+/** Liên kết nhắn Zalo theo số điện thoại Việt Nam (zalo.me/0xxxxxxxxx). */
+export function zaloHref(phone: string): string | null {
+  let digits = phone.replace(/\D/g, '')
+  if (digits.startsWith('84')) digits = `0${digits.slice(2)}`
+  return /^0\d{9,10}$/.test(digits) ? `https://zalo.me/${digits}` : null
+}
+
 /**
  * Link nhúng bản đồ để đưa vào iframe. Chỉ nhận Google Maps; dán nguyên thẻ iframe cũng được.
  * Trả về null nếu không hợp lệ, nên iframe không bao giờ trỏ tới trang khác.

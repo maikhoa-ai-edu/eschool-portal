@@ -28,8 +28,9 @@ import {
   savePage,
   type EditablePage,
 } from '../api'
-import { mapEmbedUrl, parseAboutLanding } from '../landing'
+import { mapEmbedUrl, parseAboutLanding, parseContactLanding } from '../landing'
 import { AboutFields } from './AboutFields'
+import { ContactFields } from './ContactFields'
 
 const schema = z.object({
   title: z.string().trim().min(1, 'Vui lòng nhập tiêu đề').max(200),
@@ -78,16 +79,31 @@ function PageForm({ page }: { page: EditablePage | null }) {
   const slug = useWatch({ control: form.control, name: 'slug' })
   const template = useWatch({ control: form.control, name: 'template' })
   const [landing, setLanding] = useState(() => parseAboutLanding(page?.landing))
+  const [contact, setContact] = useState(() => parseContactLanding(page?.landing))
 
   const submit = form.handleSubmit(async (values) => {
     setError(null)
     setMessage(null)
-    if (values.template === 'about' && landing.map_url.trim() && !mapEmbedUrl(landing.map_url)) {
+    const mapUrl =
+      values.template === 'about' ? landing.map_url : values.template === 'contact' ? contact.map_url : ''
+    if (mapUrl.trim() && !mapEmbedUrl(mapUrl)) {
       setError('Bản đồ chỉ nhận link nhúng của Google Maps.')
       return
     }
+    const departments = contact.departments.filter((d) =>
+      [d.name, d.phone, d.email, d.note].some((v) => v.trim()),
+    )
+    if (values.template === 'contact' && departments.some((d) => !d.name.trim())) {
+      setError('Vui lòng nhập tên cho mọi bộ phận trong mục Điện thoại các bộ phận.')
+      return
+    }
+    const hours = contact.hours.filter((h) => h.label.trim() || h.value.trim())
     try {
-      const id = await savePage({ ...values, landing }, page?.id)
+      const id = await savePage(
+        { ...values, landing: { ...landing, contact: { ...contact, departments, hours } } },
+        page?.id,
+      )
+      setContact((c) => ({ ...c, departments, hours }))
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: PAGES_KEY }),
         queryClient.invalidateQueries({ queryKey: ['menu'] }),
@@ -183,6 +199,7 @@ function PageForm({ page }: { page: EditablePage | null }) {
             )}
           </Panel>
           {template === 'about' && <AboutFields value={landing} onChange={setLanding} />}
+          {template === 'contact' && <ContactFields value={contact} onChange={setContact} />}
           <Panel title="Tối ưu tìm kiếm (SEO)">
             <Field
               label="Tiêu đề SEO"

@@ -278,8 +278,24 @@ insert into public.homepage_slides (title, subtitle, image_path, link_url, sort_
 
 update public.pages set content = '<h2>Lịch sử hình thành</h2><p>Trường được thành lập năm 1978, từ một trường cấp II nhỏ nay đã trở thành trường THCS &amp; THPT với hơn 1.200 học sinh và 80 cán bộ, giáo viên, nhân viên.</p><h2>Sứ mệnh</h2><p>Xây dựng môi trường học tập thân thiện, an toàn; giúp mỗi học sinh phát triển toàn diện phẩm chất và năng lực.</p><h2>Thành tích</h2><ul><li>Nhiều năm liền đạt danh hiệu Tập thể lao động xuất sắc.</li><li>Đạt chuẩn quốc gia mức độ 1.</li></ul>'
 where slug = 'gioi-thieu';
+-- Số điện thoại chỉ là dữ liệu minh họa.
 update public.pages set template = 'contact',
-  content = '<p>Phụ huynh, học sinh cần liên hệ vui lòng đến văn phòng nhà trường trong giờ hành chính (sáng 7h00 - 11h00, chiều 13h30 - 17h00, thứ Hai đến thứ Sáu).</p>'
+  content = '<p>Phụ huynh, học sinh cần liên hệ vui lòng gọi đúng bộ phận hoặc đến văn phòng nhà trường trong giờ làm việc.</p>',
+  landing = jsonb_build_object('contact', jsonb_build_object(
+    'departments', jsonb_build_array(
+      jsonb_build_object('name', 'Ban Giám hiệu', 'phone', '0296 3000 001', 'email', '', 'note', '', 'zalo', false),
+      jsonb_build_object('name', 'Văn phòng', 'phone', '0296 3000 002', 'email', '', 'note', 'Xác nhận học sinh, hồ sơ, giấy tờ', 'zalo', false),
+      jsonb_build_object('name', 'Đoàn - Đội', 'phone', '0296 3000 003', 'email', '', 'note', 'Hoạt động phong trào, ngoại khóa', 'zalo', false),
+      jsonb_build_object('name', 'Tư vấn tâm lý - hướng nghiệp - tuyển sinh', 'phone', '0900 000 001', 'email', '', 'note', 'Tiếp nhận câu hỏi tuyển sinh lớp 6, lớp 10', 'zalo', true)
+    ),
+    'hours', jsonb_build_array(
+      jsonb_build_object('label', 'Thứ Hai - Thứ Sáu', 'value', 'Sáng 7h00 - 11h00, chiều 13h30 - 17h00'),
+      jsonb_build_object('label', 'Thứ Bảy', 'value', 'Sáng 7h00 - 11h00'),
+      jsonb_build_object('label', 'Chủ nhật, ngày lễ', 'value', 'Nghỉ')
+    ),
+    'show_social', true,
+    'map_url', ''
+  ))
 where slug = 'lien-he';
 insert into public.pages (title, slug, content, status, sort_order, created_by) values
   ('Cơ cấu tổ chức', 'co-cau-to-chuc',

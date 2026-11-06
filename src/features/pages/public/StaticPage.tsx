@@ -16,6 +16,7 @@ import { cn } from '@/lib/cn'
 import { usePageTitle } from '@/lib/use-page-title'
 import { asPageTemplate, fetchPublicPage, PAGES_KEY } from '../api'
 import { AboutLanding } from './AboutLanding'
+import { ContactDetails } from './ContactDetails'
 
 function ContactCard() {
   const { identity } = useSite()
@@ -95,6 +96,7 @@ export function StaticPage() {
       )}
       <RichContent html={page.content} />
       {template === 'organization' && <OrganizationList />}
+      {template === 'contact' && <ContactDetails landing={page.landing} />}
     </article>
   )
 

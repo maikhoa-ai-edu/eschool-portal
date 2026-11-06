@@ -1,7 +1,7 @@
 import { Mail, Phone } from 'lucide-react'
 import { cn } from '@/lib/cn'
-import { safeExternalUrl } from './settings'
 import { useSite } from './site-context'
+import { useSocialChannels } from './social-channels'
 
 /** lucide không còn logo thương hiệu nên tự vẽ. */
 const PATHS: Record<string, string> = {
@@ -13,7 +13,7 @@ const PATHS: Record<string, string> = {
     'M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 1 1-2.89-2.89c.3 0 .59.05.86.13V9.4a6.34 6.34 0 1 0 5.48 6.27V8.73a8.18 8.18 0 0 0 4.77 1.52V6.81c-.33 0-.66-.04-1-.12Z',
 }
 
-function Brand({ name, className }: { name: string; className: string }) {
+export function BrandIcon({ name, className }: { name: string; className: string }) {
   if (name === 'Zalo') {
     return (
       <span className={cn(className, 'flex items-center justify-center font-black leading-none')} aria-hidden>
@@ -31,17 +31,7 @@ function Brand({ name, className }: { name: string; className: string }) {
 /** Icon các kênh đã khai ở Thông tin trường; kênh để trống không hiện. */
 export function SocialLinks({ size, withContact = false }: { size: 'sm' | 'md'; withContact?: boolean }) {
   const { identity } = useSite()
-  const channels = (
-    [
-      ['Facebook', identity.facebook_url],
-      ['Zalo', identity.zalo_url],
-      ['YouTube', identity.youtube_url],
-      ['TikTok', identity.tiktok_url],
-    ] as const
-  ).flatMap(([name, raw]) => {
-    const url = safeExternalUrl(raw)
-    return url ? [{ name, url }] : []
-  })
+  const channels = useSocialChannels()
   const phone = withContact ? identity.phone.replace(/[^\d+]/g, '') : ''
   const email = withContact ? identity.email : ''
   if (channels.length === 0 && !phone && !email) return null
@@ -77,7 +67,7 @@ export function SocialLinks({ size, withContact = false }: { size: 'sm' | 'md'; 
             title={name}
             className={link}
           >
-            <Brand name={name} className={icon} />
+            <BrandIcon name={name} className={icon} />
           </a>
         </li>
       ))}

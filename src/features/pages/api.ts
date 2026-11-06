@@ -1,7 +1,7 @@
 import type { BadgeTone } from '@/components/ui/Badge'
 import { withRandomSuffix } from '@/lib/slug'
 import { getSupabase, requireUserId } from '@/lib/supabase'
-import type { AboutLanding } from './landing'
+import type { AboutLanding, ContactLanding } from './landing'
 
 export const PAGES_KEY = ['pages'] as const
 
@@ -70,7 +70,7 @@ export interface PageInput {
   meta_title: string
   meta_description: string
   no_index: boolean
-  landing: AboutLanding
+  landing: AboutLanding & { contact: ContactLanding }
 }
 
 export async function savePage(input: PageInput, id?: string): Promise<string> {
