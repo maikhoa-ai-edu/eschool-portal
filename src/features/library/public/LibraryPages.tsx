@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { ExternalLink, FolderDown, Video as VideoIcon } from 'lucide-react'
+import { AdminShortcuts } from '@/components/content/AdminShortcuts'
 import { PublicPageHeader, PublicQueryState } from '@/components/content/PublicPage'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { safeExternalUrl } from '@/features/site/settings'
@@ -32,6 +33,10 @@ export function VideoListPage() {
   return (
     <div>
       <PublicPageHeader title="Thư viện video" crumbs={[{ label: 'Video' }]} />
+      <AdminShortcuts
+        className="mb-4"
+        items={[{ label: 'Quản lý video', to: '/admin/video', permission: 'media.manage', kind: 'manage' }]}
+      />
       <PublicQueryState isPending={isPending} error={error} />
       {data && items.length === 0 && <EmptyState icon={VideoIcon} title="Chưa có video" />}
       {current && embed && (
@@ -90,6 +95,17 @@ export function ResourceListPage() {
   return (
     <div>
       <PublicPageHeader title="Tài nguyên" crumbs={[{ label: 'Tài nguyên' }]} />
+      <AdminShortcuts
+        className="mb-4"
+        items={[
+          {
+            label: 'Quản lý tài nguyên',
+            to: '/admin/tai-nguyen',
+            permission: 'media.manage',
+            kind: 'manage',
+          },
+        ]}
+      />
       <div className="mb-4 flex flex-wrap gap-2" aria-label="Lọc theo loại tài nguyên">
         <button type="button" className={chip(!kind)} aria-pressed={!kind} onClick={() => setParams({})}>
           Tất cả

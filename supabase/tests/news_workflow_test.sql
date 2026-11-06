@@ -65,9 +65,9 @@ select lives_ok(
 -- ===================== EDITOR sau khi bài đã đăng =====================
 select tests.as_user('editor@demo.local');
 
-update public.news set title = 'Sửa sau khi đăng' where slug = 'bai-quy-trinh';
-select is((select title from public.news where slug = 'bai-quy-trinh'), 'Bài quy trình',
-  'Editor không sửa được bài của mình khi đã đăng');
+-- Tác giả sửa bài đã đăng thì bài phải về Chờ duyệt (xem author_resubmit_comments_test.sql); giữ nguyên Đã đăng thì bị chặn
+select throws_ok($$update public.news set title = 'Sửa sau khi đăng' where slug = 'bai-quy-trinh'$$,
+  '42501', null, 'Editor không sửa bài đã đăng mà vẫn giữ trạng thái Đã đăng');
 delete from public.news where slug = 'bai-quy-trinh';
 select is((select count(*)::int from public.news where slug = 'bai-quy-trinh'), 1,
   'Editor không xóa được bài đã đăng');

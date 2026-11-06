@@ -15,8 +15,17 @@ describe('quy trình tin tức', () => {
     expect(newsWorkflow('draft', editor).actions).toEqual(['save_draft', 'submit'])
     expect(newsWorkflow('pending', editor).actions).toEqual(['save', 'withdraw'])
   })
-  it('biên tập viên không sửa được bài đã đăng hoặc bài của người khác', () => {
-    expect(newsWorkflow('published', editor)).toEqual({ editable: false, actions: [] })
+  it('tác giả sửa bài đã đăng thì gửi duyệt lại; bài dự thi và bài người khác thì không sửa được', () => {
+    expect(newsWorkflow('published', editor)).toEqual({ editable: true, actions: ['resubmit'] })
+    expect(targetStatus('resubmit', 'published')).toBe('pending')
+    expect(newsWorkflow('published', { ...editor, isContestEntry: true })).toEqual({
+      editable: false,
+      actions: [],
+    })
+    expect(newsWorkflow('published', { ...editor, isAuthor: false })).toEqual({
+      editable: false,
+      actions: [],
+    })
     expect(newsWorkflow('draft', { ...editor, isAuthor: false }).editable).toBe(false)
   })
   it('người duyệt: duyệt/trả lại bài chờ duyệt, gỡ bài đã đăng, đăng lại bài đã gỡ', () => {

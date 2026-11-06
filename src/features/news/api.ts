@@ -184,10 +184,13 @@ export async function fetchNewsForEdit(id: string) {
     .maybeSingle()
   if (error) throw error
   if (!data) return null
+  const contest = await getSupabase().rpc('news_is_contest_entry', { p_news: id })
+  if (contest.error) throw contest.error
   return {
     ...data,
     status: data.status as NewsStatus,
     tags: data.news_tag_map.map((m) => m.news_tags?.name).filter((n): n is string => Boolean(n)),
+    is_contest_entry: contest.data,
   }
 }
 
@@ -333,7 +336,7 @@ export async function fetchPublicNewsBySlug(slug: string) {
   const { data, error } = await getSupabase()
     .from('news')
     .select(
-      'id, title, slug, excerpt, content, thumbnail_url, published_at, view_count, status, category_id, author_name, author_class, display_style, source_name, source_url, category:news_categories(name, slug), author:profiles!news_author_id_fkey(full_name), news_tag_map(news_tags(name, slug))',
+      'id, title, slug, excerpt, content, thumbnail_url, published_at, view_count, status, category_id, author_id, author_name, author_class, display_style, source_name, source_url, category:news_categories(name, slug), author:profiles!news_author_id_fkey(full_name), news_tag_map(news_tags(name, slug))',
     )
     .eq('slug', slug)
     .maybeSingle()

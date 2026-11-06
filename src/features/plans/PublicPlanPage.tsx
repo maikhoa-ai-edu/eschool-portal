@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { CalendarRange, Download, Star } from 'lucide-react'
+import { AdminShortcuts } from '@/components/content/AdminShortcuts'
 import { PublicPageHeader, PublicQueryState, SidebarBox, WithSidebar } from '@/components/content/PublicPage'
 import { buttonClasses } from '@/components/ui/button-classes'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -29,6 +30,12 @@ export function PublicPlanPage() {
   return (
     <div>
       <PublicPageHeader title="Kế hoạch công tác" crumbs={[{ label: 'Kế hoạch công tác' }]} />
+      <AdminShortcuts
+        className="mb-4"
+        items={[
+          { label: 'Quản lý kế hoạch', to: '/admin/ke-hoach', permission: 'plans.manage', kind: 'manage' },
+        ]}
+      />
       <PublicQueryState isPending={plans.isPending} error={plans.error} />
       {plans.data && list.length === 0 && <EmptyState icon={CalendarRange} title="Chưa có kế hoạch" />}
       {plan && (

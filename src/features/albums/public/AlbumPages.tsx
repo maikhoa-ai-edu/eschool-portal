@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { CalendarDays, ChevronLeft, ChevronRight, Images, X } from 'lucide-react'
+import { AdminShortcuts } from '@/components/content/AdminShortcuts'
 import { NotFound } from '@/components/NotFound'
 import { DraftPreviewNotice, PublicPageHeader, PublicQueryState } from '@/components/content/PublicPage'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -24,6 +25,12 @@ export function AlbumListPage() {
   return (
     <div>
       <PublicPageHeader title="Thư viện ảnh" crumbs={[{ label: 'Thư viện ảnh' }]} />
+      <AdminShortcuts
+        className="mb-4"
+        items={[
+          { label: 'Thêm album', to: '/admin/thu-vien-anh/moi', permission: 'media.manage', kind: 'add' },
+        ]}
+      />
       <PublicQueryState isPending={isPending} error={error} />
       {data && data.items.length === 0 && <EmptyState icon={Images} title="Chưa có album ảnh" />}
       {data && data.items.length > 0 && (
@@ -208,6 +215,13 @@ export function AlbumDetailPage() {
           ))}
         </ul>
       )}
+      <AdminShortcuts
+        className="mt-4"
+        items={[
+          { label: 'Sửa album', to: `/admin/thu-vien-anh/${album.id}`, permission: 'media.manage' },
+          { label: 'Thêm album', to: '/admin/thu-vien-anh/moi', permission: 'media.manage', kind: 'add' },
+        ]}
+      />
       {open !== null && (
         <Lightbox images={album.images} index={open} onChange={setOpen} onClose={() => setOpen(null)} />
       )}

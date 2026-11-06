@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Download, Eye, FileText, Folder, Search } from 'lucide-react'
+import { AdminShortcuts } from '@/components/content/AdminShortcuts'
 import { NotFound } from '@/components/NotFound'
 import {
   DraftPreviewNotice,
@@ -192,6 +193,12 @@ export function DocumentListPage() {
   const body = (
     <div>
       <PublicPageHeader title="Văn bản" crumbs={[{ label: 'Văn bản' }]} />
+      <AdminShortcuts
+        className="mb-4"
+        items={[
+          { label: 'Thêm văn bản', to: '/admin/van-ban/moi', permission: 'documents.manage', kind: 'add' },
+        ]}
+      />
       <div className="mb-4 space-y-3">
         <form
           role="search"
@@ -343,6 +350,13 @@ export function DocumentDetailPage() {
           />
         )}
       </div>
+      <AdminShortcuts
+        className="mt-4"
+        items={[
+          { label: 'Sửa văn bản', to: `/admin/van-ban/${doc.id}`, permission: 'documents.manage' },
+          { label: 'Thêm văn bản', to: '/admin/van-ban/moi', permission: 'documents.manage', kind: 'add' },
+        ]}
+      />
     </>
   )
   return chrome.content_sidebar ? (

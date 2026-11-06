@@ -1,6 +1,7 @@
 import { useParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Mail, MapPin, Phone, UserRound } from 'lucide-react'
+import { AdminShortcuts } from '@/components/content/AdminShortcuts'
 import { NotFound } from '@/components/NotFound'
 import {
   DraftPreviewNotice,
@@ -73,12 +74,19 @@ export function StaticPage() {
   if (isPending || error) return <PublicQueryState isPending={isPending} error={error} />
   if (!page) return <NotFound />
   const template = asPageTemplate(page.template)
+  const shortcuts = (
+    <AdminShortcuts
+      className="mt-6"
+      items={[{ label: 'Sửa trang', to: `/admin/trang/${page.id}`, permission: 'pages.manage' }]}
+    />
+  )
 
   if (template === 'about') {
     return (
       <div>
         {page.status !== 'published' && <DraftPreviewNotice />}
         <AboutLanding page={page} />
+        {shortcuts}
       </div>
     )
   }
@@ -113,6 +121,7 @@ export function StaticPage() {
       ) : (
         body
       )}
+      {shortcuts}
     </div>
   )
 }

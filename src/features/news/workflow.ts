@@ -25,12 +25,15 @@ export function isNewsStatus(value: unknown): value is NewsStatus {
  * Thao tác trên trang soạn bài. CSDL (RLS + trigger news_workflow) mới là nơi quyết định;
  * hàm này chỉ chọn nút nào hiện ra để người dùng không bấm vào thao tác chắc chắn bị từ chối.
  */
-export type NewsAction = 'save_draft' | 'submit' | 'withdraw' | 'save' | 'publish' | 'reject' | 'unpublish'
+export type NewsAction =
+  'save_draft' | 'submit' | 'withdraw' | 'save' | 'publish' | 'reject' | 'unpublish' | 'resubmit'
 
 export interface NewsPermissions {
   canPublish: boolean
   canEditAny: boolean
   isAuthor: boolean
+  /** Bài có thẻ của một cuộc thi: tác giả không tự sửa sau khi đã đăng */
+  isContestEntry?: boolean
 }
 
 export interface NewsWorkflowView {
@@ -40,7 +43,7 @@ export interface NewsWorkflowView {
 }
 
 export function newsWorkflow(status: NewsStatus | null, perms: NewsPermissions): NewsWorkflowView {
-  const { canPublish, canEditAny, isAuthor } = perms
+  const { canPublish, canEditAny, isAuthor, isContestEntry = false } = perms
   if (status === null) {
     return { editable: true, actions: canPublish ? ['save_draft', 'publish'] : ['save_draft', 'submit'] }
   }
@@ -53,8 +56,10 @@ export function newsWorkflow(status: NewsStatus | null, perms: NewsPermissions):
       if (!ownsOrManages) return { editable: false, actions: [] }
       return { editable: true, actions: canPublish ? ['save', 'reject', 'publish'] : ['save', 'withdraw'] }
     case 'published':
-      if (!canEditAny) return { editable: false, actions: [] }
-      return { editable: true, actions: canPublish ? ['save', 'unpublish'] : ['save'] }
+      if (canEditAny) return { editable: true, actions: canPublish ? ['save', 'unpublish'] : ['save'] }
+      // Tác giả sửa bài đã đăng: bài về Chờ duyệt, tạm ẩn tới khi duyệt lại
+      if (isAuthor && !isContestEntry) return { editable: true, actions: ['resubmit'] }
+      return { editable: false, actions: [] }
     case 'archived':
       if (!canEditAny) return { editable: false, actions: [] }
       return { editable: true, actions: canPublish ? ['save', 'publish'] : ['save'] }
@@ -69,6 +74,7 @@ export function targetStatus(action: NewsAction, current: NewsStatus | null): Ne
     case 'reject':
       return 'draft'
     case 'submit':
+    case 'resubmit':
       return 'pending'
     case 'publish':
       return 'published'
@@ -85,6 +91,8 @@ export function actionLabel(action: NewsAction, current: NewsStatus | null): str
       return 'Lưu nháp'
     case 'submit':
       return 'Gửi duyệt'
+    case 'resubmit':
+      return 'Lưu & gửi duyệt lại'
     case 'withdraw':
       return 'Rút về nháp'
     case 'save':
@@ -103,6 +111,8 @@ export function actionDoneMessage(action: NewsAction): string {
   switch (action) {
     case 'submit':
       return 'Đã gửi bài cho quản trị viên duyệt.'
+    case 'resubmit':
+      return 'Đã gửi bài sửa cho quản trị viên duyệt lại. Bài tạm ẩn khỏi trang công khai tới khi được duyệt.'
     case 'publish':
       return 'Bài viết đã được đăng.'
     case 'reject':

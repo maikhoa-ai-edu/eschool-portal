@@ -9,6 +9,7 @@ import {
   WithSidebar,
   type Crumb,
 } from '@/components/content/PublicPage'
+import { AdminShortcuts } from '@/components/content/AdminShortcuts'
 import { buttonClasses } from '@/components/ui/button-classes'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Pagination } from '@/components/ui/Pagination'
@@ -235,6 +236,10 @@ export function NewsListPage({ mode = 'all' }: { mode?: 'all' | 'category' | 'ta
       <PublicPageHeader title={title} crumbs={crumbs}>
         {category?.description && <p className="text-muted">{category.description}</p>}
       </PublicPageHeader>
+      <AdminShortcuts
+        className="mb-4"
+        items={[{ label: 'Viết bài mới', to: '/admin/tin-tuc/moi', permission: 'news.create', kind: 'add' }]}
+      />
       <div className="mb-5">
         <SearchBox key={q} initial={q} />
       </div>

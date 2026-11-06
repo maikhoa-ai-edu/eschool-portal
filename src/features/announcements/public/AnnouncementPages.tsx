@@ -1,6 +1,7 @@
 import { Link, useParams, useSearchParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Bell, CalendarDays, Pin } from 'lucide-react'
+import { AdminShortcuts } from '@/components/content/AdminShortcuts'
 import { NotFound } from '@/components/NotFound'
 import {
   DraftPreviewNotice,
@@ -110,6 +111,17 @@ export function AnnouncementListPage() {
   const body = (
     <>
       <PublicPageHeader title="Thông báo" crumbs={[{ label: 'Thông báo' }]} />
+      <AdminShortcuts
+        className="mb-4"
+        items={[
+          {
+            label: 'Thêm thông báo',
+            to: '/admin/thong-bao/moi',
+            permission: 'announcements.manage',
+            kind: 'add',
+          },
+        ]}
+      />
       <PublicQueryState isPending={isPending} error={error} />
       {data && data.items.length === 0 && <EmptyState icon={Bell} title="Hiện chưa có thông báo nào" />}
       {data && data.items.length > 0 && (
@@ -181,6 +193,18 @@ export function AnnouncementDetailPage() {
         </PublicPageHeader>
         <RichContent html={data.content} />
       </article>
+      <AdminShortcuts
+        className="mt-4"
+        items={[
+          { label: 'Sửa thông báo', to: `/admin/thong-bao/${data.id}`, permission: 'announcements.manage' },
+          {
+            label: 'Thêm thông báo',
+            to: '/admin/thong-bao/moi',
+            permission: 'announcements.manage',
+            kind: 'add',
+          },
+        ]}
+      />
     </>
   )
   return chrome.content_sidebar ? (

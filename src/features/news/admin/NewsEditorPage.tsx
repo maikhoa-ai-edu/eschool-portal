@@ -72,6 +72,7 @@ const ACTION_VARIANTS: Record<NewsAction, 'primary' | 'outline' | 'danger' | 'ac
   publish: 'primary',
   reject: 'accent',
   unpublish: 'danger',
+  resubmit: 'primary',
 }
 
 function NewsForm({ news, categories }: { news: EditableNews | null; categories: NewsCategory[] }) {
@@ -92,7 +93,9 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
     canPublish,
     canEditAny: can('news.edit_any'),
     isAuthor: !news || news.author_id === profile?.id,
+    isContestEntry: news?.is_contest_entry ?? false,
   })
+  const authorResubmit = workflow.actions.includes('resubmit')
   const canDelete =
     news && (can('news.delete') || (news.author_id === profile?.id && news.status === 'draft'))
 
@@ -236,7 +239,9 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
         {header}
         <div className="space-y-4">
           <Alert tone="info" title="Bài viết đã được xuất bản">
-            Chỉ quản trị viên được sửa bài đã đăng hoặc đã gỡ. Liên hệ quản trị viên nếu cần điều chỉnh.
+            {news.is_contest_entry && news.status === 'published'
+              ? 'Bài dự thi đã đăng thì không sửa được, để giữ công bằng khi chấm. Liên hệ Ban tổ chức nếu cần điều chỉnh.'
+              : 'Chỉ quản trị viên được sửa bài đã đăng hoặc đã gỡ. Liên hệ quản trị viên nếu cần điều chỉnh.'}
           </Alert>
           <Panel>
             <h2 className="text-lg font-bold">{news.title}</h2>
@@ -258,6 +263,12 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
         <div className="space-y-5">
           {message && <Alert tone="success" title={message} />}
           {error && <Alert tone="danger" title={error} />}
+          {authorResubmit && (
+            <Alert tone="warning" title="Bài đang hiện trên trang công khai">
+              Khi bấm “Lưu & gửi duyệt lại”, bài chuyển về Chờ duyệt và tạm ẩn khỏi trang công khai cho tới
+              khi được duyệt lại. Lượt xem, cảm xúc và bình luận vẫn giữ nguyên.
+            </Alert>
+          )}
           {news?.review_note && news.status === 'draft' && (
             <Alert tone="warning" title="Góp ý của người duyệt">
               {news.review_note}

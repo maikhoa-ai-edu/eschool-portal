@@ -793,6 +793,39 @@ export type Database = {
           },
         ]
       }
+      news_comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "news_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_comment_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       news_comments: {
         Row: {
           author_name: string
@@ -802,6 +835,7 @@ export type Database = {
           moderated_at: string | null
           moderated_by: string | null
           news_id: string
+          parent_id: string | null
           status: string
           user_id: string | null
         }
@@ -813,6 +847,7 @@ export type Database = {
           moderated_at?: string | null
           moderated_by?: string | null
           news_id: string
+          parent_id?: string | null
           status?: string
           user_id?: string | null
         }
@@ -824,6 +859,7 @@ export type Database = {
           moderated_at?: string | null
           moderated_by?: string | null
           news_id?: string
+          parent_id?: string | null
           status?: string
           user_id?: string | null
         }
@@ -840,6 +876,13 @@ export type Database = {
             columns: ["news_id"]
             isOneToOne: false
             referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "news_comments"
             referencedColumns: ["id"]
           },
           {
@@ -1515,6 +1558,14 @@ export type Database = {
           role: string
         }[]
       }
+      news_comment_like_counts: {
+        Args: { p_news: string }
+        Returns: {
+          comment_id: string
+          total: number
+        }[]
+      }
+      news_is_contest_entry: { Args: { p_news: string }; Returns: boolean }
       news_reaction_counts: {
         Args: { p_news_ids: string[] }
         Returns: {

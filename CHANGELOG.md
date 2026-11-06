@@ -2,6 +2,20 @@
 
 Mỗi bản phát hành có một mục ở đây; workflow phát hành lấy nội dung này làm ghi chú. Số phiên bản website và số phiên bản cơ sở dữ liệu tách riêng: cơ sở dữ liệu chỉ tăng số khi cấu trúc đổi.
 
+## 0.14.0
+
+Cần nâng cấp cơ sở dữ liệu lên 0.14.0 (trang Cập nhật hướng dẫn cách làm). Sao lưu trước khi nâng cấp.
+
+- Cuộc thi viết: mục quản trị mới **Cuộc thi** (tên, thẻ của bài dự thi, hạn bình chọn), bảng xếp hạng theo từng loại cảm xúc và nút tải file Excel (CSV). Bài dự thi là bài viết ở mục Tin tức có gắn thẻ của cuộc thi; giáo viên nhập thay học sinh, điền tên học sinh vào ô Tác giả và ô **Lớp** mới.
+- Chuyên đề có khối mới **Bài dự thi (lưới)**: ảnh, tên bài, học sinh và lớp, đoạn trích (không có tóm tắt thì lấy đầu bài), số cảm xúc; sắp xếp theo mới đăng hoặc nhiều cảm xúc nhất.
+- Bài viết có **Kiểu trình bày: Thư tri ân**: nền giấy, khung viền, họa tiết góc, chữ có chân, ký tên học sinh cuối bài. Bài cũ giữ kiểu Bình thường.
+- **Cảm xúc dưới bài** (Thích, Yêu thích, Tuyệt vời, Biết ơn): chỉ tài khoản đã đăng nhập, mỗi tài khoản một lượt cho một bài; sau hạn bình chọn của cuộc thi không thêm, đổi hay bỏ được. Module **Cảm xúc bài viết** tắt sẵn ở trường đang chạy, bật trong Quản trị → Module. Muốn phụ huynh, học sinh bình chọn thì bật thêm "Cho phép tự đăng ký thành viên" (đăng nhập Google).
+- **Bình luận kiểu mạng xã hội**: ảnh đại diện chữ cái, bong bóng, thời gian kiểu "2 giờ trước", nút Thích và Trả lời (một cấp). Trả lời cũng phải được duyệt.
+- **Nút quản trị trên trang công khai**: người có quyền thấy thanh "Quản trị" (Sửa, Thêm mới) ở bài viết, thông báo, văn bản, album, trang tĩnh, chuyên đề và các trang danh sách; bấm vào mở đúng trang quản trị. Khách không thấy.
+- **Tác giả sửa bài đã đăng của mình**: khi lưu, bài về Chờ duyệt và tạm ẩn tới khi được duyệt lại. Bài dự thi đã đăng thì tác giả không sửa được.
+- Trang Liên hệ: điện thoại các bộ phận (có nút Nhắn Zalo), giờ làm việc, kênh liên lạc khác, bản đồ. Mục trống tự ẩn nên trang Liên hệ hiện có giữ nguyên tới khi nhập.
+- Nút **Sao chép liên kết** cạnh nút chia sẻ Facebook, Zalo.
+
 ## 0.13.0
 
 Cần nâng cấp cơ sở dữ liệu lên 0.13.0 (trang Cập nhật hướng dẫn cách làm).

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
 import { CalendarDays, ChevronRight, FileText, Images, Newspaper, Play, Quote, Sparkles } from 'lucide-react'
+import { AdminShortcuts } from '@/components/content/AdminShortcuts'
 import { NotFound } from '@/components/NotFound'
 import {
   DraftPreviewNotice,
@@ -449,6 +450,22 @@ export function TopicPage() {
           </aside>
         )}
       </div>
+      <AdminShortcuts
+        className="mt-8"
+        items={[
+          { label: 'Sửa chuyên đề', to: `/admin/chuyen-de/${topic.id}`, permission: 'topics.manage' },
+          ...(main.concat(side).some((s) => s.type === 'contest')
+            ? [
+                {
+                  label: 'Bảng xếp hạng cuộc thi',
+                  to: '/admin/cuoc-thi',
+                  permission: 'topics.manage',
+                  kind: 'manage' as const,
+                },
+              ]
+            : []),
+        ]}
+      />
     </div>
   )
 }

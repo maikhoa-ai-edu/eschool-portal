@@ -71,6 +71,9 @@ export function CommentsAdminPage() {
                 <p className="text-sm">
                   <strong>{c.author_name}</strong>{' '}
                   <span className="text-xs text-muted">{formatDateTime(c.created_at)}</span>
+                  {c.parent_id && (
+                    <span className="ml-2 text-xs font-medium text-accent-strong">↳ Trả lời bình luận</span>
+                  )}
                 </p>
                 <p className="mt-1 whitespace-pre-line break-words text-sm">{c.content}</p>
                 {c.news && (

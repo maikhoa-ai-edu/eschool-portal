@@ -90,10 +90,11 @@ test.describe('Tin tức', () => {
     await guest.goto('/tin-tuc?q=' + encodeURIComponent('hoi thao chao mung'))
     await expect(guest.getByRole('link', { name: title })).toBeVisible()
 
-    // Bài đã đăng: biên tập viên chỉ xem, không sửa được
+    // Bài đã đăng: tác giả sửa thì phải gửi duyệt lại (luồng đầy đủ ở comments-shortcuts.spec.ts)
     await page.reload()
-    await expect(page.getByText('Bài viết đã được xuất bản')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Gửi duyệt' })).toHaveCount(0)
+    await expect(page.getByText('Bài đang hiện trên trang công khai')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Lưu & gửi duyệt lại' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Gửi duyệt', exact: true })).toHaveCount(0)
   })
 
   test('nội dung chứa mã độc được DOMPurify làm sạch khi hiển thị', async ({ page }) => {

@@ -29,6 +29,21 @@ export function formatDateTime(value: string | null | undefined): string {
   return Number.isNaN(date.getTime()) ? '' : dateTimeFormat.format(date)
 }
 
+/** Thời gian tương đối kiểu "5 phút trước"; quá 7 ngày thì hiện ngày tháng. */
+export function formatRelativeTime(value: string | null | undefined, now = new Date()): string {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const minutes = Math.floor((now.getTime() - date.getTime()) / 60_000)
+  if (minutes < 1) return 'Vừa xong'
+  if (minutes < 60) return `${minutes} phút trước`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} giờ trước`
+  const days = Math.floor(hours / 24)
+  if (days < 7) return `${days} ngày trước`
+  return dateFormat.format(date)
+}
+
 export function formatNumber(value: number): string {
   return numberFormat.format(value)
 }

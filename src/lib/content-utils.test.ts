@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { pageRange, pageWindow, readPage } from '@/components/ui/page-utils'
-import { formatDate, formatFileSize, fromDateTimeLocal, toDateTimeLocal } from './format'
+import { formatDate, formatFileSize, formatRelativeTime, fromDateTimeLocal, toDateTimeLocal } from './format'
 import { htmlToText, sanitizeHtml } from './sanitize'
 import { removeDiacritics, slugify, SLUG_PATTERN, withRandomSuffix } from './slug'
 
@@ -92,5 +92,17 @@ describe('phân trang', () => {
   it('khoảng bản ghi', () => {
     expect(pageRange(1, 20)).toEqual([0, 19])
     expect(pageRange(3, 12)).toEqual([24, 35])
+  })
+})
+
+describe('formatRelativeTime', () => {
+  const now = new Date('2026-11-07T10:00:00Z')
+  it('hiện thời gian tương đối, quá 7 ngày thì hiện ngày', () => {
+    expect(formatRelativeTime('2026-11-07T09:59:40Z', now)).toBe('Vừa xong')
+    expect(formatRelativeTime('2026-11-07T09:55:00Z', now)).toBe('5 phút trước')
+    expect(formatRelativeTime('2026-11-07T07:00:00Z', now)).toBe('3 giờ trước')
+    expect(formatRelativeTime('2026-11-05T10:00:00Z', now)).toBe('2 ngày trước')
+    expect(formatRelativeTime('2026-10-20T10:00:00Z', now)).toBe('20/10/2026')
+    expect(formatRelativeTime(null, now)).toBe('')
   })
 })

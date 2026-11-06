@@ -10,16 +10,18 @@ import {
   SidebarBox,
   WithSidebar,
 } from '@/components/content/PublicPage'
+import { AdminShortcuts } from '@/components/content/AdminShortcuts'
+import { useAuth } from '@/features/auth/auth-context'
 import { NewsComments } from '@/features/comments/NewsComments'
 import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
+import { fetchContestForTags, REACTIONS_KEY } from '@/features/reactions/api'
+import { ReactionBar } from '@/features/reactions/ReactionBar'
 import { safeExternalUrl } from '@/features/site/settings'
 import { formatDate, formatNumber } from '@/lib/format'
 import { sanitizeHtml } from '@/lib/sanitize'
 import { buildToc, TOC_MIN_HEADINGS, type TocHeading } from '@/lib/toc'
 import { usePageTitle } from '@/lib/use-page-title'
 import { fetchNewsByTags, fetchPublicNewsBySlug, fetchRelatedNews, NEWS_KEY, recordNewsView } from '../api'
-import { fetchContestForTags, REACTIONS_KEY } from '@/features/reactions/api'
-import { ReactionBar } from '@/features/reactions/ReactionBar'
 import { LetterCorners, LetterEmblem, LetterSignature } from './LetterFrame'
 import { CategoryList } from './NewsListPage'
 import { ShareButtons } from './ShareButtons'
@@ -162,6 +164,7 @@ export function NewsDetailPage() {
     queryKey: [...NEWS_KEY, 'public', 'detail', slug],
     queryFn: () => fetchPublicNewsBySlug(slug),
   })
+  const { profile, can } = useAuth()
   const isPublished = news?.status === 'published'
   const tagSlugs = news?.tags.map((t) => t.slug) ?? []
   const { data: contest } = useQuery({
@@ -181,6 +184,11 @@ export function NewsDetailPage() {
   const authorName = news.author_name || news.author?.full_name
   const sourceUrl = safeExternalUrl(news.source_url)
   const letter = news.display_style === 'letter'
+  // Giống quy tắc của CSDL: tác giả sửa được bài của mình, trừ bài dự thi đã đăng
+  const isAuthor = news.author_id === profile?.id && can('news.edit_own')
+  const canEdit =
+    can('news.edit_any') ||
+    (isAuthor && (news.status === 'draft' || news.status === 'pending' || (isPublished && !contest)))
 
   return (
     <WithSidebar
@@ -287,6 +295,23 @@ export function NewsDetailPage() {
         {isPublished && <ReactionBar newsId={news.id} votingEndsAt={contest?.vote_ends_at} />}
         {isPublished && <ShareButtons title={news.title} path={`/tin-tuc/${news.slug}`} />}
       </article>
+      <AdminShortcuts
+        className="mt-4"
+        items={[
+          { label: 'Sửa bài này', to: `/admin/tin-tuc/${news.id}`, allowed: canEdit },
+          { label: 'Viết bài mới', to: '/admin/tin-tuc/moi', permission: 'news.create', kind: 'add' },
+          ...(contest
+            ? [
+                {
+                  label: 'Bảng xếp hạng',
+                  to: '/admin/cuoc-thi',
+                  permission: 'topics.manage',
+                  kind: 'manage' as const,
+                },
+              ]
+            : []),
+        ]}
+      />
       {isPublished && <NewsComments newsId={news.id} />}
       {isPublished && (
         <BottomRelated
