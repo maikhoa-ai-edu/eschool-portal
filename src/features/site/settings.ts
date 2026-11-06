@@ -174,6 +174,7 @@ export const MODULE_KEYS = [
   'resources',
   'plans',
   'comments',
+  'reactions',
   'pages',
   'topics',
 ] as const

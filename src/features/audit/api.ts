@@ -35,6 +35,7 @@ export const AUDIT_TABLE_LABELS: Record<string, string> = {
   org_units: 'Bộ phận',
   org_members: 'Thành viên bộ phận',
   news_comments: 'Bình luận',
+  contests: 'Cuộc thi',
   backup: 'Sao lưu',
 }
 
@@ -56,6 +57,7 @@ const SUMMARY_LABELS: Record<string, string> = {
   resources: 'Tài nguyên',
   plans: 'Kế hoạch công tác',
   comments: 'Bình luận',
+  reactions: 'Cảm xúc bài viết',
   auth_options: 'Đăng nhập',
   site_chrome: 'Đầu và chân trang',
 }

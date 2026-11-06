@@ -190,7 +190,7 @@ test('cài đặt từ đầu đến khi vào trang quản trị', async ({ page
   await expect(page.getByText('Trường THPT Kiểm Thử')).toBeVisible()
   await expect(
     page.getByText(
-      'Tin tức, Thông báo, Văn bản, Thư viện video, Tài nguyên, Kế hoạch công tác, Bình luận, Trang thông tin',
+      'Tin tức, Thông báo, Văn bản, Thư viện video, Tài nguyên, Kế hoạch công tác, Bình luận, Cảm xúc bài viết, Trang thông tin',
     ),
   ).toBeVisible()
   await expect(page.getByText(INSTALLER_EMAIL)).toBeVisible()

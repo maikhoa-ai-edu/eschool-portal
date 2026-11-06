@@ -557,3 +557,45 @@ cross join (values
   ('Phụ huynh có thể đăng ký tham dự ở đâu ạ?', 'approved', interval '1 day'),
   ('Bình luận mẫu đang chờ duyệt.', 'pending', interval '1 hour')
 ) as c(content, status, age);
+
+-- Cuộc thi viết 20/11: bài dự thi là tin có thẻ của cuộc thi, trình bày kiểu Thư tri ân. Tên học sinh chỉ là minh họa.
+insert into public.news_tags (id, name, slug) values
+  ('00000000-0000-0000-0000-0000000000f1', 'Kỷ niệm thầy cô 2026', 'ky-niem-thay-co-2026');
+insert into public.news (id, title, slug, excerpt, content, thumbnail_url, category_id, author_id, author_name, author_class, display_style, status, published_at, published_by) values
+  ('00000000-0000-0000-0000-0000000000f2', 'Người lái đò thầm lặng', 'nguoi-lai-do-tham-lang',
+   'Cô không chỉ dạy em những trang văn, cô dạy em cách đứng dậy sau mỗi lần vấp ngã.',
+   '<p>Năm lớp sáu, em là một cô bé nhút nhát, chẳng dám giơ tay phát biểu. Cô chủ nhiệm đã kiên nhẫn gọi tên em mỗi ngày, chờ em nói hết câu dù giọng run run.</p><p>Giờ đây khi sắp rời mái trường, em mới hiểu những buổi chiều cô ở lại kèm em đọc bài là món quà lớn nhất. Em cảm ơn cô, người lái đò thầm lặng của chúng em.</p>',
+   'seed/album/hoc-tap-1-rsw.jpg', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a3',
+   'Trần Ngọc Hân', '9A1', 'letter', 'published', now() - interval '2 days', '00000000-0000-0000-0000-0000000000a2'),
+  ('00000000-0000-0000-0000-0000000000f3', 'Mái trường và hàng phượng già', 'mai-truong-va-hang-phuong-gia',
+   'Mỗi mùa hoa phượng nở, em lại nhớ dáng thầy đứng dưới tán cây gọi chúng em vào lớp.',
+   '<p>Sân trường em có hàng phượng già đã mấy chục năm tuổi. Thầy dạy Toán hay kể rằng ngày thầy còn là học sinh, hàng phượng ấy đã đỏ rực như bây giờ.</p><p>Em sẽ mang theo tiếng trống trường, tiếng thầy giảng bài và màu hoa phượng ấy đi suốt cuộc đời.</p>',
+   'seed/album/san-truong-rsw.jpg', '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a3',
+   'Lê Minh Khang', '11A2', 'letter', 'published', now() - interval '1 day', '00000000-0000-0000-0000-0000000000a2'),
+  ('00000000-0000-0000-0000-0000000000f4', 'Bức thư gửi cô giáo cũ', 'buc-thu-gui-co-giao-cu', null,
+   '<p>Cô kính mến, đã ba năm em không còn được ngồi trong lớp của cô. Em vẫn giữ cuốn sổ cô tặng với dòng chữ "Hãy luôn tò mò về thế giới".</p><p>Em hứa sẽ cố gắng để xứng đáng với niềm tin của cô.</p>',
+   null, '00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000a3',
+   'Phạm Thảo Vy', '8A3', 'letter', 'published', now() - interval '3 hours', '00000000-0000-0000-0000-0000000000a2');
+insert into public.news_tag_map (news_id, tag_id)
+select id, '00000000-0000-0000-0000-0000000000f1' from public.news
+where id in ('00000000-0000-0000-0000-0000000000f2', '00000000-0000-0000-0000-0000000000f3', '00000000-0000-0000-0000-0000000000f4');
+insert into public.contests (id, title, tag_id, vote_ends_at) values
+  ('00000000-0000-0000-0000-0000000000f5', 'Viết về kỷ niệm sâu sắc với thầy cô và mái trường',
+   '00000000-0000-0000-0000-0000000000f1', now() + interval '30 days');
+insert into public.news_reactions (news_id, user_id, reaction) values
+  ('00000000-0000-0000-0000-0000000000f2', '00000000-0000-0000-0000-0000000000a1', 'love'),
+  ('00000000-0000-0000-0000-0000000000f2', '00000000-0000-0000-0000-0000000000a2', 'grateful'),
+  ('00000000-0000-0000-0000-0000000000f2', '00000000-0000-0000-0000-0000000000a4', 'love'),
+  ('00000000-0000-0000-0000-0000000000f3', '00000000-0000-0000-0000-0000000000a2', 'clap');
+insert into public.topics (title, slug, badge, summary, hero_image, hero_color, quote_text, quote_author, status, meta_description, created_by, sections) values
+  ('Tri ân thầy cô', 'tri-an-thay-co', 'Cuộc thi viết chào mừng 20/11',
+   'Cuộc thi viết về những kỷ niệm sâu sắc với thầy cô và mái trường. Bài dự thi được đăng tại đây; mỗi tài khoản đăng nhập được bày tỏ cảm xúc một lần cho mỗi bài.',
+   'seed/album/khuon-vien-rsw.jpg', '#7A2331',
+   'Muốn sang thì bắc cầu kiều, muốn con hay chữ thì yêu lấy thầy.', 'Ca dao', 'published',
+   'Cuộc thi viết về kỷ niệm với thầy cô và mái trường.', '00000000-0000-0000-0000-0000000000a2',
+   jsonb_build_array(
+     jsonb_build_object('id', 'the-le', 'type', 'rich_text', 'area', 'main', 'enabled', true, 'title', 'Thể lệ',
+       'html', '<p>Học sinh gửi bài cho giáo viên chủ nhiệm. Bài được đăng sau khi Ban tổ chức duyệt. Kết quả bình chọn trực tuyến là một tiêu chí chấm điểm.</p>'),
+     jsonb_build_object('id', 'bai-du-thi', 'type', 'contest', 'area', 'main', 'enabled', true, 'title', 'Bài dự thi',
+       'contest_id', '00000000-0000-0000-0000-0000000000f5', 'sort', 'newest', 'limit', 24)
+   ));

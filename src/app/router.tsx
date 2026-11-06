@@ -188,6 +188,9 @@ const adminContentRoutes: RouteObject[] = [
       page(() => import('@/features/topics/admin/TopicEditorPage'), 'TopicEditorPage'),
     ),
   ),
+  adminSection('cuoc-thi', 'topics.manage', [
+    { index: true, lazy: page(() => import('@/features/contests/ContestsAdminPage'), 'ContestsAdminPage') },
+  ]),
   adminSection('trang-chu', 'homepage.manage', [
     {
       index: true,

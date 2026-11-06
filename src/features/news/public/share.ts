@@ -29,3 +29,12 @@ export async function shareForZalo(
     return 'failed'
   }
 }
+
+export async function copyLink(url: string, env: Pick<Navigator, 'clipboard'> = navigator): Promise<boolean> {
+  try {
+    await env.clipboard.writeText(url)
+    return true
+  } catch {
+    return false
+  }
+}

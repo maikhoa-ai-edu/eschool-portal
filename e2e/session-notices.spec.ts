@@ -46,7 +46,7 @@ test('chấm đỏ ở menu và chuông báo bài, bình luận chờ duyệt; c
   const footer = page.getByRole('contentinfo')
   await expect(footer).toContainText('eSchool Portal')
   await expect(footer).toContainText(`Phiên bản ${process.env.npm_package_version ?? '0.13.0'}`)
-  await expect(footer).toContainText('CSDL 0.13.0')
+  await expect(footer).toContainText('CSDL 0.14.0')
   await expect(footer).toContainText('Thiết kế bởi MVK')
 })
 

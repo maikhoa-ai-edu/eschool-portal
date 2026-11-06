@@ -183,3 +183,49 @@ body {
 .rich-content .ProseMirror-selectednode {
   outline: 3px solid var(--color-primary);
 }
+
+/* Kiểu trình bày "Thư tri ân": nền giấy, khung viền đôi; họa tiết góc vẽ bằng SVG trong LetterFrame.
+   Phông có chân sẵn trên máy và đủ dấu tiếng Việt (Georgia thiếu dấu nên không dùng), không tải thêm phông. */
+:root {
+  --font-letter: 'Times New Roman', 'Noto Serif', 'Liberation Serif', 'DejaVu Serif', serif;
+}
+.font-letter {
+  font-family: var(--font-letter);
+}
+.letter-paper {
+  position: relative;
+  background-color: #fdf8ec;
+  background-image:
+    radial-gradient(circle at 15% 8%, rgb(255 255 255 / 0.75), transparent 45%),
+    radial-gradient(circle at 90% 95%, rgb(214 178 110 / 0.18), transparent 50%);
+  color: #3b2f22;
+  border: 3px double #c9a45c;
+  box-shadow:
+    0 0 0 6px #fdf8ec,
+    0 0 0 7px #e5d3a8,
+    0 12px 32px rgb(120 90 40 / 0.16);
+}
+.letter-paper h1 {
+  font-family: var(--font-letter);
+  color: #7a2331;
+  text-align: center;
+}
+.letter-paper .rich-content {
+  font-family: var(--font-letter);
+  font-size: 1.08rem;
+  line-height: 1.85;
+}
+.letter-paper .rich-content > p:first-child::first-letter {
+  float: left;
+  font-size: 3.1em;
+  line-height: 0.9;
+  padding: 0.08em 0.12em 0 0;
+  color: #7a2331;
+}
+.letter-paper .rich-content h2 {
+  color: #7a2331;
+}
+.letter-paper .rich-content img {
+  border: 6px solid #fff;
+  box-shadow: 0 4px 14px rgb(120 90 40 / 0.2);
+}

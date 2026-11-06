@@ -10,6 +10,7 @@ export const TOPIC_SECTION_TYPES = [
   'documents',
   'album',
   'video',
+  'contest',
 ] as const
 export type TopicSectionType = (typeof TOPIC_SECTION_TYPES)[number]
 
@@ -22,6 +23,7 @@ export const TOPIC_SECTION_LABELS: Record<TopicSectionType, string> = {
   documents: 'Tài liệu từ mục Văn bản',
   album: 'Ảnh từ Thư viện ảnh',
   video: 'Video YouTube',
+  contest: 'Bài dự thi (lưới)',
 }
 
 const LINK_PATTERN = /^(\/|https?:\/\/)\S*$/
@@ -66,6 +68,13 @@ const sectionSchema = z.discriminatedUnion('type', [
     limit: z.number().int().min(1).max(24).catch(8),
   }),
   z.object({ ...base, type: z.literal('video'), url: text, caption: text }),
+  z.object({
+    ...base,
+    type: z.literal('contest'),
+    contest_id: text,
+    sort: z.enum(['newest', 'top']).catch('newest'),
+    limit: z.number().int().min(1).max(60).catch(24),
+  }),
 ])
 
 export type TopicSection = z.infer<typeof sectionSchema>
@@ -103,6 +112,8 @@ export function newTopicSection(type: TopicSectionType): TopicSection {
       return { ...common, type, album_slug: '', limit: 8 }
     case 'video':
       return { ...common, type, url: '', caption: '' }
+    case 'contest':
+      return { ...common, type, contest_id: '', sort: 'newest', limit: 24 }
   }
 }
 

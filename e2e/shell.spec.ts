@@ -78,7 +78,7 @@ test.describe('Đăng nhập & phân quyền', () => {
       await sidebar.getByRole('link', { name: 'Trạng thái hệ thống' }).click()
     }
     // Chân menu cũng có số phiên bản nhưng bị ẩn trên điện thoại
-    await expect(page.getByRole('main').getByText('0.13.0').first()).toBeVisible()
+    await expect(page.getByRole('main').getByText('0.14.0').first()).toBeVisible()
 
     await page.getByRole('button', { name: 'Đăng xuất' }).click()
     await expect(page).toHaveURL(/\/dang-nhap/)

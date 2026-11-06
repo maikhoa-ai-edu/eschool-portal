@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { useQuery } from '@tanstack/react-query'
-import { CalendarDays, ExternalLink, Eye, ListTree, Tag, UserRound } from 'lucide-react'
+import { Award, CalendarDays, ExternalLink, Eye, ListTree, Tag, UserRound } from 'lucide-react'
 import { NotFound } from '@/components/NotFound'
 import {
   DraftPreviewNotice,
@@ -18,6 +18,9 @@ import { sanitizeHtml } from '@/lib/sanitize'
 import { buildToc, TOC_MIN_HEADINGS, type TocHeading } from '@/lib/toc'
 import { usePageTitle } from '@/lib/use-page-title'
 import { fetchNewsByTags, fetchPublicNewsBySlug, fetchRelatedNews, NEWS_KEY, recordNewsView } from '../api'
+import { fetchContestForTags, REACTIONS_KEY } from '@/features/reactions/api'
+import { ReactionBar } from '@/features/reactions/ReactionBar'
+import { LetterCorners, LetterEmblem, LetterSignature } from './LetterFrame'
 import { CategoryList } from './NewsListPage'
 import { ShareButtons } from './ShareButtons'
 
@@ -160,6 +163,12 @@ export function NewsDetailPage() {
     queryFn: () => fetchPublicNewsBySlug(slug),
   })
   const isPublished = news?.status === 'published'
+  const tagSlugs = news?.tags.map((t) => t.slug) ?? []
+  const { data: contest } = useQuery({
+    queryKey: [...REACTIONS_KEY, 'contest', tagSlugs],
+    queryFn: () => fetchContestForTags(tagSlugs),
+    enabled: tagSlugs.length > 0,
+  })
   usePageTitle(news?.title)
   const toc = useMemo(() => buildToc(sanitizeHtml(news?.content ?? '')), [news?.content])
 
@@ -171,6 +180,7 @@ export function NewsDetailPage() {
   if (!news) return <NotFound />
   const authorName = news.author_name || news.author?.full_name
   const sourceUrl = safeExternalUrl(news.source_url)
+  const letter = news.display_style === 'letter'
 
   return (
     <WithSidebar
@@ -182,7 +192,22 @@ export function NewsDetailPage() {
       }
     >
       {!isPublished && <DraftPreviewNotice />}
-      <article className="rounded-xl bg-surface p-4 shadow-sm sm:p-6">
+      <article
+        className={
+          letter
+            ? 'letter-paper rounded-2xl px-5 py-10 sm:px-12 sm:py-14'
+            : 'rounded-xl bg-surface p-4 shadow-sm sm:p-6'
+        }
+      >
+        {letter && <LetterCorners />}
+        {letter && <LetterEmblem />}
+        {contest && (
+          <p className="mb-3 flex justify-center">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent-strong">
+              <Award className="h-3.5 w-3.5" aria-hidden /> Bài dự thi · {contest.title}
+            </span>
+          </p>
+        )}
         <PublicPageHeader
           title={news.title}
           crumbs={[
@@ -215,11 +240,15 @@ export function NewsDetailPage() {
         )}
         <ArticleToc headings={toc.headings} />
         <div className="rich-content" dangerouslySetInnerHTML={{ __html: toc.html }} />
-        {(authorName || news.source_name) && (
+        {letter && authorName && <LetterSignature name={authorName} schoolClass={news.author_class} />}
+        {((!letter && authorName) || news.source_name) && (
           <p className="mt-6 flex flex-wrap gap-x-5 gap-y-1 text-sm">
-            {authorName && (
+            {!letter && authorName && (
               <span className="flex items-center gap-1.5 font-semibold">
                 <UserRound className="h-4 w-4 text-muted" aria-hidden /> {authorName}
+                {news.author_class && (
+                  <span className="font-normal text-muted">· Lớp {news.author_class}</span>
+                )}
               </span>
             )}
             {news.source_name && (
@@ -255,6 +284,7 @@ export function NewsDetailPage() {
             ))}
           </div>
         )}
+        {isPublished && <ReactionBar newsId={news.id} votingEndsAt={contest?.vote_ends_at} />}
         {isPublished && <ShareButtons title={news.title} path={`/tin-tuc/${news.slug}`} />}
       </article>
       {isPublished && <NewsComments newsId={news.id} />}

@@ -103,6 +103,14 @@ Xây lại từ `school-news-platform` (bản demo trường THCS & THPT Vĩnh P
     - [x] Tên miền `thcs-thptvinhphong.edu.vn` (Tenten, A + CNAME, `www` chuyển 308 về địa chỉ chính), Site URL Supabase, SMTP Brevo với người gửi `no-reply@` tên miền trường (DKIM, DMARC), đăng nhập Google với Client ID thật: chạy thật (2026-11-04)
     - [x] Turnstile với khóa thật (widget Managed, hostname `.edu.vn` + `.vercel.app`, Secret key trong Supabase, nút Kiểm tra báo Đạt, đăng nhập, quên mật khẩu, điện thoại 4G): chạy thật (2026-11-04)
     - [ ] Thử khôi phục sao lưu sang project mới, VibeHost
+  - [ ] Bản 0.14.0 (schema 0.14.0), chưa phát hành:
+    - [x] Trang Liên hệ: điện thoại các bộ phận (nút Zalo), giờ làm việc, kênh khác, bản đồ (`pages.landing.contact`)
+    - [x] Cuộc thi viết: bảng `contests` (thẻ + hạn bình chọn), khối Chuyên đề "Bài dự thi" dạng lưới, kiểu trình bày "Thư tri ân"
+          (`news.display_style`), ô Lớp (`news.author_class`), bảng xếp hạng và tải CSV ở `/admin/cuoc-thi`
+    - [x] Cảm xúc dưới bài (`news_reactions`, module `reactions` tắt sẵn cho trường đang chạy): chỉ tài khoản đăng nhập, mỗi tài khoản
+          một lượt; CSDL khóa thêm/đổi/bỏ sau hạn bình chọn. Lượt chia sẻ không đếm. Nút Sao chép liên kết
+    - [ ] Đợt 2: bình luận kiểu Facebook (trả lời, thích bình luận), nút quản trị trên trang công khai, tác giả sửa bài đã đăng
+          (về Chờ duyệt; bài dự thi đã đăng không sửa được)
   - [ ] Đợt C: chỉnh hướng dẫn theo thực tế, phát hành gói, cài cho trường thứ hai trên Vercel (đã chạy: Vĩnh Hòa, fork riêng, tên miền .edu.vn) rồi cPanel
   - [x] Xóa tên trường khác khỏi ảnh `khuon-vien` (phủ biển trống) và `thu-vien` (cắt bỏ băng rôn) trong seed; thay ảnh thật khi có
   - [ ] Đợt D: nghiệm thu với người không chuyên, phát hành công khai 1.0.0

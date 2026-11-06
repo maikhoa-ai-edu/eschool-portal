@@ -11,6 +11,7 @@ import {
 } from '@/components/content/PublicPage'
 import { RichContent } from '@/components/content/RichContent'
 import { fetchPublicAlbum } from '@/features/albums/api'
+import { ContestGrid } from '@/features/contests/ContestGrid'
 import { documentTypeLabel } from '@/features/documents/api'
 import { resolveMediaUrl, responsiveImage } from '@/features/media/api'
 import { isExternalUrl } from '@/features/site/menu'
@@ -339,6 +340,17 @@ function SectionView({ section }: { section: TopicSection }) {
       return isModuleEnabled('albums') ? <AlbumBlock section={section} /> : null
     case 'video':
       return <VideoBlock section={section} />
+    case 'contest':
+      return isModuleEnabled('news') && section.contest_id ? (
+        <Block section={section}>
+          <ContestGrid
+            contestId={section.contest_id}
+            sort={section.sort}
+            limit={section.limit}
+            narrow={section.area === 'side'}
+          />
+        </Block>
+      ) : null
   }
 }
 

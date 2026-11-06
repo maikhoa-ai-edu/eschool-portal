@@ -130,8 +130,14 @@ test.describe('Chuyên đề', () => {
   })
 
   test('/chuyen-de có một chuyên đề thì vào thẳng', async ({ page }) => {
-    await page.goto('/chuyen-de')
-    await expect(page).toHaveURL(new RegExp(`${TOPIC_PATH}$`))
+    // Dữ liệu mẫu có thêm chuyên đề cuộc thi: tạm ẩn để chỉ còn một chuyên đề đã đăng
+    await sql(`update public.topics set status = 'draft' where slug = 'tri-an-thay-co'`)
+    try {
+      await page.goto('/chuyen-de')
+      await expect(page).toHaveURL(new RegExp(`${TOPIC_PATH}$`))
+    } finally {
+      await sql(`update public.topics set status = 'published' where slug = 'tri-an-thay-co'`)
+    }
   })
 
   test('tạo chuyên đề nháp: khách không thấy, đăng rồi thì thấy', async ({ page, browser }, info) => {

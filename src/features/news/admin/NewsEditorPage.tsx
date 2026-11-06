@@ -47,6 +47,8 @@ const schema = z.object({
   content: z.string(),
   category_id: z.string().min(1, 'Vui lòng chọn chuyên mục'),
   author_name: z.string().trim().max(150),
+  author_class: z.string().trim().max(50, 'Tối đa 50 ký tự'),
+  display_style: z.enum(['default', 'letter']),
   source_name: z.string().trim().max(200),
   source_url: z.union([
     z.literal(''),
@@ -103,6 +105,8 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
       content: news?.content ?? '',
       category_id: news?.category_id ?? categories.find((c) => c.is_active)?.id ?? '',
       author_name: news?.author_name ?? '',
+      author_class: news?.author_class ?? '',
+      display_style: news?.display_style === 'letter' ? 'letter' : 'default',
       source_name: news?.source_name ?? '',
       source_url: news?.source_url ?? '',
       tags: news?.tags.join(', ') ?? '',
@@ -158,6 +162,8 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
           thumbnail_url: values.thumbnail_url,
           category_id: values.category_id,
           author_name: values.author_name,
+          author_class: values.author_class,
+          display_style: values.display_style,
           source_name: values.source_name,
           source_url: values.source_url,
           tags: parseTags(values.tags),
@@ -393,6 +399,22 @@ function NewsForm({ news, categories }: { news: EditableNews | null; categories:
               hint="Hiện cuối bài. Để trống thì dùng tên tài khoản người viết."
               error={e.author_name?.message}
               {...form.register('author_name')}
+            />
+            <Field
+              label="Lớp"
+              placeholder="vd: 9A1"
+              hint="Dùng cho bài dự thi của học sinh: hiện cạnh tên tác giả."
+              error={e.author_class?.message}
+              {...form.register('author_class')}
+            />
+            <SelectField
+              label="Kiểu trình bày"
+              hint="Thư tri ân: nền giấy, khung viền và họa tiết, hợp với bài dự thi viết về thầy cô."
+              options={[
+                { value: 'default', label: 'Bình thường' },
+                { value: 'letter', label: 'Thư tri ân' },
+              ]}
+              {...form.register('display_style')}
             />
             <Field
               label="Nguồn bài viết"

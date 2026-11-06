@@ -178,7 +178,7 @@ export async function fetchNewsForEdit(id: string) {
   const { data, error } = await getSupabase()
     .from('news')
     .select(
-      'id, title, slug, excerpt, content, thumbnail_url, category_id, author_id, author_name, source_name, source_url, status, is_featured, show_on_slider, review_note, published_at, author:profiles!news_author_id_fkey(full_name), news_tag_map(news_tags(name))',
+      'id, title, slug, excerpt, content, thumbnail_url, category_id, author_id, author_name, author_class, display_style, source_name, source_url, status, is_featured, show_on_slider, review_note, published_at, author:profiles!news_author_id_fkey(full_name), news_tag_map(news_tags(name))',
     )
     .eq('id', id)
     .maybeSingle()
@@ -201,6 +201,8 @@ export interface NewsInput {
   thumbnail_url: string | null
   category_id: string
   author_name: string
+  author_class: string
+  display_style: 'default' | 'letter'
   source_name: string
   source_url: string
   tags: string[]
@@ -219,6 +221,7 @@ export async function saveNews(input: NewsInput, id?: string): Promise<string> {
     ...fields,
     excerpt: fields.excerpt.trim() || null,
     author_name: fields.author_name.trim() || null,
+    author_class: fields.author_class.trim() || null,
     source_name: fields.source_name.trim() || null,
     source_url: fields.source_url.trim() || null,
   }
@@ -330,7 +333,7 @@ export async function fetchPublicNewsBySlug(slug: string) {
   const { data, error } = await getSupabase()
     .from('news')
     .select(
-      'id, title, slug, excerpt, content, thumbnail_url, published_at, view_count, status, category_id, author_name, source_name, source_url, category:news_categories(name, slug), author:profiles!news_author_id_fkey(full_name), news_tag_map(news_tags(name, slug))',
+      'id, title, slug, excerpt, content, thumbnail_url, published_at, view_count, status, category_id, author_name, author_class, display_style, source_name, source_url, category:news_categories(name, slug), author:profiles!news_author_id_fkey(full_name), news_tag_map(news_tags(name, slug))',
     )
     .eq('slug', slug)
     .maybeSingle()

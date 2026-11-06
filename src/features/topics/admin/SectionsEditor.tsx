@@ -7,6 +7,7 @@ import { RichEditor } from '@/components/editor/RichEditor'
 import { Button } from '@/components/ui/Button'
 import { Field } from '@/components/ui/Field'
 import { SelectField, TextareaField } from '@/components/ui/FormControls'
+import { CONTESTS_KEY, fetchContestOptions } from '@/features/contests/api'
 import { fetchTagsWithUsage, NEWS_KEY } from '@/features/news/api'
 import { cn } from '@/lib/cn'
 import { fetchAlbumOptions, fetchDocumentOptions, TOPICS_KEY } from '../api'
@@ -90,6 +91,44 @@ function NewsFields({ section, onChange }: { section: SectionOf<'news'>; onChang
         value={section.limit}
         onChange={(e) =>
           onChange({ limit: Math.min(12, Math.max(1, Number(e.target.value) || 1)) } as Partial<TopicSection>)
+        }
+      />
+    </div>
+  )
+}
+
+function ContestFields({ section, onChange }: { section: SectionOf<'contest'>; onChange: Change }) {
+  const { data: contests = [] } = useQuery({
+    queryKey: [...CONTESTS_KEY, 'options'],
+    queryFn: fetchContestOptions,
+  })
+  return (
+    <div className="grid gap-3 sm:grid-cols-[1fr_180px_120px]">
+      <SelectField
+        label="Cuộc thi"
+        hint="Tạo cuộc thi và chọn thẻ ở mục Cuộc thi; bài dự thi đã đăng sẽ tự hiện ở đây."
+        placeholder="— Chọn cuộc thi —"
+        options={contests.map((c) => ({ value: c.id, label: c.title }))}
+        value={section.contest_id}
+        onChange={(e) => onChange({ contest_id: e.target.value } as Partial<TopicSection>)}
+      />
+      <SelectField
+        label="Sắp xếp"
+        options={[
+          { value: 'newest', label: 'Mới đăng trước' },
+          { value: 'top', label: 'Nhiều cảm xúc nhất' },
+        ]}
+        value={section.sort}
+        onChange={(e) => onChange({ sort: e.target.value } as Partial<TopicSection>)}
+      />
+      <Field
+        label="Số bài"
+        type="number"
+        min={1}
+        max={60}
+        value={section.limit}
+        onChange={(e) =>
+          onChange({ limit: Math.min(60, Math.max(1, Number(e.target.value) || 1)) } as Partial<TopicSection>)
         }
       />
     </div>
@@ -195,6 +234,8 @@ function SectionFields({ section, onChange }: { section: TopicSection; onChange:
       return <CardsFields section={section} onChange={onChange} />
     case 'news':
       return <NewsFields section={section} onChange={onChange} />
+    case 'contest':
+      return <ContestFields section={section} onChange={onChange} />
     case 'documents':
       return <DocumentsFields section={section} onChange={onChange} />
     case 'album':

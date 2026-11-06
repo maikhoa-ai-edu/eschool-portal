@@ -284,6 +284,41 @@ export type Database = {
           },
         ]
       }
+      contests: {
+        Row: {
+          created_at: string
+          id: string
+          tag_id: string
+          title: string
+          updated_at: string
+          vote_ends_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tag_id: string
+          title: string
+          updated_at?: string
+          vote_ends_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tag_id?: string
+          title?: string
+          updated_at?: string
+          vote_ends_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contests_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: true
+            referencedRelation: "news_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           created_at: string
@@ -616,11 +651,13 @@ export type Database = {
       }
       news: {
         Row: {
+          author_class: string | null
           author_id: string
           author_name: string | null
           category_id: string
           content: string
           created_at: string
+          display_style: string
           excerpt: string | null
           id: string
           is_featured: boolean
@@ -639,11 +676,13 @@ export type Database = {
           view_count: number
         }
         Insert: {
+          author_class?: string | null
           author_id: string
           author_name?: string | null
           category_id: string
           content?: string
           created_at?: string
+          display_style?: string
           excerpt?: string | null
           id?: string
           is_featured?: boolean
@@ -662,11 +701,13 @@ export type Database = {
           view_count?: number
         }
         Update: {
+          author_class?: string | null
           author_id?: string
           author_name?: string | null
           category_id?: string
           content?: string
           created_at?: string
+          display_style?: string
           excerpt?: string | null
           id?: string
           is_featured?: boolean
@@ -803,6 +844,42 @@ export type Database = {
           },
           {
             foreignKeyName: "news_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      news_reactions: {
+        Row: {
+          created_at: string
+          news_id: string
+          reaction: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          news_id: string
+          reaction: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          news_id?: string
+          reaction?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_reactions_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_reactions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -1389,6 +1466,22 @@ export type Database = {
         Returns: undefined
       }
       complete_install: { Args: never; Returns: undefined }
+      contest_entries: {
+        Args: { p_contest: string }
+        Returns: {
+          author_class: string
+          author_name: string
+          comment_count: number
+          excerpt: string
+          id: string
+          published_at: string
+          reactions: Json
+          slug: string
+          thumbnail_url: string
+          title: string
+          total_reactions: number
+        }[]
+      }
       create_staff_account: {
         Args: { p_email: string; p_full_name: string; p_role: string }
         Returns: Json
@@ -1422,17 +1515,27 @@ export type Database = {
           role: string
         }[]
       }
+      news_reaction_counts: {
+        Args: { p_news_ids: string[] }
+        Returns: {
+          news_id: string
+          reaction: string
+          total: number
+        }[]
+      }
       record_visit: { Args: never; Returns: undefined }
       reset_staff_password: { Args: { p_user_id: string }; Returns: Json }
       restore_backup: { Args: { p_backup: Json }; Returns: Json }
       search_news: {
         Args: { p_limit?: number; p_offset?: number; p_query: string }
         Returns: {
+          author_class: string | null
           author_id: string
           author_name: string | null
           category_id: string
           content: string
           created_at: string
+          display_style: string
           excerpt: string | null
           id: string
           is_featured: boolean

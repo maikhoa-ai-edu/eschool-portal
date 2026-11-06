@@ -25,6 +25,10 @@ export const MODULE_INFO: Record<string, { label: string; description: string }>
     label: 'Bình luận',
     description: 'Người đăng nhập bình luận dưới bài viết, có duyệt trước khi hiện.',
   },
+  reactions: {
+    label: 'Cảm xúc bài viết',
+    description: 'Người đăng nhập bấm Thích, Yêu thích, Tuyệt vời, Biết ơn dưới bài; mỗi tài khoản một lượt.',
+  },
   pages: { label: 'Trang thông tin', description: 'Giới thiệu, cơ cấu tổ chức, lịch sử nhà trường...' },
   topics: {
     label: 'Chuyên đề',
